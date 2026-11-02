@@ -1,0 +1,74 @@
+# Metadata for DOI registration according to DataCite Metadata Schema 4.1.
+# For detailed schema description see https://doi.org/10.5438/0014
+
+## Required fields
+
+# The main researchers involved. Include digital identifier (e.g., ORCID)
+# if possible, including the prefix to indicate its type.
+authors:
+  -
+    firstname: "Dimokratis"
+    lastname: "Karamanlis"
+    affiliation: "University Medical Center Göttingen"
+    id: "ORCID:0000-0002-9469-5020"
+  -
+    firstname: "Tim"
+    lastname: "Gollisch"
+    affiliation: "University Medical Center Göttingen"
+    id: "ORCID:0000-0003-3998-533X"
+
+# A title to describe the published resource.
+title: "Dataset - Mouse retinal ganglion cell responses to natural images and spatial-integration analysis"
+
+# Additional information about the resource, e.g., a brief abstract.
+description: |
+  Data sets accompanying Karamanlis and Gollisch, Journal of Neuroscience 2021: 
+  Nonlinear spatial integration underlies the diversity of retinal ganglion cell responses to natural images. 
+
+# Lit of keywords the resource should be associated with.
+# Give as many keywords as possible, to make the resource findable.
+keywords:
+  - Neuroscience
+  - Electrophysiology
+  - "Multielectrode Arrays"
+  - Retina
+  - "Ganglion Cells"
+  - "Spike trains"
+  - Mouse
+  - "Spatial integration"
+
+# License information for this resource. Please provide the license name and/or a link to the license.
+# Please add also a corresponding LICENSE file to the repository.
+license:
+  name: "Creative Commons Attribution-ShareAlike 4.0 International"
+  url: "https://creativecommons.org/licenses/by-sa/4.0/"
+
+
+
+## Optional Fields
+
+# Funding information for this resource.
+# Separate funder name and grant number by comma.
+funding:
+  - "DFG, 154113120"
+  - "DFG, 432680300"
+  - "EU, ERC.724822"
+  - "Boehringer Ingelheim Fonds"
+
+# Related publications. reftype might be: IsSupplementTo, IsDescribedBy, IsReferencedBy.
+# Please provide digital identifier (e.g., DOI) if possible.
+# Add a prefix to the ID, separated by a colon, to indicate the source.
+# Supported sources are: DOI, arXiv, PMID
+# In the citation field, please provide the full reference, including title, authors, journal etc.
+references:
+  -
+    id: "doi:10.1523/JNEUROSCI.3075-20.2021"
+    reftype: "IsSupplementTo"
+    citation: "Karamanlis D, Gollisch T (2021), Nonlinear spatial integration underlies the diversity of retinal ganglion cell responses to natural images, J Neurosci 41:3479-3498"
+
+
+# Resource type. Default is Dataset, other possible values are Software, DataPaper, Image, Text.
+resourcetype: Dataset
+
+# Do not edit or remove the following line
+templateversion: 1.2
