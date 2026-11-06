@@ -3,3 +3,4 @@ data/rar_full/
 .venv/
 __pycache__/
 *.pyc
+results/
