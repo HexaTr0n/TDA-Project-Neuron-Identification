@@ -1,0 +1,75 @@
+      embedding                             view  n_trials   acc  acc_lo  acc_hi   ami   auc  auc_lo  auc_hi
+rate sigma=5 ms          van Rossum, no topology      1645 0.495   0.403   0.576 0.073 0.810   0.782   0.838
+rate sigma=5 ms           stable rank, time lost      1645 0.385   0.303   0.425 0.448 0.881   0.858   0.902
+rate sigma=5 ms                peak matching q=3      1645 0.501   0.396   0.540 0.154 0.876   0.856   0.895
+rate sigma=5 ms  peak matching q=3+0.5 histogram      1645 0.695   0.589   0.728 0.361 0.917   0.898   0.935
+rate sigma=5 ms               peak matching q=10      1645 0.661   0.562   0.701 0.141 0.882   0.861   0.900
+rate sigma=5 ms peak matching q=10+0.5 histogram      1645 0.796   0.693   0.820 0.397 0.932   0.914   0.948
+rate sigma=5 ms               peak matching q=30      1645 0.488   0.398   0.571 0.066 0.819   0.788   0.848
+rate sigma=5 ms peak matching q=30+0.5 histogram      1645 0.852   0.751   0.868 0.331 0.940   0.923   0.955
+               embedding                    view  n_trials   acc  acc_lo  acc_hi   ami   auc  auc_lo  auc_hi
+rate sigma=5 ms shuffled van Rossum, no topology      1645 0.021   0.016   0.061 0.014 0.553   0.486   0.622
+rate sigma=5 ms shuffled  stable rank, time lost      1645 0.360   0.281   0.388 0.437 0.877   0.854   0.898
+rate sigma=5 ms shuffled       peak matching q=3      1645 0.084   0.061   0.124 0.057 0.793   0.769   0.817
+rate sigma=5 ms shuffled      peak matching q=10      1645 0.047   0.030   0.075 0.058 0.697   0.659   0.735
+rate sigma=5 ms shuffled      peak matching q=30      1645 0.022   0.011   0.051 0.009 0.563   0.498   0.629
+       embedding                             view  n_trials   acc  acc_lo  acc_hi   ami   auc  auc_lo  auc_hi
+rate sigma=10 ms          van Rossum, no topology      1645 0.697   0.595   0.746 0.162 0.870   0.850   0.889
+rate sigma=10 ms           stable rank, time lost      1645 0.357   0.292   0.407 0.454 0.887   0.865   0.907
+rate sigma=10 ms                peak matching q=3      1645 0.603   0.492   0.644 0.172 0.882   0.862   0.901
+rate sigma=10 ms  peak matching q=3+0.5 histogram      1645 0.709   0.597   0.743 0.391 0.922   0.904   0.939
+rate sigma=10 ms               peak matching q=10      1645 0.698   0.592   0.741 0.108 0.885   0.865   0.904
+rate sigma=10 ms peak matching q=10+0.5 histogram      1645 0.807   0.699   0.828 0.345 0.936   0.918   0.951
+rate sigma=10 ms               peak matching q=30      1645 0.522   0.426   0.604 0.054 0.821   0.784   0.852
+rate sigma=10 ms peak matching q=30+0.5 histogram      1645 0.849   0.750   0.865 0.357 0.943   0.926   0.957
+                embedding                    view  n_trials   acc  acc_lo  acc_hi   ami   auc  auc_lo  auc_hi
+rate sigma=10 ms shuffled van Rossum, no topology      1645 0.032   0.016   0.071 0.022 0.594   0.535   0.649
+rate sigma=10 ms shuffled  stable rank, time lost      1645 0.302   0.238   0.333 0.431 0.880   0.859   0.900
+rate sigma=10 ms shuffled       peak matching q=3      1645 0.076   0.056   0.110 0.052 0.775   0.750   0.799
+rate sigma=10 ms shuffled      peak matching q=10      1645 0.030   0.019   0.061 0.016 0.656   0.610   0.700
+rate sigma=10 ms shuffled      peak matching q=30      1645 0.016   0.008   0.032 0.009 0.551   0.481   0.623
+       embedding                             view  n_trials   acc  acc_lo  acc_hi   ami   auc  auc_lo  auc_hi
+rate sigma=20 ms          van Rossum, no topology      1645 0.798   0.691   0.823 0.217 0.896   0.879   0.913
+rate sigma=20 ms           stable rank, time lost      1645 0.283   0.223   0.316 0.399 0.870   0.851   0.890
+rate sigma=20 ms                peak matching q=3      1645 0.651   0.537   0.688 0.213 0.876   0.856   0.894
+rate sigma=20 ms  peak matching q=3+0.5 histogram      1645 0.740   0.629   0.770 0.375 0.924   0.906   0.940
+rate sigma=20 ms               peak matching q=10      1645 0.703   0.590   0.747 0.214 0.875   0.852   0.896
+rate sigma=20 ms peak matching q=10+0.5 histogram      1645 0.826   0.720   0.848 0.402 0.937   0.921   0.952
+rate sigma=20 ms               peak matching q=30      1645 0.478   0.383   0.564 0.060 0.807   0.770   0.839
+rate sigma=20 ms peak matching q=30+0.5 histogram      1645 0.860   0.759   0.877 0.319 0.943   0.927   0.957
+                embedding                    view  n_trials   acc  acc_lo  acc_hi   ami   auc  auc_lo  auc_hi
+rate sigma=20 ms shuffled van Rossum, no topology      1645 0.045   0.022   0.078 0.040 0.661   0.609   0.708
+rate sigma=20 ms shuffled  stable rank, time lost      1645 0.200   0.159   0.224 0.371 0.866   0.847   0.884
+rate sigma=20 ms shuffled       peak matching q=3      1645 0.046   0.033   0.062 0.026 0.715   0.682   0.747
+rate sigma=20 ms shuffled      peak matching q=10      1645 0.022   0.015   0.051 0.009 0.578   0.514   0.641
+rate sigma=20 ms shuffled      peak matching q=30      1645 0.018   0.011   0.040 0.007 0.543   0.473   0.616
+       embedding                             view  n_trials   acc  acc_lo  acc_hi   ami   auc  auc_lo  auc_hi
+rate sigma=50 ms          van Rossum, no topology      1645 0.742   0.639   0.766 0.318 0.897   0.879   0.914
+rate sigma=50 ms           stable rank, time lost      1645 0.184   0.138   0.218 0.319 0.842   0.823   0.860
+rate sigma=50 ms                peak matching q=3      1645 0.559   0.455   0.609 0.186 0.827   0.798   0.851
+rate sigma=50 ms  peak matching q=3+0.5 histogram      1645 0.726   0.620   0.752 0.404 0.920   0.904   0.935
+rate sigma=50 ms               peak matching q=10      1645 0.539   0.435   0.598 0.136 0.804   0.768   0.836
+rate sigma=50 ms peak matching q=10+0.5 histogram      1645 0.812   0.714   0.825 0.377 0.933   0.918   0.947
+rate sigma=50 ms               peak matching q=30      1645 0.290   0.219   0.375 0.050 0.750   0.704   0.791
+rate sigma=50 ms peak matching q=30+0.5 histogram      1645 0.826   0.719   0.840 0.291 0.933   0.919   0.947
+                embedding                    view  n_trials   acc  acc_lo  acc_hi   ami   auc  auc_lo  auc_hi
+rate sigma=50 ms shuffled van Rossum, no topology      1645 0.080   0.049   0.118 0.145 0.754   0.722   0.787
+rate sigma=50 ms shuffled  stable rank, time lost      1645 0.111   0.084   0.127 0.266 0.828   0.812   0.845
+rate sigma=50 ms shuffled       peak matching q=3      1645 0.032   0.025   0.050 0.010 0.599   0.544   0.654
+rate sigma=50 ms shuffled      peak matching q=10      1645 0.017   0.010   0.049 0.006 0.548   0.478   0.618
+rate sigma=50 ms shuffled      peak matching q=30      1645 0.013   0.006   0.030 0.005 0.540   0.468   0.612
+        embedding                             view  n_trials   acc  acc_lo  acc_hi   ami   auc  auc_lo  auc_hi
+rate sigma=100 ms          van Rossum, no topology      1645 0.529   0.420   0.568 0.344 0.877   0.858   0.896
+rate sigma=100 ms           stable rank, time lost      1645 0.123   0.085   0.143 0.255 0.807   0.789   0.825
+rate sigma=100 ms                peak matching q=3      1645 0.318   0.244   0.358 0.063 0.741   0.701   0.777
+rate sigma=100 ms  peak matching q=3+0.5 histogram      1645 0.616   0.520   0.652 0.322 0.900   0.885   0.915
+rate sigma=100 ms               peak matching q=10      1645 0.264   0.200   0.313 0.049 0.724   0.678   0.767
+rate sigma=100 ms peak matching q=10+0.5 histogram      1645 0.677   0.575   0.706 0.276 0.911   0.896   0.926
+rate sigma=100 ms               peak matching q=30      1645 0.124   0.088   0.188 0.024 0.667   0.611   0.721
+rate sigma=100 ms peak matching q=30+0.5 histogram      1645 0.661   0.564   0.686 0.172 0.898   0.878   0.915
+                 embedding                    view  n_trials   acc  acc_lo  acc_hi   ami   auc  auc_lo  auc_hi
+rate sigma=100 ms shuffled van Rossum, no topology      1645 0.097   0.064   0.134 0.183 0.797   0.772   0.821
+rate sigma=100 ms shuffled  stable rank, time lost      1645 0.066   0.049   0.085 0.232 0.796   0.779   0.814
+rate sigma=100 ms shuffled       peak matching q=3      1645 0.033   0.025   0.051 0.010 0.565   0.503   0.627
+rate sigma=100 ms shuffled      peak matching q=10      1645 0.018   0.008   0.040 0.004 0.544   0.475   0.612
+rate sigma=100 ms shuffled      peak matching q=30      1645 0.016   0.009   0.040 0.004 0.538   0.467   0.608

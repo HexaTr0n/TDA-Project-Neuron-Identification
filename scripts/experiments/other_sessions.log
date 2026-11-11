@@ -1,0 +1,96 @@
+
+20171215_sr_le_sp seed 0: 60 neurons, 1056 trials; 38 neurons in the half-trial test
+                                          nn  medoids  means  cross_nn  cross_cluster
+time bars 67 ms                        0.900    0.590  0.666     0.042          0.037
+square-root time bars 67 ms            0.878    0.521  0.724     0.045          0.038
+multi-scale, square root               0.890    0.578  0.705     0.057          0.061
+ISI fractions                          0.337    0.299  0.298     0.321          0.195
+square-root time bars + ISI fractions  0.909    0.587  0.625     0.204          0.176
+
+20180116_sr_le_fp seed 0: 60 neurons, 1422 trials; 50 neurons in the half-trial test
+                                          nn  medoids  means  cross_nn  cross_cluster
+time bars 67 ms                        0.857    0.435  0.652     0.035          0.030
+square-root time bars 67 ms            0.855    0.534  0.684     0.058          0.068
+multi-scale, square root               0.878    0.510  0.688     0.064          0.070
+ISI fractions                          0.399    0.318  0.319     0.337          0.229
+square-root time bars + ISI fractions  0.891    0.571  0.559     0.153          0.156
+
+20180126_sr_le_sp seed 0: 60 neurons, 1645 trials; 58 neurons in the half-trial test
+                                          nn  medoids  means  cross_nn  cross_cluster
+time bars 67 ms                        0.756    0.379  0.569     0.048          0.072
+square-root time bars 67 ms            0.850    0.495  0.668     0.074          0.060
+multi-scale, square root               0.881    0.566  0.658     0.082          0.067
+ISI fractions                          0.540    0.381  0.415     0.415          0.269
+square-root time bars + ISI fractions  0.906    0.655  0.663     0.243          0.203
+
+20180222_fr_re seed 0: 60 neurons, 1514 trials; 57 neurons in the half-trial test
+                                          nn  medoids  means  cross_nn  cross_cluster
+time bars 67 ms                        0.467    0.199  0.323     0.041          0.042
+square-root time bars 67 ms            0.503    0.258  0.406     0.046          0.047
+multi-scale, square root               0.561    0.279  0.401     0.055          0.050
+ISI fractions                          0.385    0.283  0.298     0.325          0.226
+square-root time bars + ISI fractions  0.726    0.359  0.398     0.212          0.165
+
+20180222_sr_le_sp seed 0: 53 neurons, 1427 trials; 49 neurons in the half-trial test
+                                          nn  medoids  means  cross_nn  cross_cluster
+time bars 67 ms                        0.692    0.332  0.399     0.028          0.050
+square-root time bars 67 ms            0.730    0.327  0.581     0.044          0.053
+multi-scale, square root               0.762    0.390  0.537     0.051          0.035
+ISI fractions                          0.367    0.274  0.297     0.276          0.207
+square-root time bars + ISI fractions  0.810    0.435  0.470     0.187          0.139
+
+20180316_sr_le_fp seed 0: 38 neurons, 262 trials; 30 neurons in the half-trial test
+                                          nn  medoids  means  cross_nn  cross_cluster
+time bars 67 ms                        0.538    0.275  0.282     0.035          0.053
+square-root time bars 67 ms            0.569    0.317  0.366     0.045          0.043
+multi-scale, square root               0.573    0.294  0.328     0.045          0.086
+ISI fractions                          0.191    0.260  0.252     0.210          0.154
+square-root time bars + ISI fractions  0.576    0.340  0.290     0.134          0.129
+
+20180316_sr_le_sp seed 0: 60 neurons, 1422 trials; 52 neurons in the half-trial test
+                                          nn  medoids  means  cross_nn  cross_cluster
+time bars 67 ms                        0.435    0.168  0.354     0.032          0.037
+square-root time bars 67 ms            0.517    0.269  0.432     0.056          0.049
+multi-scale, square root               0.541    0.280  0.397     0.059          0.039
+ISI fractions                          0.231    0.229  0.241     0.200          0.150
+square-root time bars + ISI fractions  0.692    0.349  0.395     0.137          0.090
+
+20180405_fr_re seed 0: 57 neurons, 1437 trials; 54 neurons in the half-trial test
+                                          nn  medoids  means  cross_nn  cross_cluster
+time bars 67 ms                        0.468    0.273  0.305     0.039          0.049
+square-root time bars 67 ms            0.527    0.334  0.356     0.057          0.075
+multi-scale, square root               0.564    0.332  0.405     0.061          0.079
+ISI fractions                          0.331    0.271  0.283     0.270          0.202
+square-root time bars + ISI fractions  0.648    0.395  0.374     0.160          0.139
+
+20180405_sr_le seed 0: 60 neurons, 1605 trials; 55 neurons in the half-trial test
+                                          nn  medoids  means  cross_nn  cross_cluster
+time bars 67 ms                        0.447    0.229  0.366     0.038          0.039
+square-root time bars 67 ms            0.538    0.303  0.378     0.052          0.056
+multi-scale, square root               0.564    0.290  0.399     0.059          0.048
+ISI fractions                          0.340    0.298  0.292     0.310          0.219
+square-root time bars + ISI fractions  0.668    0.431  0.421     0.180          0.118
+
+20180126_sr_le_sp seed 1: 60 neurons, 1698 trials; 59 neurons in the half-trial test
+                                          nn  medoids  means  cross_nn  cross_cluster
+time bars 67 ms                        0.751    0.349  0.642     0.035          0.052
+square-root time bars 67 ms            0.849    0.519  0.694     0.052          0.076
+multi-scale, square root               0.884    0.568  0.694     0.059          0.071
+ISI fractions                          0.499    0.364  0.390     0.362          0.285
+square-root time bars + ISI fractions  0.918    0.548  0.601     0.224          0.187
+
+20180126_sr_le_sp seed 2: 60 neurons, 1729 trials; 59 neurons in the half-trial test
+                                          nn  medoids  means  cross_nn  cross_cluster
+time bars 67 ms                        0.759    0.372  0.594     0.038          0.049
+square-root time bars 67 ms            0.862    0.557  0.702     0.062          0.062
+multi-scale, square root               0.889    0.525  0.761     0.072          0.079
+ISI fractions                          0.519    0.368  0.405     0.373          0.282
+square-root time bars + ISI fractions  0.910    0.647  0.659     0.236          0.172
+
+20180126_sr_le_sp seed 0, first 5 trials dropped: 60 neurons, 1426 trials; 59 neurons in the half-trial test
+                                          nn  medoids  means  cross_nn  cross_cluster
+time bars 67 ms                        0.750    0.358  0.620     0.036          0.044
+square-root time bars 67 ms            0.867    0.504  0.695     0.054          0.067
+multi-scale, square root               0.905    0.529  0.705     0.065          0.069
+ISI fractions                          0.530    0.384  0.409     0.381          0.257
+square-root time bars + ISI fractions  0.919    0.598  0.623     0.219          0.201

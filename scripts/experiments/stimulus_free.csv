@@ -1,0 +1,15 @@
+,full_1nn,full_cluster,same_1nn,cross_1nn,cross_cluster
+ref: spike count,0.114,0.181,0.102,0.093,0.105
+ref: log ISI bars,0.452,0.254,0.358,0.336,0.18
+"log ISI bars, as fractions",0.539,0.354,0.432,0.415,0.299
+"log ISI bars, ISI / mean ISI, fractions",0.426,0.302,0.32,0.292,0.199
+1. rescaled-time ISI bars,0.422,0.25,0.322,0.315,0.182
+"1. rescaled-time ISI bars, as fractions",0.512,0.353,0.387,0.365,0.258
+2. burst table,0.518,0.336,0.412,0.379,0.251
+"2. burst table, as fractions",0.547,0.388,0.44,0.407,0.295
+"2. burst table, as fractions, ISIs shuffled",0.489,0.368,0.389,0.37,0.277
+3. autocorrelogram curve (no topology),0.301,0.186,0.263,0.145,0.112
+"3. autocorrelogram bars, lags dropped",0.254,0.218,0.226,0.186,0.159
+3. autocorrelogram peaks matched in lag,0.233,0.184,0.224,0.176,0.115
+"1 + 2 + 3 (fractions, bars)",0.529,0.36,0.416,0.386,0.285
+fractions + burst table fractions,0.551,0.365,0.449,0.424,0.303

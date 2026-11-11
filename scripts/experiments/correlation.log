@@ -1,0 +1,31 @@
+real exact done
+ exact vs binned correlation of entries, sigma 0.002 0.99
+ exact vs binned correlation of entries, sigma 0.005 0.9986
+ exact vs binned correlation of entries, sigma 0.02 0.999
+ exact vs binned correlation of entries, sigma 0.05 0.99
+ exact vs binned correlation of entries, sigma 0.2 0.1178
+                       embedding         view  n_trials   acc  acc_lo  acc_hi   ami   auc  auc_lo  auc_hi
+    partner profile, exact, real   sigma=2 ms      1645 0.471   0.376   0.500 0.413 0.866   0.852   0.878
+    partner profile, exact, real   sigma=5 ms      1645 0.605   0.505   0.624 0.547 0.892   0.877   0.904
+    partner profile, exact, real  sigma=20 ms      1645 0.609   0.502   0.646 0.481 0.864   0.839   0.884
+    partner profile, exact, real  sigma=50 ms      1645 0.281   0.198   0.318 0.147 0.738   0.708   0.764
+    partner profile, exact, real sigma=200 ms      1645 0.001   0.000   0.003 0.028 0.409   0.368   0.454
+partner profile, 2 ms bins, real   sigma=2 ms      1645 0.460   0.377   0.492 0.391 0.865   0.851   0.877
+partner profile, 2 ms bins, real   sigma=5 ms      1645 0.601   0.496   0.622 0.512 0.892   0.877   0.904
+partner profile, 2 ms bins, real  sigma=20 ms      1645 0.608   0.499   0.644 0.501 0.864   0.839   0.884
+partner profile, 2 ms bins, real  sigma=50 ms      1645 0.280   0.197   0.317 0.093 0.741   0.710   0.768
+partner profile, 2 ms bins, real sigma=200 ms      1645 0.003   0.000   0.007 0.033 0.558   0.540   0.576
+target ISIs shuffled exact done
+                                   embedding         view  n_trials   acc  acc_lo  acc_hi    ami   auc  auc_lo  auc_hi
+partner profile, exact, target ISIs shuffled   sigma=2 ms      1645 0.013   0.007   0.019  0.001 0.504   0.474   0.536
+partner profile, exact, target ISIs shuffled   sigma=5 ms      1645 0.011   0.005   0.017 -0.000 0.497   0.476   0.522
+partner profile, exact, target ISIs shuffled  sigma=20 ms      1645 0.012   0.006   0.017 -0.002 0.491   0.483   0.500
+partner profile, exact, target ISIs shuffled  sigma=50 ms      1645 0.009   0.005   0.012 -0.000 0.481   0.472   0.491
+partner profile, exact, target ISIs shuffled sigma=200 ms      1645 0.003   0.000   0.008  0.014 0.358   0.304   0.416
+partners from next trial exact done
+                                       embedding         view  n_trials   acc  acc_lo  acc_hi   ami   auc  auc_lo  auc_hi
+partner profile, exact, partners from next trial   sigma=2 ms      1645 0.216   0.172   0.241 0.177 0.774   0.762   0.786
+partner profile, exact, partners from next trial   sigma=5 ms      1645 0.362   0.291   0.389 0.285 0.816   0.799   0.831
+partner profile, exact, partners from next trial  sigma=20 ms      1645 0.468   0.360   0.501 0.261 0.808   0.778   0.834
+partner profile, exact, partners from next trial  sigma=50 ms      1645 0.219   0.150   0.258 0.097 0.712   0.684   0.739
+partner profile, exact, partners from next trial sigma=200 ms      1645 0.009   0.003   0.013 0.032 0.419   0.377   0.465

@@ -1,0 +1,88 @@
+ref: spike count {'n': 1645, 'full_1nn': np.float64(0.11428571428571428), 'full_cluster': 0.18115501519756838}
+ref: ISI bars, log {'n': 1645, 'full_1nn': np.float64(0.46322188449848023), 'full_cluster': 0.30030395136778115}
+ref: time bars s=67 ms {'n': 1645, 'full_1nn': np.float64(0.7562310030395136), 'full_cluster': 0.37933130699088147}
+ref: time bars + log ISI bars {'n': 1645, 'full_1nn': np.float64(0.8930091185410335), 'full_cluster': 0.4182370820668693}
+delay m=3: position {'n': 1645, 'full_1nn': np.float64(0.11428571428571428), 'full_cluster': 0.17933130699088146}
+delay m=3: whole cloud {'n': 1645, 'full_1nn': np.float64(0.4978723404255319), 'full_cluster': 0.34224924012158053}
+delay m=3: H0 {'n': 1645, 'full_1nn': np.float64(0.2012158054711246), 'full_cluster': 0.21519756838905776}
+delay m=3: H0+H1 {'n': 1645, 'full_1nn': np.float64(0.20243161094224923), 'full_cluster': 0.20972644376899696}
+pdf per spike: position {'n': 1645, 'full_1nn': np.float64(0.5045592705167173), 'full_cluster': 0.40911854103343465}
+pdf per spike: whole cloud {'n': 1645, 'full_1nn': np.float64(0.5167173252279635), 'full_cluster': 0.3738601823708207}
+pdf per spike: H0 {'n': 1645, 'full_1nn': np.float64(0.15319148936170213), 'full_cluster': 0.16170212765957448}
+pdf per spike: H0+H1 {'n': 1645, 'full_1nn': np.float64(0.1458966565349544), 'full_cluster': 0.14893617021276595}
+fitted lognormal: position {'n': 1645, 'full_1nn': np.float64(0.2486322188449848), 'full_cluster': 0.31550151975683893}
+fitted lognormal: whole cloud {'n': 1645, 'full_1nn': np.float64(0.3519756838905775), 'full_cluster': 0.3221884498480243}
+fitted lognormal: H0 {'n': 1645, 'full_1nn': np.float64(0.04012158054711246), 'full_cluster': 0.11367781155015197}
+fitted lognormal: H0+H1 {'n': 1645, 'full_1nn': np.float64(0.030395136778115502), 'full_cluster': 0.10212765957446808}
+fitted gamma: position {'n': 1645, 'full_1nn': np.float64(0.270516717325228), 'full_cluster': 0.3161094224924012}
+fitted gamma: whole cloud {'n': 1645, 'full_1nn': np.float64(0.37264437689969604), 'full_cluster': 0.3331306990881459}
+fitted gamma: H0 {'n': 1645, 'full_1nn': np.float64(0.043161094224924014), 'full_cluster': 0.1148936170212766}
+fitted gamma: H0+H1 {'n': 1645, 'full_1nn': np.float64(0.03525835866261398), 'full_cluster': 0.10151975683890578}
+spectrum windows: position {'n': 1645, 'full_1nn': np.float64(0.17811550151975683), 'full_cluster': 0.16656534954407295}
+spectrum windows: whole cloud {'n': 1645, 'full_1nn': np.float64(0.15623100303951368), 'full_cluster': 0.15866261398176293}
+spectrum windows: H0 {'n': 1645, 'full_1nn': np.float64(0.0182370820668693), 'full_cluster': 0.08571428571428572}
+spectrum windows: H0+H1 {'n': 1645, 'full_1nn': np.float64(0.02857142857142857), 'full_cluster': 0.08875379939209727}
+spectrogram, aligned to the movie {'n': 1645, 'full_1nn': np.float64(0.41033434650455924), 'full_cluster': 0.2358662613981763}
+rate peaks, time removed (stable rank) {'n': 1645, 'full_1nn': np.float64(0.28085106382978725), 'full_cluster': 0.286322188449848}
+cross-correlograms with partners {'n': 1645, 'full_1nn': np.float64(0.4310030395136778), 'full_cluster': 0.2547112462006079}
+correlation with partners, 20 ms {'n': 1645, 'full_1nn': np.float64(0.5732522796352584), 'full_cluster': 0.3993920972644377}
+partners + log ISI bars {'n': 1645, 'full_1nn': np.float64(0.780547112462006), 'full_cluster': 0.478419452887538}
+ref: spike count {'n_half': 3110, 'same_1nn': np.float64(0.10353697749196142), 'cross_1nn': np.float64(0.09389067524115756), 'both_halves_cluster': 0.14533762057877814, 'cross_cluster': 0.10578778135048231}
+ref: ISI bars, log {'n_half': 3110, 'same_1nn': np.float64(0.3787781350482315), 'cross_1nn': np.float64(0.3559485530546624), 'both_halves_cluster': 0.24790996784565916, 'cross_cluster': 0.21864951768488744}
+ref: time bars s=67 ms {'n_half': 3110, 'same_1nn': np.float64(0.48938906752411576), 'cross_1nn': np.float64(0.04855305466237942), 'both_halves_cluster': 0.26495176848874596, 'cross_cluster': 0.043086816720257236}
+ref: time bars + log ISI bars {'n_half': 3110, 'same_1nn': np.float64(0.5524115755627009), 'cross_1nn': np.float64(0.13633440514469453), 'both_halves_cluster': 0.3045016077170418, 'cross_cluster': 0.12154340836012861}
+delay m=3: position {'n_half': 3110, 'same_1nn': np.float64(0.10289389067524116), 'cross_1nn': np.float64(0.09356913183279743), 'both_halves_cluster': 0.15337620578778136, 'cross_cluster': 0.10803858520900322}
+delay m=3: whole cloud {'n_half': 3110, 'same_1nn': np.float64(0.3951768488745981), 'cross_1nn': np.float64(0.3581993569131833), 'both_halves_cluster': 0.3035369774919614, 'cross_cluster': 0.2536977491961415}
+delay m=3: H0 {'n_half': 3110, 'same_1nn': np.float64(0.15016077170418007), 'cross_1nn': np.float64(0.142443729903537), 'both_halves_cluster': 0.17138263665594855, 'cross_cluster': 0.1347266881028939}
+delay m=3: H0+H1 {'n_half': 3110, 'same_1nn': np.float64(0.1414790996784566), 'cross_1nn': np.float64(0.13504823151125403), 'both_halves_cluster': 0.15562700964630224, 'cross_cluster': 0.12443729903536976}
+pdf per spike: position {'n_half': 3110, 'same_1nn': np.float64(0.4022508038585209), 'cross_1nn': np.float64(0.40160771704180065), 'both_halves_cluster': 0.3170418006430868, 'cross_cluster': 0.2990353697749196}
+pdf per spike: whole cloud {'n_half': 3110, 'same_1nn': np.float64(0.39581993569131835), 'cross_1nn': np.float64(0.3861736334405145), 'both_halves_cluster': 0.32893890675241155, 'cross_cluster': 0.3012861736334405}
+pdf per spike: H0 {'n_half': 3110, 'same_1nn': np.float64(0.12604501607717042), 'cross_1nn': np.float64(0.11768488745980707), 'both_halves_cluster': 0.13183279742765272, 'cross_cluster': 0.09614147909967846}
+pdf per spike: H0+H1 {'n_half': 3110, 'same_1nn': np.float64(0.12347266881028938), 'cross_1nn': np.float64(0.09742765273311897), 'both_halves_cluster': 0.1282958199356913, 'cross_cluster': 0.0842443729903537}
+fitted lognormal: position {'n_half': 3110, 'same_1nn': np.float64(0.20064308681672025), 'cross_1nn': np.float64(0.19742765273311896), 'both_halves_cluster': 0.2562700964630225, 'cross_cluster': 0.20482315112540192}
+fitted lognormal: whole cloud {'n_half': 3110, 'same_1nn': np.float64(0.2604501607717042), 'cross_1nn': np.float64(0.21318327974276527), 'both_halves_cluster': 0.2562700964630225, 'cross_cluster': 0.21382636655948553}
+fitted lognormal: H0 {'n_half': 3110, 'same_1nn': np.float64(0.03247588424437299), 'cross_1nn': np.float64(0.03729903536977492), 'both_halves_cluster': 0.08745980707395498, 'cross_cluster': 0.033118971061093246}
+fitted lognormal: H0+H1 {'n_half': 3110, 'same_1nn': np.float64(0.03440514469453376), 'cross_1nn': np.float64(0.03504823151125402), 'both_halves_cluster': 0.07813504823151125, 'cross_cluster': 0.037620578778135044}
+fitted gamma: position {'n_half': 3110, 'same_1nn': np.float64(0.20707395498392284), 'cross_1nn': np.float64(0.2077170418006431), 'both_halves_cluster': 0.26012861736334403, 'cross_cluster': 0.222508038585209}
+fitted gamma: whole cloud {'n_half': 3110, 'same_1nn': np.float64(0.2819935691318328), 'cross_1nn': np.float64(0.25916398713826366), 'both_halves_cluster': 0.2819935691318328, 'cross_cluster': 0.24115755627009644}
+fitted gamma: H0 {'n_half': 3110, 'same_1nn': np.float64(0.054019292604501605), 'cross_1nn': np.float64(0.03954983922829582), 'both_halves_cluster': 0.09421221864951769, 'cross_cluster': 0.04019292604501608}
+fitted gamma: H0+H1 {'n_half': 3110, 'same_1nn': np.float64(0.04469453376205788), 'cross_1nn': np.float64(0.03858520900321544), 'both_halves_cluster': 0.08745980707395498, 'cross_cluster': 0.04983922829581994}
+spectrum windows: position {'n_half': 3110, 'same_1nn': np.float64(0.17749196141479098), 'cross_1nn': np.float64(0.05305466237942122), 'both_halves_cluster': 0.12411575562700965, 'cross_cluster': 0.047588424437299034}
+spectrum windows: whole cloud {'n_half': 3110, 'same_1nn': np.float64(0.16430868167202572), 'cross_1nn': np.float64(0.060771704180064307), 'both_halves_cluster': 0.11961414790996784, 'cross_cluster': 0.05112540192926045}
+spectrum windows: H0 {'n_half': 3110, 'same_1nn': np.float64(0.026366559485530548), 'cross_1nn': np.float64(0.021543408360128618), 'both_halves_cluster': 0.07652733118971061, 'cross_cluster': 0.02797427652733119}
+spectrum windows: H0+H1 {'n_half': 3110, 'same_1nn': np.float64(0.027009646302250803), 'cross_1nn': np.float64(0.026045016077170417), 'both_halves_cluster': 0.07491961414790997, 'cross_cluster': 0.024115755627009645}
+spectrogram, aligned to the movie {'n_half': 3110, 'same_1nn': np.float64(0.3057877813504823), 'cross_1nn': np.float64(0.03922829581993569), 'both_halves_cluster': 0.15916398713826366, 'cross_cluster': 0.04212218649517685}
+rate peaks, time removed (stable rank) {'n_half': 3110, 'same_1nn': np.float64(0.21157556270096464), 'cross_1nn': np.float64(0.16237942122186494), 'both_halves_cluster': 0.21028938906752412, 'cross_cluster': 0.16398713826366562}
+cross-correlograms with partners {'n_half': 3110, 'same_1nn': np.float64(0.442443729903537), 'cross_1nn': np.float64(0.030868167202572346), 'both_halves_cluster': 0.20160771704180064, 'cross_cluster': 0.028295819935691316}
+correlation with partners, 20 ms {'n_half': 3110, 'same_1nn': np.float64(0.4170418006430868), 'cross_1nn': np.float64(0.059163987138263666), 'both_halves_cluster': 0.23279742765273312, 'cross_cluster': 0.03472668810289389}
+partners + log ISI bars {'n_half': 3110, 'same_1nn': np.float64(0.5745980707395498), 'cross_1nn': np.float64(0.3106109324758842), 'both_halves_cluster': 0.3971061093247588, 'cross_cluster': 0.22797427652733118}
+                                             n  full_1nn  full_cluster  n_half  same_1nn  cross_1nn  both_halves_cluster  cross_cluster
+ref: spike count                        1645.0     0.114         0.181  3110.0     0.104      0.094                0.145          0.106
+ref: ISI bars, log                      1645.0     0.463         0.300  3110.0     0.379      0.356                0.248          0.219
+ref: time bars s=67 ms                  1645.0     0.756         0.379  3110.0     0.489      0.049                0.265          0.043
+ref: time bars + log ISI bars           1645.0     0.893         0.418  3110.0     0.552      0.136                0.305          0.122
+delay m=3: position                     1645.0     0.114         0.179  3110.0     0.103      0.094                0.153          0.108
+delay m=3: whole cloud                  1645.0     0.498         0.342  3110.0     0.395      0.358                0.304          0.254
+delay m=3: H0                           1645.0     0.201         0.215  3110.0     0.150      0.142                0.171          0.135
+delay m=3: H0+H1                        1645.0     0.202         0.210  3110.0     0.141      0.135                0.156          0.124
+pdf per spike: position                 1645.0     0.505         0.409  3110.0     0.402      0.402                0.317          0.299
+pdf per spike: whole cloud              1645.0     0.517         0.374  3110.0     0.396      0.386                0.329          0.301
+pdf per spike: H0                       1645.0     0.153         0.162  3110.0     0.126      0.118                0.132          0.096
+pdf per spike: H0+H1                    1645.0     0.146         0.149  3110.0     0.123      0.097                0.128          0.084
+fitted lognormal: position              1645.0     0.249         0.316  3110.0     0.201      0.197                0.256          0.205
+fitted lognormal: whole cloud           1645.0     0.352         0.322  3110.0     0.260      0.213                0.256          0.214
+fitted lognormal: H0                    1645.0     0.040         0.114  3110.0     0.032      0.037                0.087          0.033
+fitted lognormal: H0+H1                 1645.0     0.030         0.102  3110.0     0.034      0.035                0.078          0.038
+fitted gamma: position                  1645.0     0.271         0.316  3110.0     0.207      0.208                0.260          0.223
+fitted gamma: whole cloud               1645.0     0.373         0.333  3110.0     0.282      0.259                0.282          0.241
+fitted gamma: H0                        1645.0     0.043         0.115  3110.0     0.054      0.040                0.094          0.040
+fitted gamma: H0+H1                     1645.0     0.035         0.102  3110.0     0.045      0.039                0.087          0.050
+spectrum windows: position              1645.0     0.178         0.167  3110.0     0.177      0.053                0.124          0.048
+spectrum windows: whole cloud           1645.0     0.156         0.159  3110.0     0.164      0.061                0.120          0.051
+spectrum windows: H0                    1645.0     0.018         0.086  3110.0     0.026      0.022                0.077          0.028
+spectrum windows: H0+H1                 1645.0     0.029         0.089  3110.0     0.027      0.026                0.075          0.024
+spectrogram, aligned to the movie       1645.0     0.410         0.236  3110.0     0.306      0.039                0.159          0.042
+rate peaks, time removed (stable rank)  1645.0     0.281         0.286  3110.0     0.212      0.162                0.210          0.164
+cross-correlograms with partners        1645.0     0.431         0.255  3110.0     0.442      0.031                0.202          0.028
+correlation with partners, 20 ms        1645.0     0.573         0.399  3110.0     0.417      0.059                0.233          0.035
+partners + log ISI bars                 1645.0     0.781         0.478  3110.0     0.575      0.311                0.397          0.228

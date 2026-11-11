@@ -1,0 +1,75 @@
+=== 1. noiseless: named types
+  regular          spikes 445  period 1  H0 components tau=.1 1  tau=.3 1
+  intrinsic burst  spikes 636  period 1  H0 components tau=.1 1  tau=.3 1
+  chattering       spikes 1655  period 5  H0 components tau=.1 5  tau=.3 4
+  fast             spikes 2608  period 1  H0 components tau=.1 1  tau=.3 1
+  low threshold    spikes 1467  period 1  H0 components tau=.1 1  tau=.3 1
+=== 1b. noiseless: random parameters
+  with enough spikes 798  no period within 12: 50
+        n  exact_tau_1  exact_tau_3
+p                                  
+1.0   538        1.000        1.000
+2.0   137        0.949        0.920
+3.0    38        0.974        0.974
+4.0    23        0.913        0.522
+5.0     5        1.000        0.000
+6.0     4        0.250        0.000
+8.0     1        1.000        0.000
+9.0     1        0.000        0.000
+10.0    1        0.000        0.000
+  overall exact match tau=.1 0.98  tau=.3 0.953
+=== 2. noise and stimulus drive, 10 s trials
+noise 0.0 done
+noise 0.5 done
+noise 1 done
+noise 2 done
+noise 4 done
+noise 8 done
+drive 0.0 done
+drive 1 done
+drive 2 done
+drive 4 done
+drive 8 done
+drive 16 done
+             spikes  components  memory
+kind  level                            
+drive 0.0     734.0         1.0   0.129
+      1.0     744.0         1.0   0.159
+      2.0     764.5         1.0   0.158
+      4.0     826.0         3.5   0.123
+      8.0     992.0         3.0   0.080
+      16.0   1330.0         5.0   0.098
+noise 0.0     734.0         1.0   0.139
+      0.5     735.5         1.0   0.123
+      1.0     740.5         1.0   0.137
+      2.0     757.0         1.0   0.130
+      4.0     803.0         1.0   0.094
+      8.0     928.5         1.0   0.059
+type         chattering   fast  intrinsic burst  low threshold  regular
+kind  level                                                            
+drive 0.0         0.647  0.000            0.000          0.000    0.000
+      1.0         0.457  0.008            0.325          0.005    0.001
+      2.0         0.393  0.045            0.334          0.007    0.011
+      4.0         0.281  0.089            0.196          0.024    0.028
+      8.0         0.140  0.103            0.095          0.059    0.002
+      16.0        0.137  0.145            0.059          0.143    0.008
+noise 0.0         0.695  0.000            0.000          0.000    0.000
+      0.5         0.468  0.000            0.145          0.001    0.000
+      1.0         0.395  0.001            0.284          0.007    0.000
+      2.0         0.267  0.006            0.340          0.035    0.000
+      4.0         0.137  0.015            0.264          0.047    0.007
+      8.0         0.064  0.018            0.139          0.025    0.047
+type         chattering  fast  intrinsic burst  low threshold  regular
+kind  level                                                           
+drive 0.0           3.0   1.0              1.0            1.0      1.0
+      1.0           4.0   1.0              1.0            1.0      1.0
+      2.0           3.5   1.0              4.0            1.0      1.0
+      4.0           4.0   3.0              2.0            4.0      4.0
+      8.0           5.5   4.0              4.0            1.0      2.5
+      16.0         11.0   3.0              6.0            5.0      1.0
+noise 0.0           4.0   1.0              1.0            1.0      1.0
+      0.5           4.0   1.0              3.0            1.0      1.0
+      1.0           3.0   1.0              2.0            1.0      1.0
+      2.0           3.0   1.0              1.5            1.0      1.0
+      4.0           5.5   1.0              4.0            1.0      1.0
+      8.0           1.0   1.0              2.5            1.0      3.0

@@ -1,0 +1,77 @@
+partners 156 adjacent-row correlation: fitted order 0.096 random order 0.003
+                 embedding                                        view  n_trials   acc  acc_lo  acc_hi   ami   auc  auc_lo  auc_hi
+               stacked ccg                     raw matrix, no topology      1645 0.445   0.348   0.510 0.088 0.835   0.806   0.864
+               stacked ccg blurred across partners sy=1.0, no topology      1645 0.438   0.352   0.493 0.172 0.840   0.818   0.862
+               stacked ccg                        image valleys sy=1.0      1645 0.052   0.036   0.061 0.118 0.669   0.653   0.686
+               stacked ccg                          image peaks sy=1.0      1645 0.057   0.039   0.073 0.136 0.669   0.647   0.689
+               stacked ccg                  image peaks+valleys sy=1.0      1645 0.077   0.052   0.092 0.175 0.704   0.686   0.721
+               stacked ccg blurred across partners sy=3.0, no topology      1645 0.358   0.287   0.396 0.232 0.815   0.797   0.832
+               stacked ccg                        image valleys sy=3.0      1645 0.047   0.030   0.059 0.085 0.608   0.593   0.622
+               stacked ccg                          image peaks sy=3.0      1645 0.051   0.034   0.062 0.076 0.600   0.576   0.620
+               stacked ccg                  image peaks+valleys sy=3.0      1645 0.060   0.038   0.076 0.101 0.631   0.609   0.650
+stacked ccg, 2D peak cloud                                    position      1645 0.033   0.019   0.045 0.026 0.533   0.518   0.549
+stacked ccg, 2D peak cloud                                 whole cloud      1645 0.104   0.064   0.138 0.089 0.574   0.554   0.594
+stacked ccg, 2D peak cloud                                          H0      1645 0.036   0.020   0.048 0.040 0.552   0.537   0.570
+stacked ccg, 2D peak cloud                                          H1      1645 0.029   0.015   0.043 0.012 0.524   0.509   0.543
+stacked ccg, 2D peak cloud                                       H0+H1      1645 0.029   0.015   0.041 0.039 0.545   0.527   0.566
+stacked ccg, 2D peak cloud                              position+H0+H1      1645 0.055   0.030   0.077 0.049 0.554   0.533   0.574
+stacked ccg, 2D peak cloud                           whole cloud+H0+H1      1645 0.077   0.045   0.104 0.040 0.563   0.542   0.586
+stacked ccg, 2D peak cloud                             histogram+H0+H1      1645 0.227   0.166   0.253 0.074 0.683   0.664   0.702
+stacked ccg, 2D peak cloud                        spike distance+H0+H1      1645 0.249   0.164   0.293 0.180 0.685   0.665   0.708
+                                       embedding                                        view  n_trials   acc  acc_lo  acc_hi   ami   auc  auc_lo  auc_hi
+               stacked ccg, random partner order                     raw matrix, no topology      1645 0.445   0.348   0.510 0.088 0.835   0.806   0.864
+               stacked ccg, random partner order blurred across partners sy=1.0, no topology      1645 0.377   0.296   0.433 0.140 0.815   0.788   0.842
+               stacked ccg, random partner order                        image valleys sy=1.0      1645 0.050   0.036   0.061 0.125 0.681   0.665   0.699
+               stacked ccg, random partner order                          image peaks sy=1.0      1645 0.071   0.045   0.094 0.145 0.691   0.673   0.710
+               stacked ccg, random partner order                  image peaks+valleys sy=1.0      1645 0.089   0.057   0.113 0.179 0.728   0.710   0.746
+               stacked ccg, random partner order blurred across partners sy=3.0, no topology      1645 0.258   0.184   0.297 0.107 0.761   0.738   0.784
+               stacked ccg, random partner order                        image valleys sy=3.0      1645 0.040   0.025   0.048 0.060 0.605   0.587   0.623
+               stacked ccg, random partner order                          image peaks sy=3.0      1645 0.045   0.030   0.055 0.077 0.602   0.586   0.618
+               stacked ccg, random partner order                  image peaks+valleys sy=3.0      1645 0.039   0.024   0.050 0.088 0.636   0.621   0.650
+stacked ccg, random partner order, 2D peak cloud                                    position      1645 0.028   0.018   0.036 0.029 0.551   0.539   0.564
+stacked ccg, random partner order, 2D peak cloud                                 whole cloud      1645 0.091   0.053   0.116 0.063 0.577   0.560   0.593
+stacked ccg, random partner order, 2D peak cloud                                          H0      1645 0.029   0.017   0.042 0.028 0.542   0.526   0.559
+stacked ccg, random partner order, 2D peak cloud                                          H1      1645 0.024   0.012   0.038 0.010 0.517   0.502   0.533
+stacked ccg, random partner order, 2D peak cloud                                       H0+H1      1645 0.018   0.010   0.026 0.020 0.534   0.517   0.552
+stacked ccg, random partner order, 2D peak cloud                              position+H0+H1      1645 0.043   0.025   0.056 0.039 0.558   0.540   0.576
+stacked ccg, random partner order, 2D peak cloud                           whole cloud+H0+H1      1645 0.058   0.033   0.078 0.043 0.557   0.538   0.577
+stacked ccg, random partner order, 2D peak cloud                             histogram+H0+H1      1645 0.221   0.163   0.248 0.065 0.674   0.653   0.694
+stacked ccg, random partner order, 2D peak cloud                        spike distance+H0+H1      1645 0.227   0.151   0.274 0.121 0.677   0.656   0.698
+                                       embedding                                        view  n_trials   acc  acc_lo  acc_hi   ami   auc  auc_lo  auc_hi
+               stacked ccg, target ISIs shuffled                     raw matrix, no topology      1645 0.018   0.007   0.027 0.004 0.520   0.468   0.573
+               stacked ccg, target ISIs shuffled blurred across partners sy=1.0, no topology      1645 0.015   0.007   0.021 0.004 0.524   0.477   0.573
+               stacked ccg, target ISIs shuffled                        image valleys sy=1.0      1645 0.043   0.024   0.054 0.088 0.627   0.611   0.643
+               stacked ccg, target ISIs shuffled                          image peaks sy=1.0      1645 0.049   0.033   0.059 0.103 0.627   0.611   0.645
+               stacked ccg, target ISIs shuffled                  image peaks+valleys sy=1.0      1645 0.055   0.035   0.069 0.121 0.663   0.647   0.681
+               stacked ccg, target ISIs shuffled blurred across partners sy=3.0, no topology      1645 0.015   0.007   0.022 0.005 0.526   0.487   0.565
+               stacked ccg, target ISIs shuffled                        image valleys sy=3.0      1645 0.030   0.018   0.037 0.044 0.556   0.545   0.569
+               stacked ccg, target ISIs shuffled                          image peaks sy=3.0      1645 0.027   0.016   0.033 0.040 0.567   0.553   0.582
+               stacked ccg, target ISIs shuffled                  image peaks+valleys sy=3.0      1645 0.030   0.018   0.039 0.057 0.584   0.570   0.601
+stacked ccg, target ISIs shuffled, 2D peak cloud                                    position      1645 0.018   0.009   0.024 0.004 0.500   0.490   0.512
+stacked ccg, target ISIs shuffled, 2D peak cloud                                 whole cloud      1645 0.019   0.011   0.025 0.004 0.501   0.490   0.512
+stacked ccg, target ISIs shuffled, 2D peak cloud                                          H0      1645 0.018   0.010   0.023 0.003 0.505   0.490   0.519
+stacked ccg, target ISIs shuffled, 2D peak cloud                                          H1      1645 0.026   0.017   0.034 0.003 0.498   0.485   0.509
+stacked ccg, target ISIs shuffled, 2D peak cloud                                       H0+H1      1645 0.025   0.016   0.032 0.009 0.502   0.487   0.515
+stacked ccg, target ISIs shuffled, 2D peak cloud                              position+H0+H1      1645 0.019   0.012   0.026 0.013 0.501   0.489   0.513
+stacked ccg, target ISIs shuffled, 2D peak cloud                           whole cloud+H0+H1      1645 0.018   0.010   0.024 0.011 0.502   0.487   0.514
+stacked ccg, target ISIs shuffled, 2D peak cloud                             histogram+H0+H1      1645 0.184   0.141   0.203 0.066 0.653   0.633   0.673
+stacked ccg, target ISIs shuffled, 2D peak cloud                        spike distance+H0+H1      1645 0.202   0.134   0.242 0.103 0.659   0.641   0.677
+                                           embedding                                        view  n_trials   acc  acc_lo  acc_hi   ami   auc  auc_lo  auc_hi
+               stacked ccg, partners from next trial                     raw matrix, no topology      1645 0.339   0.252   0.398 0.037 0.800   0.769   0.830
+               stacked ccg, partners from next trial blurred across partners sy=1.0, no topology      1645 0.302   0.234   0.351 0.101 0.809   0.786   0.833
+               stacked ccg, partners from next trial                        image valleys sy=1.0      1645 0.040   0.026   0.054 0.127 0.673   0.655   0.691
+               stacked ccg, partners from next trial                          image peaks sy=1.0      1645 0.061   0.036   0.080 0.142 0.685   0.666   0.704
+               stacked ccg, partners from next trial                  image peaks+valleys sy=1.0      1645 0.082   0.059   0.105 0.181 0.717   0.700   0.735
+               stacked ccg, partners from next trial blurred across partners sy=3.0, no topology      1645 0.262   0.201   0.293 0.103 0.779   0.759   0.798
+               stacked ccg, partners from next trial                        image valleys sy=3.0      1645 0.034   0.023   0.045 0.066 0.595   0.579   0.612
+               stacked ccg, partners from next trial                          image peaks sy=3.0      1645 0.038   0.023   0.047 0.066 0.602   0.588   0.616
+               stacked ccg, partners from next trial                  image peaks+valleys sy=3.0      1645 0.035   0.020   0.045 0.092 0.631   0.615   0.647
+stacked ccg, partners from next trial, 2D peak cloud                                    position      1645 0.028   0.017   0.034 0.012 0.531   0.514   0.550
+stacked ccg, partners from next trial, 2D peak cloud                                 whole cloud      1645 0.072   0.050   0.088 0.045 0.551   0.535   0.568
+stacked ccg, partners from next trial, 2D peak cloud                                          H0      1645 0.019   0.012   0.026 0.019 0.534   0.521   0.547
+stacked ccg, partners from next trial, 2D peak cloud                                          H1      1645 0.015   0.007   0.020 0.008 0.516   0.501   0.534
+stacked ccg, partners from next trial, 2D peak cloud                                       H0+H1      1645 0.025   0.015   0.032 0.012 0.530   0.515   0.550
+stacked ccg, partners from next trial, 2D peak cloud                              position+H0+H1      1645 0.033   0.021   0.040 0.019 0.538   0.520   0.560
+stacked ccg, partners from next trial, 2D peak cloud                           whole cloud+H0+H1      1645 0.039   0.024   0.049 0.022 0.542   0.525   0.562
+stacked ccg, partners from next trial, 2D peak cloud                             histogram+H0+H1      1645 0.209   0.157   0.229 0.063 0.672   0.653   0.692
+stacked ccg, partners from next trial, 2D peak cloud                        spike distance+H0+H1      1645 0.235   0.167   0.273 0.128 0.676   0.657   0.698

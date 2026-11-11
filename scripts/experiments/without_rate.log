@@ -1,0 +1,28 @@
+
+=== histogram, 60: dropped axis 1 (rho with log rate 0.93, 0.46 of variance); next axis holds 0.42 of what is left
+  gap        observed 0.642  null median 0.640  null 95% 0.753  p 0.475
+  h0_top     observed 0.959  null median 0.858  null 95% 1.077  p 0.173
+  h1_top     observed 0.050  null median 0.110  null 95% 0.152  p 1.000
+  h1_second  observed 0.046  null median 0.091  null 95% 0.121  p 0.993
+  sil        observed 0.308  null median 0.282  null 95% 0.393  p 0.326
+
+=== spike distance, 60: dropped axis 1 (rho with log rate 1.00, 0.66 of variance); next axis holds 0.27 of what is left
+  gap        observed 0.455  null median 0.745  null 95% 0.820  p 1.000
+  h0_top     observed 1.547  null median 0.904  null 95% 1.021  p 0.003
+  h1_top     observed 0.000  null median 0.085  null 95% 0.120  p 1.000
+  h1_second  observed 0.000  null median 0.074  null 95% 0.099  p 1.000
+  sil        observed 0.471  null median 0.199  null 95% 0.308  p 0.003
+
+=== combined, 60: dropped axis 1 (rho with log rate 0.99, 0.58 of variance); next axis holds 0.26 of what is left
+  gap        observed 0.561  null median 0.728  null 95% 0.817  p 1.000
+  h0_top     observed 1.288  null median 0.892  null 95% 1.023  p 0.003
+  h1_top     observed 0.020  null median 0.092  null 95% 0.122  p 1.000
+  h1_second  observed 0.012  null median 0.078  null 95% 0.105  p 1.000
+  sil        observed 0.368  null median 0.204  null 95% 0.307  p 0.013
+
+=== histogram, 146: dropped axis 1 (rho with log rate 0.93, 0.45 of variance); next axis holds 0.40 of what is left
+  gap        observed 0.645  null median 0.634  null 95% 0.711  p 0.379
+  h0_top     observed 0.876  null median 0.846  null 95% 1.001  p 0.379
+  h1_top     observed 0.186  null median 0.108  null 95% 0.141  p 0.003
+  h1_second  observed 0.121  null median 0.096  null 95% 0.115  p 0.027
+  sil        observed 0.316  null median 0.280  null 95% 0.404  p 0.326

@@ -1,0 +1,25 @@
+=== A. spike distance after removing rate
+  merge at 1.547: sizes 1 and 59
+  merge at 1.377: sizes 1 and 58
+  merge at 1.149: sizes 1 and 57
+  merge at 1.108: sizes 1 and 56
+  merge at 1.024: sizes 1 and 55
+  most isolated neurons: [('_le_sp_C79_2', 'nn 1.55', 'trials 30', 'spikes/trial 737'), ('_le_sp_C85_1', 'nn 1.38', 'trials 30', 'spikes/trial 639'), ('le_sp_C127_1', 'nn 1.15', 'trials 30', 'spikes/trial 346'), ('_le_sp_C98_1', 'nn 1.11', 'trials 30', 'spikes/trial 303')]
+  trials per neuron: min 2 median 30
+  without the 2 most isolated neurons:
+    h0_top  observed 1.159  null median 0.914  null 95% 1.014  p 0.003
+    sil     observed 0.291  null median 0.181  null 95% 0.279  p 0.033
+    gap     observed 0.481  null median 0.753  null 95% 0.811  p 0.993
+  without the 4 most isolated neurons:
+    h0_top  observed 1.092  null median 0.911  null 95% 1.022  p 0.010
+    sil     observed 0.289  null median 0.189  null 95% 0.304  p 0.073
+    gap     observed 0.490  null median 0.746  null 95% 0.809  p 0.990
+
+=== B. histogram loop on 146 neurons
+  odd trials: h1_top 0.188  null median 0.108  null 95% 0.139  p 0.003
+  even trials: h1_top 0.155  null median 0.108  null 95% 0.140  p 0.010
+  80% subsets of neurons above their own null 95%: 25 of 40, h1_top median 0.156
+  real h1_top 0.186
+  one parameter: lognormal, each neuron's mean, shared sd: h1_top median 0.136  range 0.071-0.200
+  two parameters: lognormal, each neuron's mean and sd: h1_top median 0.197  range 0.146-0.242
+  resampled real histogram shapes: h1_top median 0.141  range 0.115-0.172
