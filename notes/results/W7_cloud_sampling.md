@@ -48,3 +48,31 @@ The consecutive stretch is worse than random draws, but has the largest order ef
   together does keep more of the order; it just costs more than it brings on 10 s trials.
 - **With the whole cloud the shuffled control is almost equal** (43.2 against 41.2; in
   clustering the shuffled one is higher). So the gain is distribution, not order.
+
+## Addendum: one barcode per trial, and more regions (exp31)
+
+The user's next suggestion: no averaging at all. Cut a random amount of time off the start and
+the end of the trial and use every point of what remains, once. The spike count is allowed in.
+Same data and scoring; `python scripts/experiments/exp31_time_crop.py` (log: `time_crop.log`).
+The 32-anchor rows did not finish in the time limit here.
+
+1-NN / k-medoids, %. Shuffled control in brackets.
+
+| Method | Full trials | Across halves |
+|---|---|---|
+| delay Rips, whole | 33.1 / 29.0 (31.2 / 28.6) | 24.3 / 20.3 (23.4 / 21.2) |
+| delay Rips, time crop keeping 70% | 29.7 / 26.9 (25.8 / 28.1) | 21.2 / 18.7 (20.8 / 19.7) |
+| delay Rips, time crop keeping 50% | 25.7 / 25.1 (22.2 / 25.9) | 17.4 / 17.5 (16.5 / 15.4) |
+| delay regions 8 anchors, whole | 43.2 / 34.2 (41.5 / 32.9) | 30.7 / 21.8 (29.5 / 23.5) |
+| delay regions 8 anchors, time crop keeping 70% | 36.4 / 31.4 (33.3 / 28.8) | 24.4 / 19.0 (22.8 / 19.9) |
+| delay regions 8 anchors, time crop keeping 50% | 30.8 / 26.8 (28.1 / 26.3) | 20.5 / 16.3 (19.8 / 15.2) |
+| delay regions 16 anchors, whole | 46.5 / 33.1 (38.4 / 34.5) | 31.1 / 23.2 (26.0 / 20.3) |
+
+- **Cropping time only removes data.** Keeping 70% costs about 7 points of 1-NN against the whole
+  trial, keeping 50% about 12. A single cropped cloud is still better than 25 points averaged
+  over 20 draws (36.4 against 30.2), because it has several times more points.
+- **More regions help the whole cloud, and bring out order.** 16 anchors give 46.5% 1-NN against
+  38.4% shuffled, an 8-point order effect, the largest for any Rips method on 10 s retina trials.
+  Clustering does not move (33.1 against 34.2 with 8 anchors).
+- So on short samples the recipe for the best homology number is: the whole trial, no
+  subsampling, more regions.

@@ -88,6 +88,18 @@ need to real stablebear. Work in this order.
   - This fits with the cloud-size test already queued (`scripts/sb_cloud_size.py`); do them
     together if convenient. The web chat is piloting H0 on the retina meanwhile
     (`scripts/experiments/exp30_cloud_sampling.py`).
+  - **Added by the user on 2026-11-13: no averaging, and spike count is allowed in.** A third
+    variant: cut a random amount of TIME off the start and the end of the sample and use every
+    point of what remains, one barcode, no averaging (keep 70% and 50% of the sample). The user
+    wants good homology numbers on every dataset even if they lean on the spike count, as other
+    methods do implicitly. So the headline rows of L20 are the whole cloud and the time crop,
+    without dividing by the point count; the divided version and the random-draw version are
+    for comparison.
+  - **Also sweep the number of regions for the whole cloud:** 8, 16, 32 and 64 anchors. On the
+    retina pilot (W7 addendum) the whole cloud with 16 anchors gave 46.5% 1-NN against 38.4%
+    shuffled, where 25 random points gave 30.2%.
+  - Run all of it on the other datasets too: OpenScope 10 s and 124 s, Allen 30 s, retina 10 s
+    and 40 s; within and across; 1-NN, k-medoids and k-means with mean curves; H0 and H0+H1.
   - Write `notes/results/L20_cloud_sampling.md`.
 
 - **Freedom to explore (from the user).** If other ideas come up while implementing L18 or
@@ -355,4 +367,5 @@ need to real stablebear. Work in this order.
 - 2026-11-12 web chat: read the L19 status of 21:00 (4 of 5 datasets). Added the cloud-size idea under Ideas.
 - 2026-11-12 web chat: the user asked for two more ways to size the Rips clouds (whole cloud; consecutive stretch). Added L20; piloting on the retina in exp30. A write-up of the results so far is in a Claude doc (not on this branch).
 - 2026-11-13 web chat: W7 done (exp30). For L20: also report the whole cloud divided by its point count, and H0+H1 where it is affordable.
+- 2026-11-13 web chat: the user added a no-averaging time crop to L20 and wants the whole-cloud homology numbers on every dataset, spike count allowed. W7 addendum posted (exp31).
 

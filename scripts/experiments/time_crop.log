@@ -1,0 +1,14 @@
+{'method': 'delay Rips H0, whole', 'full_1nn': 0.331, 'full_cluster': 0.29, 'cross_1nn': 0.243, 'cross_cluster': 0.203}
+{'method': 'delay Rips H0, whole, ISIs shuffled', 'full_1nn': 0.312, 'full_cluster': 0.286, 'cross_1nn': 0.234, 'cross_cluster': 0.212}
+{'method': 'delay Rips H0, time crop keeping 70%', 'full_1nn': 0.297, 'full_cluster': 0.269, 'cross_1nn': 0.212, 'cross_cluster': 0.187}
+{'method': 'delay Rips H0, time crop keeping 70%, ISIs shuffled', 'full_1nn': 0.258, 'full_cluster': 0.281, 'cross_1nn': 0.208, 'cross_cluster': 0.197}
+{'method': 'delay Rips H0, time crop keeping 50%', 'full_1nn': 0.257, 'full_cluster': 0.251, 'cross_1nn': 0.174, 'cross_cluster': 0.175}
+{'method': 'delay Rips H0, time crop keeping 50%, ISIs shuffled', 'full_1nn': 0.222, 'full_cluster': 0.259, 'cross_1nn': 0.165, 'cross_cluster': 0.154}
+{'method': 'delay regions, 8 anchors H0, whole', 'full_1nn': 0.432, 'full_cluster': 0.342, 'cross_1nn': 0.307, 'cross_cluster': 0.218}
+{'method': 'delay regions, 8 anchors H0, whole, ISIs shuffled', 'full_1nn': 0.415, 'full_cluster': 0.329, 'cross_1nn': 0.295, 'cross_cluster': 0.235}
+{'method': 'delay regions, 8 anchors H0, time crop keeping 70%', 'full_1nn': 0.364, 'full_cluster': 0.314, 'cross_1nn': 0.244, 'cross_cluster': 0.19}
+{'method': 'delay regions, 8 anchors H0, time crop keeping 70%, ISIs shuffled', 'full_1nn': 0.333, 'full_cluster': 0.288, 'cross_1nn': 0.228, 'cross_cluster': 0.199}
+{'method': 'delay regions, 8 anchors H0, time crop keeping 50%', 'full_1nn': 0.308, 'full_cluster': 0.268, 'cross_1nn': 0.205, 'cross_cluster': 0.163}
+{'method': 'delay regions, 8 anchors H0, time crop keeping 50%, ISIs shuffled', 'full_1nn': 0.281, 'full_cluster': 0.263, 'cross_1nn': 0.198, 'cross_cluster': 0.152}
+{'method': 'delay regions, 16 anchors H0, whole', 'full_1nn': 0.465, 'full_cluster': 0.331, 'cross_1nn': 0.311, 'cross_cluster': 0.232}
+{'method': 'delay regions, 16 anchors H0, whole, ISIs shuffled', 'full_1nn': 0.384, 'full_cluster': 0.345, 'cross_1nn': 0.26, 'cross_cluster': 0.203}
