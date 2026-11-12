@@ -1,0 +1,15 @@
+ISI fractions under other distances
+  L1 (reference)                                             1-NN 0.540   k-means 0.409 (0.404-0.415)
+  L2                                                         1-NN 0.531   k-means 0.401 (0.389-0.414)
+  largest gap (sup norm)                                     1-NN 0.497   k-means 0.388 (0.376-0.394)
+  square root of the curve, L2                               1-NN 0.485   k-means 0.387 (0.385-0.391)
+quantile curves (64 quantiles of log ISI)
+  L1 (same as L1 on fractions, coarser)                      1-NN 0.536   k-means 0.407 (0.401-0.412)
+  L2 (Wasserstein-2)                                         1-NN 0.541   k-means 0.427 (0.415-0.436)
+  L2, centred on the trial's mean log ISI (shape only)       1-NN 0.428   k-means 0.386 (0.379-0.399)
+two-parameter: consecutive ISI pairs
+  joint fractions                                            1-NN 0.528   k-means 0.388 (0.381-0.399)
+  joint fractions, ISIs shuffled                             1-NN 0.517   k-means 0.374 (0.365-0.387)
+  joint minus product of margins (order only)                1-NN 0.277   k-means 0.240 (0.233-0.244)
+  same, ISIs shuffled                                        1-NN 0.080   k-means 0.096 (0.095-0.097)
+  ISI fractions + order-only part                            1-NN 0.537   k-means 0.398 (0.395-0.399)

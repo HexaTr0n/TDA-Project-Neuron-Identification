@@ -24,16 +24,37 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 
 - **L4. OpenScope labels.** Do clusters of ISI fractions agree with cortical layer or with the
   optotagged cell type? Report agreement against a shuffled labelling.
+- **L6. Identity against sample length.** ISI fractions, 1-NN and k-means, for samples of 2.5, 5,
+  10, 20 and 40 s: retina unrepeated noise (join consecutive pieces) and OpenScope grating blocks
+  (cut them). One curve per dataset. This was your idea in "Ideas"; it also tells us how much
+  recording a neuron needs.
+- **L7. Equal-length stimulus change on OpenScope.** Grating blocks cut into 10 s pieces against
+  the 10 s spontaneous windows, ISI fractions. Also your idea; it separates the stimulus effect
+  from the sample-size effect in L1.
+- **L8. Order-only signature on long samples.** `scripts/experiments/exp25_isi_distances.py` has
+  "joint minus product of margins": 27.7% against 8.0% shuffled on 10 s retina trials (W3). Run it
+  on OpenScope 124 s blocks, where it is estimated from about 480 spikes, within gratings and
+  across grating/spontaneous. Does order carry more identity with more spikes?
+- **L9. Reliability on OpenScope.** W1 found that time-locked clustering on the retina follows
+  response reliability (+0.93 across sessions). OpenScope has no frozen repeat, but each grating
+  presentation is a 0.5 s repeat: build time bars on single presentations joined by condition
+  (same orientation, same position in the sequence) and report reliability and identity there.
 - **L5. A third dataset (optional).** One session of the Allen Visual Coding Neuropixels
   "functional connectivity" set: repeated movies, gratings and spontaneous periods. Same table as L1.
 
 ## Open tasks for the web chat
 
-- **W1.** Why do three retina sessions cluster at 67-72% and six at 36-58%? Compare with firing
-  rate, response reliability and trial counts.
+- **W4.** Does the stimulus-free ISI signature depend on the session the way time bars do (W1)?
+  All nine retina sessions, frozen trials.
 - **W2.** Read each new result and turn it into the next method or control.
 
 ## Ideas
+
+- (web) L3 changes the story: with 10 s on both sides the stimulus change costs ISI fractions
+  nothing on the retina. So there are two signatures: response (85% 1-NN, needs the same
+  stimulus and a reliable neuron) and intrinsic (54%, any stimulus). Worth a figure.
+- (web) L1 coincidence control: agreed, the next-trial control matching the real score means the
+  coincidence curve is the neuron's own locked timing. Drop it unless a jitter control separates them.
 
 - With 10 s samples the stimulus change costs ISI fractions nothing (L3). Test how identity grows
   with sample length (2.5, 5, 10, 20, 40 s of unrepeated noise) to give a curve, not one number.
@@ -47,6 +68,11 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 ## Questions
 
 ## Done
+
+- W1 Why retina sessions differ: `notes/results/W1_session_differences.md`. Response reliability
+  explains it (+0.93 across sessions); rate and trial count do not.
+- W3 Sharper ISI signature: `notes/results/W3_isi_distances.md`. No distance beats L1; ISI order
+  alone gives 27.7% against 8.0% shuffled but adds nothing to ISI fractions.
 
 - L1 OpenScope, main table: `notes/results/L1_openscope.md`. Time-locked signatures at chance on
   OpenScope; ISI fractions / burst table 63-68% 1-NN, 32-36% clustering; port reproduces retina.
@@ -62,3 +88,5 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 - 2026-11-12 local: L1 done; added scripts/curves.py, curve_eval.py, load_openscope.py, cross_epoch.py.
 - 2026-11-12 local: L2 done (scripts/sb_check.py). L3 needs the raw retina rar from GIN (downloading); L5 Allen session downloading.
 - 2026-11-12 local: L3 done (scripts/load_retina_running.py, sb_cross.py). L4 running; Allen session for L5 downloaded.
+- 2026-11-12 web chat: read L1-L3. W1 and W3 done (scripts/experiments/exp24, exp25). Added L6-L9 and W4.
+
