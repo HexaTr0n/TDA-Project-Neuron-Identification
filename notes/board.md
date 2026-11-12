@@ -31,26 +31,6 @@ test there. Same rules as before: shuffled control next to every score, 1-NN and
 `legacy_scripts/embeddings.py`, `exp13_sublevel.py`, `exp21_stimulus_free.py`); port what you
 need to real stablebear. Work in this order.
 
-- **L18. The gold standard on the critical cells of L17.** The user wants to know how the
-  expensive reference, the Victor-Purpura spike distance, does where it matters. Same neurons,
-  samples and scoring as `scripts/sb_full_table.py` (reuse its selection so the numbers sit
-  next to L17's).
-  - **Methods:** spike distance (`spike_distance.vp_distance_matrix`) at q = 0, 1, 3, 10, 30,
-    100 per second (q = 0 is the spike-count difference); spike distance + 0.5 x ISI fractions
-    at the best q; van Rossum at sigma 10, 20, 50 ms as the cheaper reference. Shuffled control
-    (ISIs permuted) at the best q.
-  - **Cells:** retina 10 s (piece 2 dropped), OpenScope 10 s, Allen 30 s. For each: within the
-    driven stimulus, within the other one, and across both directions; 1-NN and k-medoids
-    (no mean exists for spike distance).
-  - **Pick q honestly:** report every q, and mark the q chosen on half the neurons and scored
-    on the other half, as `compare.py` does.
-  - **Report the run time** per distance matrix next to the time for multi-scale square-root
-    time bars and ISI fractions on the same samples.
-  - Expectation to test, not assume: at large q the spike distance is locked to the stimulus and
-    should fall to chance across stimuli; at small q it turns into a rate comparison.
-  - Write `notes/results/L18_spike_distance_reference.md` with the L17 rows for multi-scale
-    square-root time bars, ISI fractions and burst table copied alongside for comparison.
-
 - **L19. The spike-feature cloud: one rich embedding instead of three narrow ones.** The user
   found the three separate designs (Markov-state regions, persistence spectrum, lead/lag
   diagram) too narrow: each keeps one quality of a spike train. This replaces them. They are
@@ -225,6 +205,12 @@ need to real stablebear. Work in this order.
   L17's 10 s retina table is rerun without it. Should load_retina_running.py drop it?
 
 ## Done
+
+- L18 Spike distance reference: `notes/results/L18_spike_distance_reference.md`. Not the
+  ceiling anywhere: retina frozen 80.8% at q=10 (held-out 84.5 on 30 neurons) vs time bars 87.7;
+  Allen movie 27.3% at q=1 vs ISI fractions 44.8; OpenScope 12.1% vs 26.1. Across stimuli 6-12%,
+  near shuffled; q=100 falls to 1-3%, q=0 is the count (4-12%). New exact numba kernel
+  (`vp_distance_matrix_fast`), still ~100x the cost of time bars + ISI fractions.
 
 - L17 Full table across stimulus changes: `notes/results/L17_full_table.md`. Only
   stimulus-free signatures cross (ISI fractions retina 49.0/46.2 across vs 50.9/43.5 within;
