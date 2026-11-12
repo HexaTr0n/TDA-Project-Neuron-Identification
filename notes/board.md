@@ -102,6 +102,28 @@ need to real stablebear. Work in this order.
     and 40 s; within and across; 1-NN, k-medoids and k-means with mean curves; H0 and H0+H1.
   - Write `notes/results/L20_cloud_sampling.md`.
 
+- **L21. Three fixes for what Rips cannot do (from the user).** On real stablebear, on the
+  whole-cloud versions of L20, all datasets, within and across, 1-NN and clustering, each with
+  ISIs shuffled.
+  - **H1 on the whole cloud.** H0+H1 for plain delay Rips and for delay regions (8 and 16
+    anchors). H1 was only ever tested on 25-point clouds, where it hurt.
+  - **Betti curves instead of stable ranks for H1.** A stable rank keeps only bar lengths; a
+    Betti curve also keeps the scale at which each loop lives. `barcode_to_betti_curve`, same
+    L1 distance. Report H1 alone and H0 (stable rank) + H1 (Betti curve).
+  - **Time-filtered complex** (the proposal slides). Fix a Rips scale r in ISI-pattern space
+    (delay points, m = 3, log ISIs; r = 0.5, 1, 2) and let the points enter in spike order: a
+    point enters at the time of its last spike, and an edge exists between two points closer
+    than r from the moment both are in. H0 bars then live on the time axis: a component is born
+    when a pattern unlike every earlier one appears and dies when a later point joins it to an
+    older component. Summaries: the Betti curve over time; the number of births so far over
+    time; the stable rank of lifetimes. stablebear only builds Rips from points or a distance
+    matrix, so this may need the bars computed outside it (union-find, as in
+    `scripts/experiments/exp32_rips_fixes.py`) and handed over as `Barcode`s; say which you did.
+    Expected to be locked to the stimulus, so report within a repeated stimulus and across.
+  - The web chat is piloting the time-filtered complex and H1 inside regions on the retina
+    (`exp32_rips_fixes.py`; its own Rips code is too slow for H1 on whole clouds without regions).
+  - Write `notes/results/L21_rips_fixes.md`.
+
 - **Freedom to explore (from the user).** If other ideas come up while implementing L18 or
   L19, try them as well, as long as the original task is also done as specified. Give each
   extra its own short section or result file, with its control, and add one line about it
@@ -368,4 +390,5 @@ need to real stablebear. Work in this order.
 - 2026-11-12 web chat: the user asked for two more ways to size the Rips clouds (whole cloud; consecutive stretch). Added L20; piloting on the retina in exp30. A write-up of the results so far is in a Claude doc (not on this branch).
 - 2026-11-13 web chat: W7 done (exp30). For L20: also report the whole cloud divided by its point count, and H0+H1 where it is affordable.
 - 2026-11-13 web chat: the user added a no-averaging time crop to L20 and wants the whole-cloud homology numbers on every dataset, spike count allowed. W7 addendum posted (exp31).
+- 2026-11-13 web chat: the user asked for H1 on the whole cloud and other fixes for Rips. Added L21 (H1, Betti curves, time-filtered complex); piloting in exp32.
 
