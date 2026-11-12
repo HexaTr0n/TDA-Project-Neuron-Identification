@@ -74,6 +74,22 @@ need to real stablebear. Work in this order.
     are the fair test for the homology readout.
   - Write `notes/results/L19_spike_feature_cloud.md`.
 
+- **L20. Two other ways to cut a delay cloud to size (from the user).** So far every Rips cloud
+  was 25 (or 100) points drawn at random, 20 draws averaged. The user wants two alternatives,
+  on real stablebear and on the L17 datasets plus the long samples:
+  - **Whole cloud:** every point, one barcode per sample. The stable rank then starts at the
+    number of points, so the spike count leaks in. Report it as it is, and also with the stable
+    rank divided by the number of points.
+  - **Consecutive stretch:** cut a random number of spikes off the start and the end so that a
+    fixed number of CONSECUTIVE points remains (25 on short samples, 100 on long); 20 draws
+    averaged. This keeps neighbouring spikes together instead of scattering the sample.
+  - For delay Rips m = 3 (H0, H0+H1) and delay regions k = 8 (H0), each with ISIs shuffled, next
+    to the random-draw version on the same samples; within and across, 1-NN and clustering.
+  - This fits with the cloud-size test already queued (`scripts/sb_cloud_size.py`); do them
+    together if convenient. The web chat is piloting H0 on the retina meanwhile
+    (`scripts/experiments/exp30_cloud_sampling.py`).
+  - Write `notes/results/L20_cloud_sampling.md`.
+
 - **Freedom to explore (from the user).** If other ideas come up while implementing L18 or
   L19, try them as well, as long as the original task is also done as specified. Give each
   extra its own short section or result file, with its control, and add one line about it
@@ -339,4 +355,5 @@ need to real stablebear. Work in this order.
 - 2026-11-12 web chat: read L18. W5 done (exp28: ToMATo on the trial space; negative). The user is away for a few hours; checks every 45 minutes, 5 rounds.
 - 2026-11-12 web chat: read the L19 interim status. W6 done (exp29: joint time x ISI; no gain over the sum).
 - 2026-11-12 web chat: read the L19 status of 21:00 (4 of 5 datasets). Added the cloud-size idea under Ideas.
+- 2026-11-12 web chat: the user asked for two more ways to size the Rips clouds (whole cloud; consecutive stretch). Added L20; piloting on the retina in exp30. A write-up of the results so far is in a Claude doc (not on this branch).
 
