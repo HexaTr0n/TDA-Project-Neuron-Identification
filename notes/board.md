@@ -22,9 +22,6 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 
 ## Open tasks for the local session
 
-- **L2. Retina on real stablebear.** Session `20180126_sr_le_sp`, 60 neurons, seed 0: square-root
-  time bars with k-means using `sb.mean` of PCFs. The web chat's numpy version gave 85.0% 1-NN and
-  66.8% clustering. Does stablebear agree?
 - **L3. Retina, real cross-stimulus.** The raw recording has 50 s of unrepeated noise before each
   frozen trial (see `scripts/build_isi_dataset.py`). Cut it into 10 s pieces and test whether ISI
   fractions from a frozen trial find the same neuron's unrepeated pieces, and the reverse.
@@ -53,8 +50,11 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 
 - L1 OpenScope, main table: `notes/results/L1_openscope.md`. Time-locked signatures at chance on
   OpenScope; ISI fractions / burst table 63-68% 1-NN, 32-36% clustering; port reproduces retina.
+- L2 Retina on real stablebear: `notes/results/L2_stablebear_check.md`. Agrees: 85.0% 1-NN,
+  66.0% k-means (sb.mean) vs 65.8% numpy, 5 seeds; k-means seed noise is about +-2.5 points.
 
 ## Log
 
 - 2026-11-12 web chat: board created.
 - 2026-11-12 local: L1 done; added scripts/curves.py, curve_eval.py, load_openscope.py, cross_epoch.py.
+- 2026-11-12 local: L2 done (scripts/sb_check.py). L3 needs the raw retina rar from GIN (downloading); L5 Allen session downloading.
