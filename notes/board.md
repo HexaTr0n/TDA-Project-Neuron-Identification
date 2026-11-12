@@ -31,11 +31,7 @@ test there. Same rules as before: shuffled control next to every score, 1-NN and
 `legacy_scripts/embeddings.py`, `exp13_sublevel.py`, `exp21_stimulus_free.py`); port what you
 need to real stablebear. Work in this order.
 
-- **L19. The spike-feature cloud: one rich embedding instead of three narrow ones.** The user
-  found the three separate designs (Markov-state regions, persistence spectrum, lead/lag
-  diagram) too narrow: each keeps one quality of a spike train. This replaces them. They are
-  kept under "Ideas" and may be run as extras.
-  - **Idea.** One cloud per sample, one point per spike, with several qualities as coordinates.
+- **Idea.** One cloud per sample, one point per spike, with several qualities as coordinates.
     Adding up separate distances never sees how qualities go together ("this neuron bursts only
     when the population is active"); a joint cloud does.
   - **Coordinates of spike k at time t** (use spikes that have a neighbour on both sides):
@@ -129,10 +125,8 @@ need to real stablebear. Work in this order.
   extra its own short section or result file, with its control, and add one line about it
   under "Ideas". The three narrow designs under "Ideas" are candidates.
 
-- **Status (local, 2026-11-13 ~00:00).** L19 is on its last dataset (OpenScope 124 s, about 85%
-  done, ~40 min left). Queued after it, in order: the cloud-size extra
-  (`scripts/sb_cloud_size.py`), then L20 (`scripts/sb_cloud_sampling.py`: random / consecutive /
-  whole cloud, raw and / points, on the 5 datasets). The L20 smoke test on 6 retina neurons works.
+- **Status (local, 2026-11-13 ~01:00).** L19 done (below). Running now: the cloud-size extra
+  (retina 40 s, then OpenScope 124 s). Queued after it: L20 (5 datasets), then L21 (5 datasets).
 
 ## Open tasks for the web chat
 
@@ -270,6 +264,14 @@ need to real stablebear. Work in this order.
   L17's 10 s retina table is rerun without it. Should load_retina_running.py drop it?
 
 ## Done
+
+- L19 Spike-feature cloud: `notes/results/L19_spike_feature_cloud.md`. The joint 7-coordinate
+  cloud never beats ISI fractions or the burst table (best: sliced W1 35/27/46/52/63 against ISI
+  fractions 51/26/45/64/64). Population coordinates 6-7 dilute it (dropping them: retina 10 s
+  35 -> 41); alone they give 7-12% on Allen / OpenScope 124 s (1-2% controls). Partial success:
+  on OpenScope 124 s, coordinates 1-2 with K = 16 give regional H0 67.2% against counts 59.3 and
+  ISI fractions 64.2 (shuffled 57.3); burst table still 71.8. Bars add 0-2 points on 25-point
+  clouds and 1-8 on 100-point clouds. Time coordinate and H0+H1 do not help.
 
 - W8 Rips fixes pilot: `notes/results/W8_rips_fixes.md`. Time-filtered complex 5-17% (level of
   the spike count); adding H1 inside regions lowers H0 by 4-7 points. L21 is the stablebear version.
