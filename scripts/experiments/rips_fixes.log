@@ -1,0 +1,33 @@
+A. time-filtered complex
+{'method': 'time-filtered r=0.5: betti', 'full_1nn': 0.142, 'full_cluster': 0.185, 'cross_1nn': 0.11, 'cross_cluster': 0.116}
+{'method': 'time-filtered r=0.5: births', 'full_1nn': 0.16, 'full_cluster': 0.195, 'cross_1nn': 0.109, 'cross_cluster': 0.103}
+{'method': 'time-filtered r=0.5: lifetimes', 'full_1nn': 0.122, 'full_cluster': 0.169, 'cross_1nn': 0.089, 'cross_cluster': 0.09}
+{'method': 'time-filtered r=0.5: betti + births', 'full_1nn': 0.17, 'full_cluster': 0.212, 'cross_1nn': 0.138, 'cross_cluster': 0.111}
+{'method': 'time-filtered r=0.5: betti, ISIs shuffled', 'full_1nn': 0.126, 'full_cluster': 0.196, 'cross_1nn': 0.102, 'cross_cluster': 0.108}
+{'method': 'time-filtered r=0.5: births, ISIs shuffled', 'full_1nn': 0.134, 'full_cluster': 0.187, 'cross_1nn': 0.104, 'cross_cluster': 0.1}
+{'method': 'time-filtered r=0.5: lifetimes, ISIs shuffled', 'full_1nn': 0.117, 'full_cluster': 0.167, 'cross_1nn': 0.079, 'cross_cluster': 0.085}
+{'method': 'time-filtered r=1.0: betti', 'full_1nn': 0.09, 'full_cluster': 0.151, 'cross_1nn': 0.074, 'cross_cluster': 0.072}
+{'method': 'time-filtered r=1.0: births', 'full_1nn': 0.089, 'full_cluster': 0.15, 'cross_1nn': 0.062, 'cross_cluster': 0.077}
+{'method': 'time-filtered r=1.0: lifetimes', 'full_1nn': 0.086, 'full_cluster': 0.145, 'cross_1nn': 0.071, 'cross_cluster': 0.068}
+{'method': 'time-filtered r=1.0: betti + births', 'full_1nn': 0.116, 'full_cluster': 0.17, 'cross_1nn': 0.085, 'cross_cluster': 0.101}
+{'method': 'time-filtered r=1.0: betti, ISIs shuffled', 'full_1nn': 0.091, 'full_cluster': 0.151, 'cross_1nn': 0.075, 'cross_cluster': 0.078}
+{'method': 'time-filtered r=1.0: births, ISIs shuffled', 'full_1nn': 0.077, 'full_cluster': 0.15, 'cross_1nn': 0.065, 'cross_cluster': 0.072}
+{'method': 'time-filtered r=1.0: lifetimes, ISIs shuffled', 'full_1nn': 0.087, 'full_cluster': 0.156, 'cross_1nn': 0.063, 'cross_cluster': 0.069}
+{'method': 'time-filtered r=2.0: betti', 'full_1nn': 0.05, 'full_cluster': 0.109, 'cross_1nn': 0.057, 'cross_cluster': 0.058}
+{'method': 'time-filtered r=2.0: births', 'full_1nn': 0.043, 'full_cluster': 0.107, 'cross_1nn': 0.054, 'cross_cluster': 0.042}
+{'method': 'time-filtered r=2.0: lifetimes', 'full_1nn': 0.051, 'full_cluster': 0.103, 'cross_1nn': 0.048, 'cross_cluster': 0.05}
+{'method': 'time-filtered r=2.0: betti + births', 'full_1nn': 0.06, 'full_cluster': 0.108, 'cross_1nn': 0.06, 'cross_cluster': 0.053}
+{'method': 'time-filtered r=2.0: betti, ISIs shuffled', 'full_1nn': 0.055, 'full_cluster': 0.105, 'cross_1nn': 0.051, 'cross_cluster': 0.057}
+{'method': 'time-filtered r=2.0: births, ISIs shuffled', 'full_1nn': 0.041, 'full_cluster': 0.108, 'cross_1nn': 0.047, 'cross_cluster': 0.048}
+{'method': 'time-filtered r=2.0: lifetimes, ISIs shuffled', 'full_1nn': 0.049, 'full_cluster': 0.105, 'cross_1nn': 0.046, 'cross_cluster': 0.052}
+B. H1 inside regions, whole cloud
+{'method': 'regions whole: H0', 'full_1nn': 0.432, 'full_cluster': 0.342, 'cross_1nn': 0.307, 'cross_cluster': 0.218}
+{'method': 'regions whole: H1 stable rank', 'full_1nn': 0.186, 'full_cluster': 0.188, 'cross_1nn': 0.126, 'cross_cluster': 0.1}
+{'method': 'regions whole: H1 Betti curve', 'full_1nn': 0.144, 'full_cluster': 0.128, 'cross_1nn': 0.079, 'cross_cluster': 0.064}
+{'method': 'regions whole: H0 + H1 stable rank', 'full_1nn': 0.387, 'full_cluster': 0.29, 'cross_1nn': 0.243, 'cross_cluster': 0.179}
+{'method': 'regions whole: H0 + H1 Betti curve', 'full_1nn': 0.371, 'full_cluster': 0.283, 'cross_1nn': 0.235, 'cross_cluster': 0.17}
+{'method': 'regions whole: H0, ISIs shuffled', 'full_1nn': 0.399, 'full_cluster': 0.348, 'cross_1nn': 0.282, 'cross_cluster': 0.225}
+{'method': 'regions whole: H1 stable rank, ISIs shuffled', 'full_1nn': 0.168, 'full_cluster': 0.179, 'cross_1nn': 0.127, 'cross_cluster': 0.105}
+{'method': 'regions whole: H1 Betti curve, ISIs shuffled', 'full_1nn': 0.134, 'full_cluster': 0.144, 'cross_1nn': 0.096, 'cross_cluster': 0.067}
+{'method': 'regions whole: H0 + H1 stable rank, ISIs shuffled', 'full_1nn': 0.342, 'full_cluster': 0.295, 'cross_1nn': 0.232, 'cross_cluster': 0.175}
+{'method': 'regions whole: H0 + H1 Betti curve, ISIs shuffled', 'full_1nn': 0.349, 'full_cluster': 0.296, 'cross_1nn': 0.23, 'cross_cluster': 0.166}

@@ -271,6 +271,9 @@ need to real stablebear. Work in this order.
 
 ## Done
 
+- W8 Rips fixes pilot: `notes/results/W8_rips_fixes.md`. Time-filtered complex 5-17% (level of
+  the spike count); adding H1 inside regions lowers H0 by 4-7 points. L21 is the stablebear version.
+
 - W7 Cloud sampling pilot: `notes/results/W7_cloud_sampling.md`. Whole cloud beats 25 random
   points (regions 43.2 against 30.2 1-NN); the consecutive stretch is worse but has the largest
   order effect. L20 is the stablebear version on all datasets.
@@ -391,4 +394,5 @@ need to real stablebear. Work in this order.
 - 2026-11-13 web chat: W7 done (exp30). For L20: also report the whole cloud divided by its point count, and H0+H1 where it is affordable.
 - 2026-11-13 web chat: the user added a no-averaging time crop to L20 and wants the whole-cloud homology numbers on every dataset, spike count allowed. W7 addendum posted (exp31).
 - 2026-11-13 web chat: the user asked for H1 on the whole cloud and other fixes for Rips. Added L21 (H1, Betti curves, time-filtered complex); piloting in exp32.
+- 2026-11-13 web chat: W8 done (exp32). Both fixes negative on the retina; L21 still worth running for H1 on whole clouds without regions and on long cortical samples.
 

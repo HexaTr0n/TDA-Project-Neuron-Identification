@@ -1,0 +1,32 @@
+method,full_1nn,full_cluster,cross_1nn,cross_cluster
+time-filtered r=0.5: betti,0.142,0.185,0.11,0.116
+time-filtered r=0.5: births,0.16,0.195,0.109,0.103
+time-filtered r=0.5: lifetimes,0.122,0.169,0.089,0.09
+time-filtered r=0.5: betti + births,0.17,0.212,0.138,0.111
+"time-filtered r=0.5: betti, ISIs shuffled",0.126,0.196,0.102,0.108
+"time-filtered r=0.5: births, ISIs shuffled",0.134,0.187,0.104,0.1
+"time-filtered r=0.5: lifetimes, ISIs shuffled",0.117,0.167,0.079,0.085
+time-filtered r=1.0: betti,0.09,0.151,0.074,0.072
+time-filtered r=1.0: births,0.089,0.15,0.062,0.077
+time-filtered r=1.0: lifetimes,0.086,0.145,0.071,0.068
+time-filtered r=1.0: betti + births,0.116,0.17,0.085,0.101
+"time-filtered r=1.0: betti, ISIs shuffled",0.091,0.151,0.075,0.078
+"time-filtered r=1.0: births, ISIs shuffled",0.077,0.15,0.065,0.072
+"time-filtered r=1.0: lifetimes, ISIs shuffled",0.087,0.156,0.063,0.069
+time-filtered r=2.0: betti,0.05,0.109,0.057,0.058
+time-filtered r=2.0: births,0.043,0.107,0.054,0.042
+time-filtered r=2.0: lifetimes,0.051,0.103,0.048,0.05
+time-filtered r=2.0: betti + births,0.06,0.108,0.06,0.053
+"time-filtered r=2.0: betti, ISIs shuffled",0.055,0.105,0.051,0.057
+"time-filtered r=2.0: births, ISIs shuffled",0.041,0.108,0.047,0.048
+"time-filtered r=2.0: lifetimes, ISIs shuffled",0.049,0.105,0.046,0.052
+regions whole: H0,0.432,0.342,0.307,0.218
+regions whole: H1 stable rank,0.186,0.188,0.126,0.1
+regions whole: H1 Betti curve,0.144,0.128,0.079,0.064
+regions whole: H0 + H1 stable rank,0.387,0.29,0.243,0.179
+regions whole: H0 + H1 Betti curve,0.371,0.283,0.235,0.17
+"regions whole: H0, ISIs shuffled",0.399,0.348,0.282,0.225
+"regions whole: H1 stable rank, ISIs shuffled",0.168,0.179,0.127,0.105
+"regions whole: H1 Betti curve, ISIs shuffled",0.134,0.144,0.096,0.067
+"regions whole: H0 + H1 stable rank, ISIs shuffled",0.342,0.295,0.232,0.175
+"regions whole: H0 + H1 Betti curve, ISIs shuffled",0.349,0.296,0.23,0.166
