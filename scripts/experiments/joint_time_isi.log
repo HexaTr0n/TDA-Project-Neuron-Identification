@@ -1,0 +1,27 @@
+          session                                                  signature    nn  kmeans  kmeans_min  kmeans_max
+20180126_sr_le_sp                                       sqrt time bars 67 ms 0.841   0.661       0.640       0.677
+20180126_sr_le_sp                       sqrt time bars + ISI fractions (sum) 0.909   0.625       0.595       0.649
+20180126_sr_le_sp                                 multi-scale sqrt time bars 0.880   0.689       0.667       0.721
+20180126_sr_le_sp                         joint: time x ISI threshold, 67 ms 0.827   0.636       0.582       0.675
+20180126_sr_le_sp                                       joint, ISIs shuffled 0.071   0.103       0.101       0.105
+20180126_sr_le_sp joint: burst spikes and isolated spikes separately (20 ms) 0.778   0.560       0.534       0.590
+20180126_sr_le_sp                      joint, multi-scale (20 + 67 + 200 ms) 0.865   0.724       0.681       0.758
+20180126_sr_le_sp                          joint multi-scale + ISI fractions 0.898   0.627       0.609       0.653
+          session                                                  signature    nn  kmeans  kmeans_min  kmeans_max
+20171215_sr_le_sp                                       sqrt time bars 67 ms 0.877   0.693       0.677       0.716
+20171215_sr_le_sp                       sqrt time bars + ISI fractions (sum) 0.911   0.636       0.626       0.650
+20171215_sr_le_sp                                 multi-scale sqrt time bars 0.884   0.683       0.656       0.705
+20171215_sr_le_sp                         joint: time x ISI threshold, 67 ms 0.812   0.670       0.633       0.691
+20171215_sr_le_sp                                       joint, ISIs shuffled 0.038   0.075       0.068       0.081
+20171215_sr_le_sp joint: burst spikes and isolated spikes separately (20 ms) 0.876   0.617       0.607       0.632
+20171215_sr_le_sp                      joint, multi-scale (20 + 67 + 200 ms) 0.829   0.656       0.644       0.677
+20171215_sr_le_sp                          joint multi-scale + ISI fractions 0.891   0.570       0.564       0.574
+       session                                                  signature    nn  kmeans  kmeans_min  kmeans_max
+20180405_sr_le                                       sqrt time bars 67 ms 0.535   0.411       0.392       0.422
+20180405_sr_le                       sqrt time bars + ISI fractions (sum) 0.660   0.441       0.427       0.454
+20180405_sr_le                                 multi-scale sqrt time bars 0.556   0.422       0.408       0.429
+20180405_sr_le                         joint: time x ISI threshold, 67 ms 0.511   0.399       0.372       0.427
+20180405_sr_le                                       joint, ISIs shuffled 0.048   0.099       0.096       0.103
+20180405_sr_le joint: burst spikes and isolated spikes separately (20 ms) 0.389   0.264       0.260       0.269
+20180405_sr_le                      joint, multi-scale (20 + 67 + 200 ms) 0.563   0.435       0.434       0.436
+20180405_sr_le                          joint multi-scale + ISI fractions 0.647   0.416       0.405       0.421

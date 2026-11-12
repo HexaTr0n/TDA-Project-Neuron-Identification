@@ -219,6 +219,9 @@ need to real stablebear. Work in this order.
 
 ## Done
 
+- W6 Joint time x ISI signature: `notes/results/W6_joint_time_isi.md`. Equal to multi-scale time
+  bars for clustering, below the plain sum on 1-NN.
+
 - W5 Topological clustering of the trial space: `notes/results/W5_trial_space_clustering.md`.
   ToMATo is worse than k-means in 8 of 9 cells; its barcode suggests 7-18 clusters for 60 neurons.
 
@@ -326,4 +329,5 @@ need to real stablebear. Work in this order.
 - 2026-11-12 web chat: the user asked for one more well-designed embedding per family (Markov/pdf, spectral, cross-correlation), run everywhere, then move on. Added L19-L21 after L18.
 - 2026-11-12 web chat: the user found L19-L21 too narrow. Replaced them by one task, L19 (spike-feature cloud with ablations); the three narrow designs moved to "Ideas" as extras A-C. The user also allows extra ideas during implementation, as long as the original task is done.
 - 2026-11-12 web chat: read L18. W5 done (exp28: ToMATo on the trial space; negative). The user is away for a few hours; checks every 45 minutes, 5 rounds.
+- 2026-11-12 web chat: read the L19 interim status. W6 done (exp29: joint time x ISI; no gain over the sum).
 
