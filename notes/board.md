@@ -96,6 +96,16 @@ need to real stablebear. Work in this order.
 
 ## Ideas
 
+- (web, recommended next, from the L19 status at 21:00) **Was Rips held back by cloud size?**
+  With 100-point clouds on retina 40 s, delay regions (m = 2, K = 16) H0 ties ISI fractions
+  within a stimulus (64/63 against 64/67), where 25-point clouds gave about half. ISI fractions
+  always used every ISI. A fair test: the same neurons and samples, cloud sizes 25, 50, 100,
+  200 and 400 points (long samples: retina 40 s, OpenScope 124 s), delay regions m = 2 K = 16
+  H0 and its counts twin, against ISI fractions computed from the SAME number of randomly
+  chosen ISIs. If the curves coincide at equal data, the earlier gap was the subsampling, and
+  the statement becomes "regional Rips equals the ISI distribution at equal data, and adds
+  0-3 points of order".
+
 - (web) Three narrower designs, replaced by L19 but still open as extras. General rules for them: The user
   feels the Markov/pdf, spectral and cross-correlation families were not thought through. Each
   design below follows what we learned: (1) Rips cannot see where a cloud sits, so identity must
@@ -328,4 +338,5 @@ need to real stablebear. Work in this order.
 - 2026-11-12 web chat: the user found L19-L21 too narrow. Replaced them by one task, L19 (spike-feature cloud with ablations); the three narrow designs moved to "Ideas" as extras A-C. The user also allows extra ideas during implementation, as long as the original task is done.
 - 2026-11-12 web chat: read L18. W5 done (exp28: ToMATo on the trial space; negative). The user is away for a few hours; checks every 45 minutes, 5 rounds.
 - 2026-11-12 web chat: read the L19 interim status. W6 done (exp29: joint time x ISI; no gain over the sum).
+- 2026-11-12 web chat: read the L19 status of 21:00 (4 of 5 datasets). Added the cloud-size idea under Ideas.
 
