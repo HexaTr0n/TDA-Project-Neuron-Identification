@@ -5,3 +5,4 @@ __pycache__/
 *.pyc
 results/
 librips.so
+!notes/results/
