@@ -12,7 +12,7 @@ from scipy.optimize import linear_sum_assignment
 from sklearn.cluster import KMeans
 from barcodes import burst_bars, peak_events
 spec = importlib.util.spec_from_file_location("sd_new", HERE.parent / "spike_distance.py")
-sd = importlib.util.module_from_spec(spec); spec.loader.exec_module(sd)
+sd = importlib.util.module_from_spec(spec); sys.modules["sd_new"] = sd; spec.loader.exec_module(sd)  # registered so worker processes can find it
 
 T = 9.94
 df = load_data(); recs = records(df)
