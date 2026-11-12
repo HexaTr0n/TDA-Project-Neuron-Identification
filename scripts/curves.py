@@ -15,6 +15,9 @@ integral between the two functions. Means of these vectors are the means of the 
                        within +-10 ms); the weights come from curve_eval.py
     cond_isi_fractions isi_fractions of ISIs after a short / after a long ISI, concatenated
     burst_table        bursts with >= m spikes at 20 scales, divided by the spike count
+    isi_joint          share of consecutive ISI pairs with log ISI_k > a and log ISI_k+1 > b
+    isi_order          isi_joint minus the product of its two margins: zero when consecutive
+                       ISIs are independent, so only the order of ISIs reaches it (web chat W3)
 
 Long trials would give very long vectors, so a curve never has more than MAX_POINTS
 samples: past that the step grows. On the retina (9.94 s) no curve reaches the cap.
@@ -29,6 +32,7 @@ MAX_POINTS = 15000         # per curve; RAM guard for long trials
 ISI_GRID = np.linspace(np.log(MIN_ISI), np.log(10.0), 230)
 BURST_SCALES = np.geomspace(0.002, 1.0, 20)
 BURST_SIZES = np.array([1, 2, 3, 4, 6, 8, 12, 16])
+JOINT_GRID = np.linspace(np.log(1e-3), np.log(3), 24)
 
 
 def grid(stop, step, max_points=MAX_POINTS):
@@ -136,3 +140,22 @@ def burst_table(t, dur=None):
             size = bursts(t, s)[2]
             out[i] = (size[:, None] >= BURST_SIZES[None, :]).sum(0) / len(t)
     return out.ravel()
+
+
+def _joint_parts(t):
+    L = np.log(np.maximum(np.diff(t), MIN_ISI))
+    if len(L) < 2:
+        z = np.zeros(len(JOINT_GRID))
+        return np.zeros((len(JOINT_GRID), len(JOINT_GRID))), z, z
+    a = L[:-1][None, :] > JOINT_GRID[:, None]
+    b = L[1:][None, :] > JOINT_GRID[:, None]
+    return (a[:, None, :] & b[None, :, :]).mean(2), a.mean(1), b.mean(1)
+
+
+def isi_joint(t, dur=None):
+    return _joint_parts(t)[0].ravel()
+
+
+def isi_order(t, dur=None):
+    j, ma, mb = _joint_parts(t)
+    return (j - np.outer(ma, mb)).ravel()

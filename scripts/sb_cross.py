@@ -17,6 +17,11 @@ Two sessions of the same units, A and B (for example frozen trials and unrepeate
     rate_*               the same 1-NN scores with |log(1 + spike count)| only: what the
                          firing rate alone gives
 
+--cut-a L cuts every sample of A into pieces of L seconds (block = the original sample), and
+--max-per-neuron N keeps at most N random samples per neuron on each side, so that, for example,
+124 s grating blocks cut into 10 s pieces can be compared with 10 s spontaneous windows on
+equal terms.
+
 Run from the repo root:
     python scripts/sb_cross.py --data data/retina_running_20180126_sr_le_sp.parquet \\
         --session 20180126_sr_le_sp --cross-session 20180126_sr_le_sp_running
@@ -53,6 +58,16 @@ def isi_fraction_pcfs(trains):
     return out
 
 
+def cut_samples(df, L):
+    rows = []
+    for r in df.itertuples(index=False):
+        for j in range(int(r.duration // L + 1e-9)):
+            t = r.spike_times[(r.spike_times >= j * L) & (r.spike_times < (j + 1) * L)] - j * L
+            rows.append(dict(neuron_id=r.neuron_id, trial=r.trial, block=r.trial, piece=j,
+                             isis=np.diff(t), spike_times=t, duration=L))
+    return pd.DataFrame(rows)
+
+
 def nn(D, yq, yr, forbid=None):
     D = D.astype(float).copy()
     if forbid is not None:
@@ -72,12 +87,21 @@ def main():
     ap.add_argument("--cross-min-isis", type=int, default=10, help="for session B")
     ap.add_argument("--kmeans-seeds", type=int, default=3)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--cut-a", type=float, help="cut A's samples into pieces of this many seconds")
+    ap.add_argument("--max-per-neuron", type=int, help="at most this many samples per neuron and side")
     args = ap.parse_args()
 
     A = select(read(args.data, [args.session]), args.neurons, args.min_isis, args.seed)
     B = read(args.data, [args.cross_session])
     B = B[(B["isis"].map(len) >= args.cross_min_isis) & B["neuron_id"].isin(A["neuron_id"].unique())]
     B = B.reset_index(drop=True)
+    if args.cut_a:
+        A = cut_samples(A, args.cut_a)
+        A = A[A["isis"].map(len) >= args.cross_min_isis].reset_index(drop=True)
+    if args.max_per_neuron:
+        rng0 = np.random.default_rng(args.seed)
+        A, B = (pd.concat([g.iloc[np.sort(rng0.choice(len(g), min(len(g), args.max_per_neuron), replace=False))]
+                           for _, g in X.groupby("neuron_id")], ignore_index=True) for X in (A, B))
     names = np.unique(A["neuron_id"])
     ya, yb = np.searchsorted(names, A["neuron_id"]), np.searchsorted(names, B["neuron_id"])
     k = len(names)
