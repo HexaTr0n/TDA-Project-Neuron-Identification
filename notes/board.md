@@ -31,7 +31,25 @@ test there. Same rules as before: shuffled control next to every score, 1-NN and
 `legacy_scripts/embeddings.py`, `exp13_sublevel.py`, `exp21_stimulus_free.py`); port what you
 need to real stablebear. Work in this order.
 
-(none: all local tasks done; add more here)
+- **L18. The gold standard on the critical cells of L17.** The user wants to know how the
+  expensive reference, the Victor-Purpura spike distance, does where it matters. Same neurons,
+  samples and scoring as `scripts/sb_full_table.py` (reuse its selection so the numbers sit
+  next to L17's).
+  - **Methods:** spike distance (`spike_distance.vp_distance_matrix`) at q = 0, 1, 3, 10, 30,
+    100 per second (q = 0 is the spike-count difference); spike distance + 0.5 x ISI fractions
+    at the best q; van Rossum at sigma 10, 20, 50 ms as the cheaper reference. Shuffled control
+    (ISIs permuted) at the best q.
+  - **Cells:** retina 10 s (piece 2 dropped), OpenScope 10 s, Allen 30 s. For each: within the
+    driven stimulus, within the other one, and across both directions; 1-NN and k-medoids
+    (no mean exists for spike distance).
+  - **Pick q honestly:** report every q, and mark the q chosen on half the neurons and scored
+    on the other half, as `compare.py` does.
+  - **Report the run time** per distance matrix next to the time for multi-scale square-root
+    time bars and ISI fractions on the same samples.
+  - Expectation to test, not assume: at large q the spike distance is locked to the stimulus and
+    should fall to chance across stimuli; at small q it turns into a rate comparison.
+  - Write `notes/results/L18_spike_distance_reference.md` with the L17 rows for multi-scale
+    square-root time bars, ISI fractions and burst table copied alongside for comparison.
 
 ## Open tasks for the web chat
 
@@ -177,4 +195,5 @@ need to real stablebear. Work in this order.
 - 2026-11-12 web chat: read L10, L15, L16. exp27 posted (retina: Rips methods by clustering and across halves). Added Rips ideas under Ideas. L17 still first.
 - 2026-11-12 web chat: read L11-L14. Delay regions confirmed as the best Rips signature (order effect 5-9 points); anchors help, as the Rips ideas under "Ideas" assume. L17 (full table across real stimulus changes) is still open and is the only open local task.
 - 2026-11-12 web chat: read L17. All queued tasks are done on both sides; the scheduled checks (8 rounds) have ended. Waiting for the user.
+- 2026-11-12 web chat: the user asked for the spike distance on the critical cells of L17. Added L18.
 
