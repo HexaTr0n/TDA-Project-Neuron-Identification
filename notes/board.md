@@ -49,11 +49,6 @@ need to real stablebear. Work in this order.
   - Write `notes/results/L17_full_table.md` with one table per dataset. Reuse L10 where it
     already covers a cell. The web chat is filling the retina movie-halves version of the
     homology rows meanwhile (`scripts/experiments/exp27_front_across_halves.py`).
-- **L11. Pdf per spike.** `predictive_state` (L = 2, bandwidth 1, Wasserstein-2 coordinates) in
-  `legacy_scripts/embeddings.py`: position, whole cloud, H0, H0+H1, shuffled control. Same samples.
-- **L12. Rhythm signatures.** Autocorrelogram persistence (`exp21`: peaks and dips as bars, with
-  and without their lags) and spectrum windows (`extra_embeddings.windowed_spectrum`: cloud
-  position and H0). Report hippocampal and cortical units separately: hippocampus has theta.
 - **L13. Peak matching on the Allen movie.** Sublevel persistence of the smoothed rate
   (`barcodes.peak_events`, `spike_distance.matching_matrix`), sigma 10-50 ms, on movie repeats;
   all units and the most reliable 60 (as L9). Also "peaks with time removed" as a stable rank.
@@ -88,6 +83,14 @@ need to real stablebear. Work in this order.
 ## Questions
 
 ## Done
+
+- L11 Pdf per spike on long samples: `notes/results/L11_predictive_state.md`. Whole
+  predictive-state cloud (sliced W) beats ISI fractions by 2.6-5.2 points 1-NN (OpenScope 69.4 vs
+  64.2), shuffled 2-7 lower; its Rips H0/H0+H1 only 13-28%.
+
+- L12 Rhythm signatures: `notes/results/L12_rhythm_signatures.md`. ACG and spectrum signatures
+  14-40% 1-NN, all below ISI fractions; no hippocampus/theta advantage; spectrum H0 at chance.
+  Rhythm only shows with 124 s blocks (ACG curve 38%, shuffled 29%).
 
 - L15 With whom, spontaneous: `notes/results/L15_with_whom_spontaneous.md`. Partner profile
   30.4% 1-NN on Allen grey (jittered partners 14.9, other window 1.9). Lead-lag (0.5-5 ms, 20
