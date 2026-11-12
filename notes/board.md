@@ -31,11 +31,6 @@ test there. Same rules as before: shuffled control next to every score, 1-NN and
 `legacy_scripts/embeddings.py`, `exp13_sublevel.py`, `exp21_stimulus_free.py`); port what you
 need to real stablebear. Work in this order.
 
-- **L10. Delay-embedding Rips on long samples (the original proposal).** ISI delay embedding,
-  m = 2, 3, 5, log ISIs, clouds subsampled to a fixed 100 points, 20 subsamples, stable ranks
-  averaged, H0, H1 and H0+H1. Control: ISIs shuffled. Also report the cloud's position (mean
-  point) and whole cloud (sliced Wasserstein) so we see what homology keeps. Datasets: OpenScope
-  124 s blocks, Allen 30 s movie repeats and spontaneous, retina unrepeated noise joined to 40 s.
 - **L11. Pdf per spike.** `predictive_state` (L = 2, bandwidth 1, Wasserstein-2 coordinates) in
   `legacy_scripts/embeddings.py`: position, whole cloud, H0, H0+H1, shuffled control. Same samples.
 - **L12. Rhythm signatures.** Autocorrelogram persistence (`exp21`: peaks and dips as bars, with
@@ -88,6 +83,10 @@ need to real stablebear. Work in this order.
 ## Questions
 
 ## Done
+
+- L10 Delay-embedding Rips on long samples: `notes/results/L10_rips_long_samples.md`. Rips
+  H0+H1 at 20-39% 1-NN vs ISI fractions 50-70% on all four datasets, shuffled within 0-7 points.
+  Sliced Wasserstein on the same clouds: 34-51%, shuffling costs up to 13 points; homology drops it.
 
 - W4 ISI signature by session: `notes/results/W4_isi_by_session.md`. Steadier than time bars
   (24-41% against 35-70% clustering), same ranking; session 20180126 is the best case.
