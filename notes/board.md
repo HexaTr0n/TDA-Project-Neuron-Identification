@@ -22,7 +22,43 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 
 ## Open tasks for the local session
 
-(none: all local tasks done; add more here)
+The curve signatures are done on three datasets. The stranger methods have only ever run on the
+retina, where trials are short (60-160 spikes) and ISI order adds nothing. Cortex and hippocampus
+have long samples, a real order effect (L8), rhythms and real synapses, so each deserves a fair
+test there. Same rules as before: shuffled control next to every score, 1-NN and clustering,
+60 neurons seed 0, and say plainly what fails. Code for most of these is in
+`scripts/experiments/` (`exp18_cluster_cross.py`, `extra_embeddings.py`,
+`legacy_scripts/embeddings.py`, `exp13_sublevel.py`, `exp21_stimulus_free.py`); port what you
+need to real stablebear. Work in this order.
+
+- **L10. Delay-embedding Rips on long samples (the original proposal).** ISI delay embedding,
+  m = 2, 3, 5, log ISIs, clouds subsampled to a fixed 100 points, 20 subsamples, stable ranks
+  averaged, H0, H1 and H0+H1. Control: ISIs shuffled. Also report the cloud's position (mean
+  point) and whole cloud (sliced Wasserstein) so we see what homology keeps. Datasets: OpenScope
+  124 s blocks, Allen 30 s movie repeats and spontaneous, retina unrepeated noise joined to 40 s.
+- **L11. Pdf per spike.** `predictive_state` (L = 2, bandwidth 1, Wasserstein-2 coordinates) in
+  `legacy_scripts/embeddings.py`: position, whole cloud, H0, H0+H1, shuffled control. Same samples.
+- **L12. Rhythm signatures.** Autocorrelogram persistence (`exp21`: peaks and dips as bars, with
+  and without their lags) and spectrum windows (`extra_embeddings.windowed_spectrum`: cloud
+  position and H0). Report hippocampal and cortical units separately: hippocampus has theta.
+- **L13. Peak matching on the Allen movie.** Sublevel persistence of the smoothed rate
+  (`barcodes.peak_events`, `spike_distance.matching_matrix`), sigma 10-50 ms, on movie repeats;
+  all units and the most reliable 60 (as L9). Also "peaks with time removed" as a stable rank.
+- **L14. Rescaled-time ISI bars and delay regions.** `exp21` (population clock) and the
+  `regions_m3_k8` config, on OpenScope and Allen.
+- **L15. With whom, on tissue that has synapses.** Spontaneous periods only (no stimulus to
+  share). (a) Correlation-with-partners profile per sample (20 ms), control: partners jittered by
+  +-50 ms, and partners from another spontaneous window. (b) Do neurons group by brain area?
+  Correlation distance between neurons, average linkage, agreement (ARI) with area, against
+  shuffled areas. (c) Flow between areas: lead-lag from correlograms (5 ms after minus 5 ms
+  before), averaged between areas; compare the order with the known visual hierarchy
+  (LGN/LP, VISp, then higher visual areas) and report any loop. Simulation versions of (b) and (c)
+  are in `exp19_connectivity_pilots.py`.
+- **L16. Matching neuron geometries across stimuli.** Neuron-by-neuron distance matrix (1 -
+  correlation of 20 ms smoothed trains) under the movie and again under spontaneous. Hide the
+  labels of one, find the pairing that best preserves distances (start simple: each neuron's
+  sorted distance profile, Hungarian matching), score the share of neurons paired with
+  themselves against a shuffled pairing.
 
 ## Open tasks for the web chat
 
@@ -105,4 +141,5 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 - 2026-11-12 local: L8 done (curves.isi_joint, isi_order). L9 running.
 - 2026-11-12 local: L9 done (scripts/sb_reliability.py). Local task list empty.
 - 2026-11-12 web chat: read L4-L9, W4 done (scripts/experiments/exp26). Scheduled checks stopped after round 2; waiting for the user.
+- 2026-11-12 web chat: the user asked for the stranger methods on the new datasets. Added L10-L16.
 
