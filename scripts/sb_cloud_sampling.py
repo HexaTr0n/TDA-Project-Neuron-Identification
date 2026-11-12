@@ -4,7 +4,9 @@
   consecutive   P consecutive points: a random number of points cut off the start and the end,
                 20 draws averaged; samples with fewer than P points use all of them (counted)
   whole         every point, one barcode; reported raw and with the stable rank divided by the
-                number of points (otherwise the spike count leaks in)
+                number of points (otherwise the spike count leaks in); regions k = 8, 16, 32, 64
+  crop70/50     a random amount of time cut off the start and the end so that 70% / 50% of the
+                sample remains, every point of it, one barcode, no averaging (user, 2026-11-13)
 P = 25 on short samples, 100 on long ones (retina40, openscope124).
 
 Signatures (stablebear): delay Rips m = 3 (H0, H0+H1) and delay regions k = 8 (H0, H0+H1; anchors fitted
@@ -66,40 +68,49 @@ def scale_pcfs(pcfs, factors):
     return out
 
 
-def signatures(clouds, anchors, mode, P, S, rng):
-    subs, short = draws(clouds, mode, P, S, rng)
+def crop_clouds(trains, length, keep, rng):
+    """Cut a random amount of time off the start and the end, keep the fraction `keep` of the
+    sample, and return the delay cloud of every spike left (one cloud per sample)."""
+    out, short = [], 0
+    for t in trains:
+        a = rng.uniform(0, (1 - keep) * length)
+        u = t[(t >= a) & (t < a + keep * length)]
+        c = delay_cloud(u) if len(u) >= 5 else np.zeros((0, 3))
+        if len(c) < 2:
+            short += 1
+            c = np.zeros((2, 3))
+        out.append(c)
+    return out, short
+
+
+def group_of(name, parts, H1=None):
+    """parts: list of PCF lists (regions) for H0; H1 the same for H1 or None."""
+    g = [([("pcf", p) for p in parts], 1.0)]
+    if H1 is not None:
+        g.append(([("pcf", p) for p in H1], 1.0))
+    return g
+
+
+def signatures(clouds, anchors, Ks, mode, P, S, rng, divide):
+    """{name: groups}. anchors: {K: centres}; Ks: region counts used in this mode."""
+    if mode in ("random", "consecutive"):
+        subs, short = draws(clouds, mode, P, S, rng)
+    else:  # whole or crop: one barcode of every point
+        subs, short = [[c] for c in clouds], 0
+    sigs = {}
     plain = rips_parts([[[x] for x in sub] for sub in subs], 1)
-    reg = rips_parts([[split_regions(x, anchors) for x in sub] for sub in subs], 1)
-    out = {"delay Rips m=3, H0": [plain[0][0]],
-           "delay Rips m=3, H0+H1": [plain[0][0], plain[1][0]],
-           "delay regions k=8, H0": reg[0],
-           "delay regions k=8, H0+H1": (reg[0], reg[1])}
-    groups = {}
-    for name, parts in out.items():
-        if name == "delay regions k=8, H0+H1":
-            groups[name] = [([("pcf", p) for p in parts[0]], 1.0), ([("pcf", p) for p in parts[1]], 1.0)]
-        elif name.endswith("H0+H1"):
-            groups[name] = [([("pcf", parts[0])], 1.0), ([("pcf", parts[1])], 1.0)]
-        elif "regions" in name:
-            groups[name] = [([("pcf", p) for p in parts], 1.0)]
-        else:
-            groups[name] = [([("pcf", parts[0])], 1.0)]
-    if mode == "whole":
-        f = [1.0 / len(c) for c in clouds]
-        for name, parts in out.items():
-            if name == "delay regions k=8, H0+H1":
-                g = [([("pcf", scale_pcfs(p, f)) for p in parts[0]], 1.0),
-                     ([("pcf", scale_pcfs(p, f)) for p in parts[1]], 1.0)]
-                groups[name + ", / points"] = g
-                continue
-            sc = [scale_pcfs(p, f) for p in parts]
-            if name.endswith("H0+H1"):
-                g = [([("pcf", sc[0])], 1.0), ([("pcf", sc[1])], 1.0)]
-            elif "regions" in name:
-                g = [([("pcf", p) for p in sc], 1.0)]
-            else:
-                g = [([("pcf", sc[0])], 1.0)]
-            groups[name + ", / points"] = g
+    sigs["delay Rips m=3, H0"] = ([plain[0][0]], None)
+    sigs["delay Rips m=3, H0+H1"] = ([plain[0][0]], [plain[1][0]])
+    for K in Ks:
+        reg = rips_parts([[split_regions(x, anchors[K]) for x in sub] for sub in subs], 1)
+        sigs[f"delay regions k={K}, H0"] = (reg[0], None)
+        sigs[f"delay regions k={K}, H0+H1"] = (reg[0], reg[1])
+    groups = {n: group_of(n, h0, h1) for n, (h0, h1) in sigs.items()}
+    if divide:
+        f = [1.0 / max(len(c), 1) for c in clouds]
+        for n, (h0, h1) in sigs.items():
+            groups[n + ", / points"] = group_of(n, [scale_pcfs(p, f) for p in h0],
+                                                None if h1 is None else [scale_pcfs(p, f) for p in h1])
     return groups, short
 
 
@@ -109,7 +120,7 @@ def main():
     ap.add_argument("--neurons", type=int, default=60)
     ap.add_argument("--subsamples", type=int, default=20)
     ap.add_argument("--drop-piece", type=int)
-    ap.add_argument("--modes", nargs="+", default=["random", "consecutive", "whole"])
+    ap.add_argument("--modes", nargs="+", default=["whole", "crop70", "crop50", "random", "consecutive"])
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
     one = DS[args.dataset]["b"] is None
@@ -134,7 +145,8 @@ def main():
     pts = np.concatenate([delay_cloud(t) for t in pool_trains])
     rng = np.random.default_rng(args.seed)
     pts = pts[rng.choice(len(pts), min(8000, len(pts)), replace=False)]
-    anchors = KMeans(8, n_init=3, random_state=args.seed).fit(pts).cluster_centers_
+    anchors = {K: KMeans(K, n_init=3, random_state=args.seed).fit(pts).cluster_centers_ for K in (8, 16, 32, 64)}
+    length = DS[args.dataset]["length"]
 
     trains = [np.sort(np.asarray(t, float)) for t in both["spike_times"]]
     rs = np.random.default_rng(args.seed + 1)
@@ -150,8 +162,14 @@ def main():
     for mode in args.modes:
         for cond, tr in conds.items():
             t0 = time.time()
-            clouds = [delay_cloud(t) for t in tr]
-            G, short = signatures(clouds, anchors, mode, P, S, np.random.default_rng(args.seed + 2))
+            r0 = np.random.default_rng(args.seed + 2)
+            if mode.startswith("crop"):
+                clouds, short0 = crop_clouds(tr, length, int(mode[4:]) / 100, r0)
+            else:
+                clouds, short0 = [delay_cloud(t) for t in tr], 0
+            Ks = (8, 16, 32, 64) if mode == "whole" else (8,)
+            G, short = signatures(clouds, anchors, Ks, mode, P, S, r0, divide=mode == "whole")
+            short += short0
             print(f"  {mode} {cond}: barcodes in {time.time() - t0:.0f} s, short samples {short}", flush=True)
             for name, groups in G.items():
                 t1 = time.time()
@@ -160,7 +178,7 @@ def main():
                 rows.append(dict(dataset=args.dataset, sampling=mode, method=name, control=cond, points=P,
                                  short=short, neurons=k, samples_A=len(ia), samples_B=len(ib), **r))
                 f = lambda key: f"{100 * r[key]:5.1f}" if key in r else "    -"
-                print(f"  {mode:<11} {name:<32} {cond:<13} | A {f('nn_A')} {f('kmedoids_A')} {f('kmeans_A')}"
+                print(f"  {mode:<11} {name:<36} {cond:<13} | A {f('nn_A')} {f('kmedoids_A')} {f('kmeans_A')}"
                       f" | B {f('nn_B')} {f('kmedoids_B')} {f('kmeans_B')} | A->B {f('nn_Ato')} {f('kmedoids_Ato')}"
                       f" {f('kmeans_Ato')} | B->A {f('nn_Bto')} {f('kmedoids_Bto')} {f('kmeans_Bto')}"
                       f"  ({time.time() - t1:.0f} s)", flush=True)
