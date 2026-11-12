@@ -71,7 +71,7 @@ def reliability(trains, dur, bin_s=0.05):
     return float(r[np.triu_indices(len(c), 1)].mean())
 
 
-def evaluate(df, label, seeds):
+def evaluate(df, label, seeds, with_isi=True):
     import stablebear as sb
 
     y = np.unique(df["neuron_id"], return_inverse=True)[1]
@@ -82,13 +82,13 @@ def evaluate(df, label, seeds):
     variants = {"sqrt time bars": trains,
                 "sqrt time bars, ISIs shuffled": [shuffle_isis(t, rng) if len(t) > 1 else t for t in trains]}
     per_unit = None
-    for name, tr in list(variants.items()) + [("ISI fractions", trains)]:
+    for name, tr in list(variants.items()) + ([("ISI fractions", trains)] if with_isi else []):
         pcfs = isi_fraction_pcfs(tr) if name == "ISI fractions" else sqrt_betti_pcfs(tr, C.S)
         D = np.asarray(sb.pdist(sb.PcfTensor(pcfs), p=1).to_dense(), dtype=float)
         np.fill_diagonal(D, np.inf)
         hit = y[D.argmin(1)] == y
         km = [matched(y, sb_kmeans(pcfs, k, np.random.default_rng(s)), k)[0] for s in range(seeds)]
-        rows.append(dict(units=label, signature=name, nn=hit.mean(), kmeans=np.mean(km)))
+        rows.append(dict(units=label, signature=name, nn=hit.mean(), kmeans=np.mean(km) if km else np.nan))
         if name == "sqrt time bars":
             per_unit = pd.Series(hit).groupby(df["neuron_id"].to_numpy()).mean()
     return rows, per_unit
@@ -103,6 +103,8 @@ def main():
     ap.add_argument("--min-isis", type=int, default=30)
     ap.add_argument("--kmeans-seeds", type=int, default=3)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--per-unit-units", type=int, default=400,
+                    help="random units for the per-unit reliability analysis (RAM: dense distances)")
     args = ap.parse_args()
 
     d = read_nwb(args.nwb)
@@ -142,11 +144,13 @@ def main():
         results += r
         print(pd.DataFrame(r).round(3).to_string(index=False), flush=True)
 
-    # Per unit, over all usable units: does its own 1-NN hit rate follow its reliability?
-    _, per_unit = evaluate(ok.reset_index(drop=True), "all", 1)
+    # Per unit: does its own 1-NN hit rate follow its reliability? A random subset of units,
+    # because the dense distance matrix over all of them would not fit in RAM. No k-means.
+    many = rng.choice(names, min(args.per_unit_units, len(names)), replace=False)
+    _, per_unit = evaluate(ok[ok["neuron_id"].isin(many)].reset_index(drop=True), "per unit", 0, with_isi=False)
     rho, p = spearmanr(rel.loc[per_unit.index], per_unit)
     q = pd.qcut(rel.loc[per_unit.index], 5, labels=False)
-    print(f"\nall {len(per_unit)} units: per-unit 1-NN (sqrt time bars) against reliability, "
+    print(f"\n{len(per_unit)} random units: per-unit 1-NN (sqrt time bars) against reliability, "
           f"Spearman {rho:.3f} (p = {p:.1e})")
     print("by reliability quintile (mean reliability, mean 1-NN):")
     print(pd.DataFrame({"reliability": rel.loc[per_unit.index], "nn": per_unit}).groupby(q.values).mean().round(3).to_string())

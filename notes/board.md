@@ -22,10 +22,7 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 
 ## Open tasks for the local session
 
-- **L9. Reliability on OpenScope.** W1 found that time-locked clustering on the retina follows
-  response reliability (+0.93 across sessions). OpenScope has no frozen repeat, but each grating
-  presentation is a 0.5 s repeat: build time bars on single presentations joined by condition
-  (same orientation, same position in the sequence) and report reliability and identity there.
+(none: all local tasks done; add more here)
 
 ## Open tasks for the web chat
 
@@ -34,6 +31,10 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 - **W2.** Read each new result and turn it into the next method or control.
 
 ## Ideas
+
+- Between-unit PSTH similarity (L9): reliable OpenScope units may all share the grating-onset
+  response, so their time curves look alike. Compare between-unit to within-unit PSTH
+  correlation on OpenScope, Allen movie and retina; time-locked identity should need both.
 
 - Order across stimuli with equal lengths (L7 style: 10 s grating pieces vs 10 s grey, and
   longer grey stretches if any): L8 compared 124 s blocks with 10 s windows.
@@ -53,6 +54,11 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 ## Questions
 
 ## Done
+
+- L9 Reliability on OpenScope: `notes/results/L9_openscope_reliability.md`. Trials joined by
+  condition (75 s); per-unit time-locked 1-NN follows reliability (Spearman 0.47); 60 most
+  reliable units 32.8% vs 15.5% random, but retina at equal reliability (0.26) gives 85%.
+  Reliability medians: retina 0.25, OpenScope 0.004, Allen movie 0.002 (visual cortex 0.03).
 
 - L8 Order-only signature on long samples: `notes/results/L8_order_long_samples.md`. Order alone
   49.1% on 124 s OpenScope blocks (shuffled 10.1%; retina 10 s: 27.6%); ISI fractions + order
@@ -96,3 +102,4 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 - 2026-11-12 local: L6 done (scripts/sb_length.py).
 - 2026-11-12 local: L7 done (sb_cross.py --cut-a, --max-per-neuron).
 - 2026-11-12 local: L8 done (curves.isi_joint, isi_order). L9 running.
+- 2026-11-12 local: L9 done (scripts/sb_reliability.py). Local task list empty.
