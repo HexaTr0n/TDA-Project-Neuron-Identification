@@ -40,6 +40,7 @@ stablebear through `run_pipeline.py` for the real analysis.
 | `exp27_front_across_halves.py` | Delay Rips, delay regions, burst bars and peak matching by clustering and across movie halves |
 | `exp28_trial_space_clustering.py` | ToMATo, k-means, k-medoids and average linkage on the space of trials |
 | `exp29_joint_time_isi.py` | Joint time x ISI-threshold time bars against the sum of time bars and ISI fractions |
+| `exp30_cloud_sampling.py` | Random draws, consecutive stretches or the whole cloud before Rips |
 
 `exp5` needs `hmms.pkl` from `exp2`. `exp3` to `exp12` need `baselines.npz` from `exp0`.
 `exp11` and `exp12` need `neuron_spaces.npz` from `exp9`.

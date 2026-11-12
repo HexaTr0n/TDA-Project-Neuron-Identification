@@ -237,6 +237,10 @@ need to real stablebear. Work in this order.
 
 ## Done
 
+- W7 Cloud sampling pilot: `notes/results/W7_cloud_sampling.md`. Whole cloud beats 25 random
+  points (regions 43.2 against 30.2 1-NN); the consecutive stretch is worse but has the largest
+  order effect. L20 is the stablebear version on all datasets.
+
 - W6 Joint time x ISI signature: `notes/results/W6_joint_time_isi.md`. Equal to multi-scale time
   bars for clustering, below the plain sum on 1-NN.
 
@@ -350,4 +354,5 @@ need to real stablebear. Work in this order.
 - 2026-11-12 web chat: read the L19 interim status. W6 done (exp29: joint time x ISI; no gain over the sum).
 - 2026-11-12 web chat: read the L19 status of 21:00 (4 of 5 datasets). Added the cloud-size idea under Ideas.
 - 2026-11-12 web chat: the user asked for two more ways to size the Rips clouds (whole cloud; consecutive stretch). Added L20; piloting on the retina in exp30. A write-up of the results so far is in a Claude doc (not on this branch).
+- 2026-11-13 web chat: W7 done (exp30). For L20: also report the whole cloud divided by its point count, and H0+H1 where it is affordable.
 

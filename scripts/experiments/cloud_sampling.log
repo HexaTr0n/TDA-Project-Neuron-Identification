@@ -1,0 +1,37 @@
+{'method': 'reference: spike count', 'full_1nn': 0.114, 'full_cluster': 0.181, 'cross_1nn': 0.093, 'cross_cluster': 0.105}
+{'method': 'reference: ISI fractions', 'full_1nn': 0.54, 'full_cluster': 0.381, 'cross_1nn': 0.415, 'cross_cluster': 0.282}
+{'method': 'delay Rips H0, random', 'full_1nn': 0.184, 'full_cluster': 0.216, 'cross_1nn': 0.141, 'cross_cluster': 0.133}
+{'method': 'delay Rips H0, random, ISIs shuffled', 'full_1nn': 0.16, 'full_cluster': 0.209, 'cross_1nn': 0.12, 'cross_cluster': 0.134}
+{'method': 'delay Rips H0, stretch', 'full_1nn': 0.146, 'full_cluster': 0.197, 'cross_1nn': 0.107, 'cross_cluster': 0.098}
+{'method': 'delay Rips H0, stretch, ISIs shuffled', 'full_1nn': 0.121, 'full_cluster': 0.182, 'cross_1nn': 0.097, 'cross_cluster': 0.1}
+{'method': 'delay Rips H0, whole', 'full_1nn': 0.331, 'full_cluster': 0.29, 'cross_1nn': 0.243, 'cross_cluster': 0.203}
+{'method': 'delay Rips H0, whole, ISIs shuffled', 'full_1nn': 0.315, 'full_cluster': 0.279, 'cross_1nn': 0.234, 'cross_cluster': 0.209}
+{'method': 'delay Rips H0, whole, as fractions', 'full_1nn': 0.191, 'full_cluster': 0.202, 'cross_1nn': 0.141, 'cross_cluster': 0.141}
+{'method': 'delay Rips H0, whole, as fractions, ISIs shuffled', 'full_1nn': 0.159, 'full_cluster': 0.185, 'cross_1nn': 0.131, 'cross_cluster': 0.124}
+{'method': 'delay regions H0, random', 'full_1nn': 0.302, 'full_cluster': 0.285, 'cross_1nn': 0.208, 'cross_cluster': 0.184}
+{'method': 'delay regions H0, random, ISIs shuffled', 'full_1nn': 0.258, 'full_cluster': 0.263, 'cross_1nn': 0.178, 'cross_cluster': 0.159}
+{'method': 'delay regions H0, stretch', 'full_1nn': 0.265, 'full_cluster': 0.264, 'cross_1nn': 0.193, 'cross_cluster': 0.152}
+{'method': 'delay regions H0, stretch, ISIs shuffled', 'full_1nn': 0.207, 'full_cluster': 0.232, 'cross_1nn': 0.146, 'cross_cluster': 0.132}
+{'method': 'delay regions H0, whole', 'full_1nn': 0.432, 'full_cluster': 0.342, 'cross_1nn': 0.307, 'cross_cluster': 0.218}
+{'method': 'delay regions H0, whole, ISIs shuffled', 'full_1nn': 0.412, 'full_cluster': 0.358, 'cross_1nn': 0.289, 'cross_cluster': 0.245}
+{'method': 'delay regions H0, whole, as fractions', 'full_1nn': 0.377, 'full_cluster': 0.298, 'cross_1nn': 0.266, 'cross_cluster': 0.177}
+{'method': 'delay regions H0, whole, as fractions, ISIs shuffled', 'full_1nn': 0.332, 'full_cluster': 0.26, 'cross_1nn': 0.236, 'cross_cluster': 0.158}
+                                              method  full_1nn  full_cluster  cross_1nn  cross_cluster
+                              reference: spike count     0.114         0.181      0.093          0.105
+                            reference: ISI fractions     0.540         0.381      0.415          0.282
+                               delay Rips H0, random     0.184         0.216      0.141          0.133
+                delay Rips H0, random, ISIs shuffled     0.160         0.209      0.120          0.134
+                              delay Rips H0, stretch     0.146         0.197      0.107          0.098
+               delay Rips H0, stretch, ISIs shuffled     0.121         0.182      0.097          0.100
+                                delay Rips H0, whole     0.331         0.290      0.243          0.203
+                 delay Rips H0, whole, ISIs shuffled     0.315         0.279      0.234          0.209
+                  delay Rips H0, whole, as fractions     0.191         0.202      0.141          0.141
+   delay Rips H0, whole, as fractions, ISIs shuffled     0.159         0.185      0.131          0.124
+                            delay regions H0, random     0.302         0.285      0.208          0.184
+             delay regions H0, random, ISIs shuffled     0.258         0.263      0.178          0.159
+                           delay regions H0, stretch     0.265         0.264      0.193          0.152
+            delay regions H0, stretch, ISIs shuffled     0.207         0.232      0.146          0.132
+                             delay regions H0, whole     0.432         0.342      0.307          0.218
+              delay regions H0, whole, ISIs shuffled     0.412         0.358      0.289          0.245
+               delay regions H0, whole, as fractions     0.377         0.298      0.266          0.177
+delay regions H0, whole, as fractions, ISIs shuffled     0.332         0.260      0.236          0.158

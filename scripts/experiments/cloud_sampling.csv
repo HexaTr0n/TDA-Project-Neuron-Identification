@@ -1,0 +1,19 @@
+method,full_1nn,full_cluster,cross_1nn,cross_cluster
+reference: spike count,0.114,0.181,0.093,0.105
+reference: ISI fractions,0.54,0.381,0.415,0.282
+"delay Rips H0, random",0.184,0.216,0.141,0.133
+"delay Rips H0, random, ISIs shuffled",0.16,0.209,0.12,0.134
+"delay Rips H0, stretch",0.146,0.197,0.107,0.098
+"delay Rips H0, stretch, ISIs shuffled",0.121,0.182,0.097,0.1
+"delay Rips H0, whole",0.331,0.29,0.243,0.203
+"delay Rips H0, whole, ISIs shuffled",0.315,0.279,0.234,0.209
+"delay Rips H0, whole, as fractions",0.191,0.202,0.141,0.141
+"delay Rips H0, whole, as fractions, ISIs shuffled",0.159,0.185,0.131,0.124
+"delay regions H0, random",0.302,0.285,0.208,0.184
+"delay regions H0, random, ISIs shuffled",0.258,0.263,0.178,0.159
+"delay regions H0, stretch",0.265,0.264,0.193,0.152
+"delay regions H0, stretch, ISIs shuffled",0.207,0.232,0.146,0.132
+"delay regions H0, whole",0.432,0.342,0.307,0.218
+"delay regions H0, whole, ISIs shuffled",0.412,0.358,0.289,0.245
+"delay regions H0, whole, as fractions",0.377,0.298,0.266,0.177
+"delay regions H0, whole, as fractions, ISIs shuffled",0.332,0.26,0.236,0.158
