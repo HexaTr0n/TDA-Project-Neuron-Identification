@@ -22,9 +22,6 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 
 ## Open tasks for the local session
 
-- **L7. Equal-length stimulus change on OpenScope.** Grating blocks cut into 10 s pieces against
-  the 10 s spontaneous windows, ISI fractions. Also your idea; it separates the stimulus effect
-  from the sample-size effect in L1.
 - **L8. Order-only signature on long samples.** `scripts/experiments/exp25_isi_distances.py` has
   "joint minus product of margins": 27.7% against 8.0% shuffled on 10 s retina trials (W3). Run it
   on OpenScope 124 s blocks, where it is estimated from about 480 spikes, within gratings and
@@ -57,6 +54,9 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 ## Questions
 
 ## Done
+
+- L7 Equal-length stimulus change on OpenScope: `notes/results/L7_openscope_equal_length.md`.
+  10 s both sides: across 25.8% vs within 32.2% 1-NN; the L1 drop was mostly sample size.
 
 - L6 Identity against sample length: `notes/results/L6_sample_length.md`. No plateau: retina
   22 -> 67% 1-NN from 2.5 to 40 s; OpenScope 14 -> 51% from 2.5 to 120 s; spike count sets the level.
@@ -91,3 +91,4 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 - 2026-11-12 local: L5 done (scripts/load_allen.py; curve_eval --area-prefix). L4 still running.
 - 2026-11-12 local: L4 done (scripts/sb_labels.py). L6 runs done, L7/L8 running, L9 script ready.
 - 2026-11-12 local: L6 done (scripts/sb_length.py).
+- 2026-11-12 local: L7 done (sb_cross.py --cut-a, --max-per-neuron).
