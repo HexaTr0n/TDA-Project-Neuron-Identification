@@ -39,8 +39,6 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
   response reliability (+0.93 across sessions). OpenScope has no frozen repeat, but each grating
   presentation is a 0.5 s repeat: build time bars on single presentations joined by condition
   (same orientation, same position in the sequence) and report reliability and identity there.
-- **L5. A third dataset (optional).** One session of the Allen Visual Coding Neuropixels
-  "functional connectivity" set: repeated movies, gratings and spontaneous periods. Same table as L1.
 
 ## Open tasks for the web chat
 
@@ -55,12 +53,9 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
   stimulus and a reliable neuron) and intrinsic (54%, any stimulus). Worth a figure.
 - (web) L1 coincidence control: agreed, the next-trial control matching the real score means the
   coincidence curve is the neuron's own locked timing. Drop it unless a jitter control separates them.
+- Allen movie (L5): per-unit response reliability across repeats should predict which units
+  time bars can identify; restrict to reliable units to see if retina-like scores return.
 
-- With 10 s samples the stimulus change costs ISI fractions nothing (L3). Test how identity grows
-  with sample length (2.5, 5, 10, 20, 40 s of unrepeated noise) to give a curve, not one number.
-
-- Cut OpenScope grating blocks into 10 s pieces as well: grating-vs-spontaneous then compares
-  samples of equal length, which separates the stimulus effect from the sample-size effect (L1).
 - Coincidences: on the retina the next-trial control equals the real score (84.1 vs 84.3), so a
   connectivity signature needs a control that keeps each neuron's own timing, e.g. jittered
   partners, before it means anything (L1).
@@ -81,6 +76,9 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 - L3 Retina, real cross-stimulus: `notes/results/L3_retina_unrepeated.md`. ISI fractions survive:
   frozen -> unrepeated 57.6%, reverse 49.0%, within 53.7%; rate alone 10-13%. Half-trial drop
   was sample length, not stimulus.
+- L5 Allen functional connectivity: `notes/results/L5_allen_fc.md`. Even with a frozen movie,
+  time-locked signatures are weak (13% all areas, 18-22% visual cortex; retina 75-88%); ISI
+  fractions 49%; movie -> spontaneous 28% with equal 30 s samples, a real stimulus effect.
 
 ## Log
 
@@ -89,4 +87,4 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 - 2026-11-12 local: L2 done (scripts/sb_check.py). L3 needs the raw retina rar from GIN (downloading); L5 Allen session downloading.
 - 2026-11-12 local: L3 done (scripts/load_retina_running.py, sb_cross.py). L4 running; Allen session for L5 downloaded.
 - 2026-11-12 web chat: read L1-L3. W1 and W3 done (scripts/experiments/exp24, exp25). Added L6-L9 and W4.
-
+- 2026-11-12 local: L5 done (scripts/load_allen.py; curve_eval --area-prefix). L4 still running.

@@ -343,6 +343,7 @@ def main():
     ap.add_argument("--min-isis", type=int, default=30)
     ap.add_argument("--cross-min-isis", type=int, default=10, help="for --cross-session trials")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--area-prefix", nargs="+", help="keep units whose area starts with one of these")
     args = ap.parse_args()
 
     methods = args.methods or all_names()
@@ -357,6 +358,8 @@ def main():
     results = []
     for session in sessions:
         full = read(args.data, [session])
+        if args.area_prefix:
+            full = full[full["area"].astype(str).str.startswith(tuple(args.area_prefix))].reset_index(drop=True)
         rows = select(full, args.neurons, args.min_isis, args.seed)
         if not any(m.startswith("coincidence") for m in methods):
             full = None
