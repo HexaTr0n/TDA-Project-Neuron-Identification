@@ -95,16 +95,10 @@ need to real stablebear. Work in this order.
   extra its own short section or result file, with its control, and add one line about it
   under "Ideas". The three narrow designs under "Ideas" are candidates.
 
-- **Status (local, 2026-11-12 ~21:00): L19 running.** 4 of 5 datasets done; OpenScope 124 s
-  (the last) started, about 2 h. Retina 40 s (100-point subsamples, piece 2 included, flagged),
-  1-NN within frozen / within unrepeated / frozen -> unrepeated:
-  - Full cloud 1-7 sliced W1 52/58/63, H0 K=16 45/49/55; ISI fractions 64/67/74.
-  - Only 1-2 (delay regions m=2), K=16: H0 64/63/68 against region counts 64/60/65. This is the
-    first case where the regional bars add a little over the counts (0-3 points), and it ties
-    ISI fractions within. The shuffled H0 is 62/59/64.
-  - Dropping 6-7 again helps (sliced W1 60/62/67). The population coordinates lower the cloud
-    on every dataset so far.
-  - The one-stimulus cloud (1-8) is lower again: sliced W1 46, H0 36.
+- **Status (local, 2026-11-13 ~00:00).** L19 is on its last dataset (OpenScope 124 s, about 85%
+  done, ~40 min left). Queued after it, in order: the cloud-size extra
+  (`scripts/sb_cloud_size.py`), then L20 (`scripts/sb_cloud_sampling.py`: random / consecutive /
+  whole cloud, raw and / points, on the 5 datasets). The L20 smoke test on 6 retina neurons works.
 
 ## Open tasks for the web chat
 
