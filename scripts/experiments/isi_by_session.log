@@ -1,0 +1,32 @@
+          session  neurons  clustering  isi_1nn  time_bars_clustering  rate_hz  reliability  margin  trials_per_neuron  trials_total
+20180126_sr_le_sp       60       0.409    0.540                 0.654   14.515        0.832   0.644               30.0          1645
+20180116_sr_le_fp       60       0.317    0.399                 0.681    6.468        0.872   0.997               29.0          1422
+20171215_sr_le_sp       60       0.300    0.337                 0.703    4.538        0.853   1.068               18.0          1056
+   20180222_fr_re       60       0.291    0.385                 0.397   11.233        0.724   0.466               29.0          1514
+   20180405_sr_le       60       0.287    0.340                 0.410    8.704        0.637   0.473               30.0          1605
+20180222_sr_le_sp       53       0.282    0.367                 0.535    6.953        0.783   0.552               30.0          1427
+   20180405_fr_re       57       0.270    0.331                 0.371   12.343        0.634   0.446               30.0          1437
+20180316_sr_le_fp       38       0.256    0.191                 0.352    7.665        0.475   0.929                4.0           262
+20180316_sr_le_sp       60       0.243    0.231                 0.425    5.745        0.679   0.491               29.0          1422
+
+across sessions, Spearman with clustering:
+  time_bars_clustering +0.67
+  isi_1nn            +0.87
+  rate_hz            +0.18
+  reliability        +0.78
+  trials_per_neuron  +0.15
+  neurons            +0.55
+
+per neuron, all sessions pooled (n = 508): Spearman of 'share of trials in main cluster' with
+  rate         +0.24   within sessions (mean): +0.16
+  reliability  +0.38   within sessions (mean): +0.33
+  margin       +0.58   within sessions (mean): +0.68
+  trials       -0.06   within sessions (mean): -0.08
+
+share of trials in main cluster by reliability quartile:
+                  mean  size
+reliability                 
+(0.0174, 0.596]  0.291   119
+(0.596, 0.76]    0.251   118
+(0.76, 0.86]     0.318   118
+(0.86, 0.988]    0.461   119

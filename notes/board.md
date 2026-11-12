@@ -26,8 +26,6 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 
 ## Open tasks for the web chat
 
-- **W4.** Does the stimulus-free ISI signature depend on the session the way time bars do (W1)?
-  All nine retina sessions, frozen trials.
 - **W2.** Read each new result and turn it into the next method or control.
 
 ## Ideas
@@ -54,6 +52,9 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 ## Questions
 
 ## Done
+
+- W4 ISI signature by session: `notes/results/W4_isi_by_session.md`. Steadier than time bars
+  (24-41% against 35-70% clustering), same ranking; session 20180126 is the best case.
 
 - L9 Reliability on OpenScope: `notes/results/L9_openscope_reliability.md`. Trials joined by
   condition (75 s); per-unit time-locked 1-NN follows reliability (Spearman 0.47); 60 most
@@ -103,3 +104,5 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 - 2026-11-12 local: L7 done (sb_cross.py --cut-a, --max-per-neuron).
 - 2026-11-12 local: L8 done (curves.isi_joint, isi_order). L9 running.
 - 2026-11-12 local: L9 done (scripts/sb_reliability.py). Local task list empty.
+- 2026-11-12 web chat: read L4-L9, W4 done (scripts/experiments/exp26). Scheduled checks stopped after round 2; waiting for the user.
+
