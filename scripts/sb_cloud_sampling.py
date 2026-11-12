@@ -7,7 +7,7 @@
                 number of points (otherwise the spike count leaks in)
 P = 25 on short samples, 100 on long ones (retina40, openscope124).
 
-Signatures (stablebear): delay Rips m = 3 (H0, H0+H1) and delay regions k = 8 (H0; anchors fitted
+Signatures (stablebear): delay Rips m = 3 (H0, H0+H1) and delay regions k = 8 (H0, H0+H1; anchors fitted
 on outside neurons, as L17). Control: ISIs permuted within every sample.
 
 Neurons and samples as L17 (sb_full_table.samples / choose, seed 0); openscope124 as L19
@@ -69,13 +69,16 @@ def scale_pcfs(pcfs, factors):
 def signatures(clouds, anchors, mode, P, S, rng):
     subs, short = draws(clouds, mode, P, S, rng)
     plain = rips_parts([[[x] for x in sub] for sub in subs], 1)
-    reg = rips_parts([[split_regions(x, anchors) for x in sub] for sub in subs], 0)
+    reg = rips_parts([[split_regions(x, anchors) for x in sub] for sub in subs], 1)
     out = {"delay Rips m=3, H0": [plain[0][0]],
            "delay Rips m=3, H0+H1": [plain[0][0], plain[1][0]],
-           "delay regions k=8, H0": reg[0]}
+           "delay regions k=8, H0": reg[0],
+           "delay regions k=8, H0+H1": (reg[0], reg[1])}
     groups = {}
     for name, parts in out.items():
-        if name.endswith("H0+H1"):
+        if name == "delay regions k=8, H0+H1":
+            groups[name] = [([("pcf", p) for p in parts[0]], 1.0), ([("pcf", p) for p in parts[1]], 1.0)]
+        elif name.endswith("H0+H1"):
             groups[name] = [([("pcf", parts[0])], 1.0), ([("pcf", parts[1])], 1.0)]
         elif "regions" in name:
             groups[name] = [([("pcf", p) for p in parts], 1.0)]
@@ -84,6 +87,11 @@ def signatures(clouds, anchors, mode, P, S, rng):
     if mode == "whole":
         f = [1.0 / len(c) for c in clouds]
         for name, parts in out.items():
+            if name == "delay regions k=8, H0+H1":
+                g = [([("pcf", scale_pcfs(p, f)) for p in parts[0]], 1.0),
+                     ([("pcf", scale_pcfs(p, f)) for p in parts[1]], 1.0)]
+                groups[name + ", / points"] = g
+                continue
             sc = [scale_pcfs(p, f) for p in parts]
             if name.endswith("H0+H1"):
                 g = [([("pcf", sc[0])], 1.0), ([("pcf", sc[1])], 1.0)]
