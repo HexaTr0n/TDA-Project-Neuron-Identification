@@ -31,45 +31,6 @@ test there. Same rules as before: shuffled control next to every score, 1-NN and
 `legacy_scripts/embeddings.py`, `exp13_sublevel.py`, `exp21_stimulus_free.py`); port what you
 need to real stablebear. Work in this order.
 
-- **Idea.** One cloud per sample, one point per spike, with several qualities as coordinates.
-    Adding up separate distances never sees how qualities go together ("this neuron bursts only
-    when the population is active"); a joint cloud does.
-  - **Coordinates of spike k at time t** (use spikes that have a neighbour on both sides):
-    1. log ISI before it (floor 1e-4 s);
-    2. log ISI after it;
-    3. log(1 + own spikes within +-10 ms), 4. within +-33 ms, 5. within +-100 ms, not counting
-       the spike itself (burst and rhythm context at three scales);
-    6. square root of the number of other units' spikes within +-10 ms (coupling to the
-       population; "other units" = all good units of the same sample or trial, minus itself);
-    7. (A - B) / (A + B + 1), with A the other units' spikes in the 10 ms after t and B in the
-       10 ms before (does the neuron lead or follow);
-    8. t / sample length. **Only in the one-stimulus version.**
-  - **Scaling.** Subtract the mean and divide by the standard deviation of each coordinate,
-    estimated once per dataset from spikes of neurons NOT in the comparison. Equal weights after
-    that; do not tune weights with labels. For coordinate 8 also report a weight of 4.
-  - **Regions.** k-means anchors fitted on 20,000 pooled, scaled spikes of those outside
-    neurons. Report K = 16 and K = 64.
-  - **Readout with homology.** Subsample each cloud to a fixed size (25 points on short
-    samples, 100 on long ones), 20 subsamples; Rips H0 inside each region (empty barcode if
-    fewer than 2 points); stable ranks averaged over subsamples, concatenated over regions.
-    Report H0 and H0+H1.
-  - **Twins without homology** (same subsamples): spike counts per region; the whole cloud by
-    sliced Wasserstein; the mean point.
-  - **Two versions.** Stimulus-free (coordinates 1-7): within each stimulus and across, as in
-    L17. One-stimulus (coordinates 1-8): within the driven stimulus only.
-  - **Controls.** (a) ISIs shuffled, then every coordinate recomputed. (b) Other units taken
-    from another sample or trial, which should hurt only coordinates 6-7.
-  - **Ablations,** to see what each quality adds: without 1-2; without 3-5; without 6-7; only
-    1-2 (this is delay regions with m = 2); and each of the three groups alone.
-  - **Datasets and scores.** The four of L17 (retina 10 s without piece 2, retina 40 s flagged,
-    OpenScope 10 s, Allen 30 s) plus OpenScope 124 s blocks; same selection code and scoring
-    (1-NN, k-medoids, k-means with `sb.mean`). Copy the L17 rows for ISI fractions, burst
-    table, delay regions k = 8 and multi-scale square-root time bars next to the new ones.
-  - **Expectation to test, not assume:** on short samples the region counts will carry most of
-    it and the bars will add little, because rich regions leave few points each; long samples
-    are the fair test for the homology readout.
-  - Write `notes/results/L19_spike_feature_cloud.md`.
-
 - **L20. Two other ways to cut a delay cloud to size (from the user).** So far every Rips cloud
   was 25 (or 100) points drawn at random, 20 draws averaged. The user wants two alternatives,
   on real stablebear and on the L17 datasets plus the long samples:
