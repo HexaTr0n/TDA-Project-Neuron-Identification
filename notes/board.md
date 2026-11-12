@@ -61,6 +61,22 @@ need to real stablebear. Work in this order.
 
 ## Ideas
 
+- (web, from the user's question on Rips) Three ways to get identity into a Rips barcode, since
+  Rips cannot see where a cloud sits. Not yet tasks; waiting for the user's go-ahead.
+  1. **Conditional-pdf cloud with references.** Split ISIs into about 8 groups by the previous
+     ISI; one next-ISI pdf per group (quantile coordinates, Wasserstein). Add fixed reference
+     points to every cloud: the sample's overall ISI pdf, a Poisson pdf at the same rate, a few
+     fixed pdfs at set time scales. No memory = the 8 points coincide; shuffled collapses by
+     construction. Needs about 60 ISIs per group, so long samples only.
+  2. **Persistence spectrum.** Sliding-window embedding (f(t), f(t+tau), ...) of the smoothed
+     train for a range of window lengths; record the longest H1 bar at each length. A PCF over
+     window length that peaks at the neuron's rhythms. Hippocampal units first.
+  3. **Lag diagram.** For each partner, persistence of the cross-correlogram (bars with lag and
+     prominence); pool over partners into one diagram per neuron; compare by matching in lag.
+     Spontaneous periods only.
+- (web) L16 is the strongest "with whom" result so far: 99.5-100% of 851 units re-identified
+  from correlation distances alone within a condition. Worth a drift-free stimulus test.
+
 - Between-unit PSTH similarity (L9): reliable OpenScope units may all share the grating-onset
   response, so their time curves look alike. Compare between-unit to within-unit PSTH
   correlation on OpenScope, Allen movie and retina; time-locked identity should need both.
@@ -160,4 +176,5 @@ need to real stablebear. Work in this order.
 - 2026-11-12 web chat: read L4-L9, W4 done (scripts/experiments/exp26). Scheduled checks stopped after round 2; waiting for the user.
 - 2026-11-12 web chat: the user asked for the stranger methods on the new datasets. Added L10-L16.
 - 2026-11-12 web chat: the user asked for every method across stimuli on every dataset. Added L17, to do before L11.
+- 2026-11-12 web chat: read L10, L15, L16. exp27 posted (retina: Rips methods by clustering and across halves). Added Rips ideas under Ideas. L17 still first.
 
