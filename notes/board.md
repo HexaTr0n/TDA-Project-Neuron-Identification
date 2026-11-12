@@ -59,19 +59,6 @@ need to real stablebear. Work in this order.
   all units and the most reliable 60 (as L9). Also "peaks with time removed" as a stable rank.
 - **L14. Rescaled-time ISI bars and delay regions.** `exp21` (population clock) and the
   `regions_m3_k8` config, on OpenScope and Allen.
-- **L15. With whom, on tissue that has synapses.** Spontaneous periods only (no stimulus to
-  share). (a) Correlation-with-partners profile per sample (20 ms), control: partners jittered by
-  +-50 ms, and partners from another spontaneous window. (b) Do neurons group by brain area?
-  Correlation distance between neurons, average linkage, agreement (ARI) with area, against
-  shuffled areas. (c) Flow between areas: lead-lag from correlograms (5 ms after minus 5 ms
-  before), averaged between areas; compare the order with the known visual hierarchy
-  (LGN/LP, VISp, then higher visual areas) and report any loop. Simulation versions of (b) and (c)
-  are in `exp19_connectivity_pilots.py`.
-- **L16. Matching neuron geometries across stimuli.** Neuron-by-neuron distance matrix (1 -
-  correlation of 20 ms smoothed trains) under the movie and again under spontaneous. Hide the
-  labels of one, find the pairing that best preserves distances (start simple: each neuron's
-  sorted distance profile, Hungarian matching), score the share of neurons paired with
-  themselves against a shuffled pairing.
 
 ## Open tasks for the web chat
 
@@ -101,6 +88,16 @@ need to real stablebear. Work in this order.
 ## Questions
 
 ## Done
+
+- L15 With whom, spontaneous: `notes/results/L15_with_whom_spontaneous.md`. Partner profile
+  30.4% 1-NN on Allen grey (jittered partners 14.9, other window 1.9). Lead-lag (0.5-5 ms, 20
+  jitter controls) recovers CA3->CA1, CA1->SUB, VISp->VISl->VISam, VISp->SCig; no loops. Areas in
+  correlation clusters ARI 0.24 (average linkage chains).
+
+- L16 Geometry matching movie vs spontaneous: `notes/results/L16_geometry_matching.md`. Graph
+  matching of correlation distances re-identifies 99.5-100% of 851 units between interleaved
+  halves; movie vs spont time-matched 37.5% (spont vs spont 50 min apart 39.2%); recording drift
+  costs as much as the stimulus change.
 
 - L10 Delay-embedding Rips on long samples: `notes/results/L10_rips_long_samples.md`. Rips
   H0+H1 at 20-39% 1-NN vs ISI fractions 50-70% on all four datasets, shuffled within 0-7 points.

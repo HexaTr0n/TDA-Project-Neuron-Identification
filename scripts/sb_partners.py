@@ -15,9 +15,10 @@
 (c) Flow between areas. For every ordered pair, A[a, b] = spikes of b 0.5-5 ms after a spike of
     a (numba). Lead Y[a, b] = (A[a, b] - A[b, a]) / sqrt(A[a, b] + A[b, a]); area flow
     F[p, q] = mean of Y over units of p and q, antisymmetrised. Control: every spike jittered by
-    +-25 ms. An area's net lead = mean of F over the other areas. Compared with the visual
+    +-25 ms, --control-reps times; z-scores of each net lead and each area-to-area flow against
+    those controls. An area's net lead = mean of F over the other areas. Compared with the visual
     hierarchy (Siegle et al. 2021 order: LGd, VISp, VISl, VISrl, LP, VISal, VISpm, VISam), and
-    a directed graph of flows above 5 times the largest control flow is checked for loops.
+    a directed graph of flows with z > --edge-z is checked for loops.
 
 Run from the repo root:
     python scripts/sb_partners.py --data data/allen/allen829720705.parquet --session allen829720705_spont
@@ -243,26 +244,28 @@ def part_c(full, units, areas, args, rng):
     units = [u for u, k in zip(units, keep) if k]
     lab = lab[keep]
     Y = lead_matrix(trains, units, 0, rng)
-    Yc = lead_matrix(trains, units, 0.025, rng)
     F = area_flow(Y, lab, names)
-    Fc = area_flow(Yc, lab, names)
-    cut = 5 * np.abs(Fc).max()
     net = F.sum(1) / (len(names) - 1)
-    net_c = Fc.sum(1) / (len(names) - 1)
+    Fc = np.array([area_flow(lead_matrix(trains, units, 0.025, rng), lab, names) for _ in range(args.control_reps)])
+    net_c = Fc.sum(2) / (len(names) - 1)
+    z_net = (net - net_c.mean(0)) / net_c.std(0)
+    zF = (F - Fc.mean(0)) / np.maximum(Fc.std(0), 1e-12)
     out = pd.DataFrame(dict(session=args.session, area=names, units=[int(counts[a]) for a in names],
-                            net_lead=net, net_lead_control=net_c,
+                            net_lead=net, control_sd=net_c.std(0), z=z_net,
                             hierarchy_rank=[HIERARCHY.index(a) if a in HIERARCHY else np.nan for a in names]))
     out = out.sort_values("net_lead", ascending=False)
     print(f"(c) {len(units)} units in {len(names)} areas with >= {args.min_area_units} units; "
-          f"control flow max {np.abs(Fc).max():.4f}", flush=True)
+          f"{args.control_reps} jitter controls (+-25 ms)", flush=True)
     print(out.round(4).to_string(index=False), flush=True)
     vis = out.dropna(subset=["hierarchy_rank"])
     if len(vis) >= 3:
         rho, p = spearmanr(vis["hierarchy_rank"], -vis["net_lead"])
         print(f"    visual areas: Spearman(hierarchy rank, -net lead) = {rho:.2f} (p = {p:.2f}, {len(vis)} areas)", flush=True)
-    edges = [(a, b) for a in range(len(names)) for b in range(len(names)) if F[a, b] > cut]
+    edges = [(a, b) for a in range(len(names)) for b in range(len(names)) if F[a, b] > 0 and zF[a, b] > args.edge_z]
     loop = has_loop(edges, len(names))
-    print(f"    edges above 5 x control: {[(names[a], names[b]) for a, b in edges]}", flush=True)
+    print(f"    {len(edges)} area-to-area flows with z > {args.edge_z} against the jitter controls:", flush=True)
+    for a_, b_ in sorted(edges, key=lambda e: -zF[e]):
+        print(f"      {names[a_]:>6} -> {names[b_]:<6} flow {F[a_, b_]:.4f}  z {zF[a_, b_]:.1f}", flush=True)
     print(f"    areas left in a cycle: {[names[i] for i in loop] if loop else 'none'}", flush=True)
     out.to_csv(RESULTS / f"partners_{args.session}_c.csv", index=False)
     pd.DataFrame(F, index=names, columns=names).to_csv(RESULTS / f"partners_{args.session}_c_flow.csv")
@@ -278,6 +281,8 @@ def main():
     ap.add_argument("--min-isis", type=int, default=30)
     ap.add_argument("--min-rate", type=float, default=1.0)
     ap.add_argument("--min-area-units", type=int, default=10)
+    ap.add_argument("--control-reps", type=int, default=20)
+    ap.add_argument("--edge-z", type=float, default=4.0)
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
 
