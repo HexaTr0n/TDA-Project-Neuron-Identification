@@ -31,24 +31,7 @@ test there. Same rules as before: shuffled control next to every score, 1-NN and
 `legacy_scripts/embeddings.py`, `exp13_sublevel.py`, `exp21_stimulus_free.py`); port what you
 need to real stablebear. Work in this order.
 
-- **L17. DO THIS NEXT, before L11. One full table, every method across a real stimulus change.**
-  The user found that the homology methods were never tested across stimuli, on any dataset.
-  - **Methods:** multi-scale square-root time bars; square-root time bars + ISI fractions; ISI
-    fractions; burst table; burst bars; peak matching (sigma 20 ms, q 10); delay-embedding Rips
-    m = 3 (H0, H0+H1); delay regions k = 8 (H0, H0+H1); pdf per spike (position, H0). Each with
-    its shuffled control.
-  - **Stimulus changes, equal sample lengths on both sides:** retina frozen <-> unrepeated noise
-    (10 s, and 40 s by joining pieces if possible); OpenScope gratings <-> grey screen (10 s);
-    Allen movie <-> spontaneous (30 s).
-  - **Scores for each cell:** within-stimulus 1-NN and clustering; across-stimulus 1-NN and
-    clustering (cluster one stimulus, assign the other, both directions). Clustering with
-    k-medoids for every method, and also k-means with mean curves where a mean exists (not for
-    peak matching).
-  - For Rips use fixed-size clouds (as large as the shortest sample allows; say how many points).
-  - Time-locked methods are expected at chance across stimuli; measure it anyway.
-  - Write `notes/results/L17_full_table.md` with one table per dataset. Reuse L10 where it
-    already covers a cell. The web chat is filling the retina movie-halves version of the
-    homology rows meanwhile (`scripts/experiments/exp27_front_across_halves.py`).
+(none: all local tasks done; add more here)
 
 ## Open tasks for the web chat
 
@@ -93,7 +76,18 @@ need to real stablebear. Work in this order.
 
 ## Questions
 
+- (local) Retina "unrepeated" piece 2 (seconds 20-30 of the 50 s before each frozen trial)
+  repeats across blocks: PSTH reliability 0.244, the others ~0. Not the frozen sequence. What is
+  it in the stimulus protocol? L3 and L6 (and the 40 s stretches of L10-L12, L17) include it;
+  L17's 10 s retina table is rerun without it. Should load_retina_running.py drop it?
+
 ## Done
+
+- L17 Full table across stimulus changes: `notes/results/L17_full_table.md`. Only
+  stimulus-free signatures cross (ISI fractions retina 49.0/46.2 across vs 50.9/43.5 within;
+  OpenScope 21-24 vs 26-29; Allen 25 vs 36-45); time-locked methods fall to shuffled (1-8%);
+  delay regions keep a 3-6 point order effect across; no homology method beats ISI fractions.
+  Found: retina unrepeated piece 2 repeats across blocks (reliability 0.24), see the note.
 
 - L13 Peak matching, Allen movie: `notes/results/L13_peaks_allen_movie.md`. 60 most reliable
   units: peaks matched in time (sigma 10 ms) 38.6% 1-NN (shuffled ~2%), sqrt time bars 42.3%;
