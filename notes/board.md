@@ -79,18 +79,16 @@ need to real stablebear. Work in this order.
   extra its own short section or result file, with its control, and add one line about it
   under "Ideas". The three narrow designs under "Ideas" are candidates.
 
-- **Status (local, 2026-11-12 19:45): L19 running.** 3 of 5 datasets done (retina 10 s, OpenScope
-  10 s, Allen 30 s); retina 40 s running, then OpenScope 124 s (several more hours). Interim, 1-NN
-  within A / A -> B, K = 16:
-  - The joint cloud does not beat ISI fractions on short samples. Best readout is the whole cloud
-    by sliced W1 (retina 35/36 vs ISI fractions 51/49; OpenScope 27/22 vs 26/21; Allen 46/26 vs
-    45/25). Regional H0 is no better than region counts.
-  - Coordinates 6-7 (population coupling) carry no identity on their own (2-10%), and dropping them
-    helps on the retina (sliced W1 35 -> 41). Equal weights let them dilute the cloud.
-  - Best subset on the retina is ISIs only (1-2): sliced W1 45%, H0 39%. Own-spike context (3-5)
-    alone: 29-38%.
-  - Coordinate 8 (time) does not help: weight 4 lowers every score.
-  - Code: `scripts/sb_feature_cloud.py`. Result file comes when all five datasets are in.
+- **Status (local, 2026-11-12 ~21:00): L19 running.** 4 of 5 datasets done; OpenScope 124 s
+  (the last) started, about 2 h. Retina 40 s (100-point subsamples, piece 2 included, flagged),
+  1-NN within frozen / within unrepeated / frozen -> unrepeated:
+  - Full cloud 1-7 sliced W1 52/58/63, H0 K=16 45/49/55; ISI fractions 64/67/74.
+  - Only 1-2 (delay regions m=2), K=16: H0 64/63/68 against region counts 64/60/65. This is the
+    first case where the regional bars add a little over the counts (0-3 points), and it ties
+    ISI fractions within. The shuffled H0 is 62/59/64.
+  - Dropping 6-7 again helps (sliced W1 60/62/67). The population coordinates lower the cloud
+    on every dataset so far.
+  - The one-stimulus cloud (1-8) is lower again: sliced W1 46, H0 36.
 
 ## Open tasks for the web chat
 
