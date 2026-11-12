@@ -49,11 +49,6 @@ need to real stablebear. Work in this order.
   - Write `notes/results/L17_full_table.md` with one table per dataset. Reuse L10 where it
     already covers a cell. The web chat is filling the retina movie-halves version of the
     homology rows meanwhile (`scripts/experiments/exp27_front_across_halves.py`).
-- **L13. Peak matching on the Allen movie.** Sublevel persistence of the smoothed rate
-  (`barcodes.peak_events`, `spike_distance.matching_matrix`), sigma 10-50 ms, on movie repeats;
-  all units and the most reliable 60 (as L9). Also "peaks with time removed" as a stable rank.
-- **L14. Rescaled-time ISI bars and delay regions.** `exp21` (population clock) and the
-  `regions_m3_k8` config, on OpenScope and Allen.
 
 ## Open tasks for the web chat
 
@@ -99,6 +94,15 @@ need to real stablebear. Work in this order.
 ## Questions
 
 ## Done
+
+- L13 Peak matching, Allen movie: `notes/results/L13_peaks_allen_movie.md`. 60 most reliable
+  units: peaks matched in time (sigma 10 ms) 38.6% 1-NN (shuffled ~2%), sqrt time bars 42.3%;
+  random units 6-11%. Peaks with time removed 22-32%, shuffled only 4-5 lower (burstiness).
+
+- L14 Rescaled time and delay regions: `notes/results/L14_rescaled_time_and_regions.md`.
+  Population clock makes ISI fractions worse (Allen 48.7 -> 41.0) and does not help across
+  stimuli. regions_m3_k8 H0 doubles plain Rips (OpenScope 40.9 vs 19.6, shuffled 34.8), still
+  below ISI fractions.
 
 - L11 Pdf per spike on long samples: `notes/results/L11_predictive_state.md`. Whole
   predictive-state cloud (sliced W) beats ISI fractions by 2.6-5.2 points 1-NN (OpenScope 69.4 vs
