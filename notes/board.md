@@ -51,6 +51,82 @@ need to real stablebear. Work in this order.
   - Write `notes/results/L18_spike_distance_reference.md` with the L17 rows for multi-scale
     square-root time bars, ISI fractions and burst table copied alongside for comparison.
 
+- **L19-L21. One more, carefully designed embedding per family; then we move on.** The user
+  feels the Markov/pdf, spectral and cross-correlation families were not thought through. Each
+  design below follows what we learned: (1) Rips cannot see where a cloud sits, so identity must
+  be turned into shape or pinned by fixed regions; (2) a regional stable rank starts at the
+  number of points in the region, so regions carry a histogram and the bars add local spread;
+  (3) each point needs enough data; (4) the summary must be a PCF so that k-means with
+  `sb.mean` works. **For every design report:** 1-NN, k-medoids and k-means; within each
+  stimulus and across (as in L17, same selection code); its control; and its "no homology"
+  twin, so we see what the barcode adds. Datasets: retina 10 s (piece 2 dropped) and 40 s,
+  OpenScope 10 s and 124 s blocks, Allen 30 s, unless a design says otherwise.
+
+- **L19. Markov-state regions (Markov / pdf family).**
+  - **Idea.** A Markov chain on ISI states is a table of transitions. Make each transition a
+    region of the delay cloud and take Rips inside it. The stable rank of region (i, j) starts
+    at the number of i -> j transitions, so the barcode contains the transition matrix; its bar
+    lengths say how tightly that transition's ISI pairs concentrate. Reversing a train
+    transposes the regions, so this is orientation-aware (the slide's fix).
+  - **Cloud.** Points (log I_k, log I_(k+1)), m = 2.
+  - **States.** 4 states from fixed log-ISI edges: the 25, 50, 75% quantiles of ISIs pooled over
+    neurons NOT in the comparison, one set of edges per dataset. This gives 16 regions.
+  - **Barcode.** Subsample the cloud to a fixed size (25 points on short samples, 100 on long),
+    20 subsamples; Rips H0 inside every region (a region with fewer than 2 points has an empty
+    barcode); stable ranks averaged over subsamples and concatenated over the 16 regions. Also
+    report H0+H1.
+  - **Control.** ISIs shuffled.
+  - **No-homology twin.** The 4 x 4 transition counts of the same subsamples (the stable ranks'
+    values at zero), L1.
+  - **Also report** m = 3 with 3 states (27 regions) on the long samples only.
+  - **Compare with** delay regions k = 8 and ISI fractions from L17.
+
+- **L20. Persistence spectrum (spectral family).**
+  - **Idea.** In a sliding-window embedding a rhythm becomes a loop, and the loop is roundest
+    when the window matches the period. So sweep the window length and record H1: a
+    topological periodogram, with the frequency kept as the coordinate instead of being lost
+    as a position.
+  - **Signal.** Spike train smoothed with a Gaussian of width w / 8 for window length w.
+  - **Embedding.** For each w in 12 log-spaced values from 20 ms to 2 s: points
+    (f(t), f(t + w/8), ..., f(t + 7w/8)) for t on a grid of step w / 8; drop windows with no
+    spike; subtract each window's mean and divide by its norm (as SW1PerS does); keep 100
+    points by farthest-point sampling (fewer if the sample has fewer non-empty windows; say so).
+  - **Barcode.** Rips H1 per w. Two summaries: (a) the longest H1 bar as a function of w, a PCF
+    with 12 steps; (b) the H1 stable ranks of all 12 w concatenated.
+  - **Control.** ISIs shuffled, and a second control with each spike jittered by +-w/2 (computed
+    per w), which removes rhythm at that scale but keeps slower structure.
+  - **No-homology twin.** Power of the smoothed train at the 12 frequencies 1/w (Welch or direct
+    Fourier sum), L1 after dividing by total power.
+  - **Samples.** Long ones only: retina 40 s, OpenScope 124 s, Allen 30 s movie and spontaneous.
+    Report hippocampal and cortical units separately as in L12.
+
+- **L21. Lead / lag persistence diagram (cross-correlation family).**
+  - **Idea.** Earlier versions either used partner names (a lookup table) or threw them away and
+    the lags with them. Keep the lag as the meaningful coordinate: for every partner take the
+    persistence of its cross-correlogram with the neuron, and sort the resulting bars into
+    "partner leads", "synchronous" and "partner follows". The three stable ranks say how many
+    strong partners fire before, with and after the neuron: a per-neuron in/out profile, which
+    is as close to connectivity as spike trains get.
+  - **Samples.** Long ones, because a pair's correlogram needs many spikes: Allen spontaneous in
+    300 s stretches and the movie blocks in 300 s stretches (time-matched pair for "across", as
+    in L16); OpenScope grey screen and grating blocks in the longest equal stretches available.
+    Retina 40 s for completeness (no synapses between these cells; expect nothing).
+  - **Partners.** A fixed random set of 200 units per dataset, the same for every sample, each
+    with >= 1 Hz; never the neuron itself.
+  - **Per partner.** Cross-correlogram at 1 ms bins for lags within +-25 ms; subtract a slow
+    baseline (the correlogram smoothed with a 10 ms boxcar) and divide by the square root of
+    the baseline (noise units); find peaks and their prominences (sublevel persistence of the
+    negated curve); keep the most prominent peak and its lag.
+  - **Barcode.** Three sets of bars [0, prominence]: lag in [-15, -1.5) ms (partner leads),
+    [-1.5, 1.5] (synchronous), (1.5, 15] (partner follows). Stable rank of each, concatenated.
+  - **Second variant where areas exist (Allen, OpenScope).** Split partners by brain area as
+    well (hippocampus, thalamus, primary visual, higher visual, other), so the signature says
+    which areas lead and follow the neuron.
+  - **Control.** The neuron's own spikes jittered by +-25 ms (removes millisecond structure,
+    keeps rates and slow co-fluctuation); and partners taken from another stretch.
+  - **No-homology twin.** The summed correlogram over the 200 partners as a function of lag
+    (population coupling curve, 51 bins), L1.
+
 ## Open tasks for the web chat
 
 - **W2.** Read each new result and turn it into the next method or control.
@@ -196,4 +272,5 @@ need to real stablebear. Work in this order.
 - 2026-11-12 web chat: read L11-L14. Delay regions confirmed as the best Rips signature (order effect 5-9 points); anchors help, as the Rips ideas under "Ideas" assume. L17 (full table across real stimulus changes) is still open and is the only open local task.
 - 2026-11-12 web chat: read L17. All queued tasks are done on both sides; the scheduled checks (8 rounds) have ended. Waiting for the user.
 - 2026-11-12 web chat: the user asked for the spike distance on the critical cells of L17. Added L18.
+- 2026-11-12 web chat: the user asked for one more well-designed embedding per family (Markov/pdf, spectral, cross-correlation), run everywhere, then move on. Added L19-L21 after L18.
 
