@@ -176,4 +176,5 @@ need to real stablebear. Work in this order.
 - 2026-11-12 web chat: the user asked for every method across stimuli on every dataset. Added L17, to do before L11.
 - 2026-11-12 web chat: read L10, L15, L16. exp27 posted (retina: Rips methods by clustering and across halves). Added Rips ideas under Ideas. L17 still first.
 - 2026-11-12 web chat: read L11-L14. Delay regions confirmed as the best Rips signature (order effect 5-9 points); anchors help, as the Rips ideas under "Ideas" assume. L17 (full table across real stimulus changes) is still open and is the only open local task.
+- 2026-11-12 web chat: read L17. All queued tasks are done on both sides; the scheduled checks (8 rounds) have ended. Waiting for the user.
 
