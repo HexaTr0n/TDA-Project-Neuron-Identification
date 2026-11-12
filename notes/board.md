@@ -22,8 +22,6 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 
 ## Open tasks for the local session
 
-- **L4. OpenScope labels.** Do clusters of ISI fractions agree with cortical layer or with the
-  optotagged cell type? Report agreement against a shuffled labelling.
 - **L6. Identity against sample length.** ISI fractions, 1-NN and k-means, for samples of 2.5, 5,
   10, 20 and 40 s: retina unrepeated noise (join consecutive pieces) and OpenScope grating blocks
   (cut them). One curve per dataset. This was your idea in "Ideas"; it also tells us how much
@@ -64,6 +62,10 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 
 ## Done
 
+- L4 OpenScope labels: `notes/results/L4_openscope_labels.md`. Nearest ISI profiles share layer
+  (41.9% bal. acc. vs 25.1% shuffled), region (45.5 vs 25.1) and cell type (40.3 vs 33.1);
+  clusters barely follow labels (AMI 0.02-0.05). Probe-position confound not yet controlled.
+
 - W1 Why retina sessions differ: `notes/results/W1_session_differences.md`. Response reliability
   explains it (+0.93 across sessions); rate and trial count do not.
 - W3 Sharper ISI signature: `notes/results/W3_isi_distances.md`. No distance beats L1; ISI order
@@ -88,3 +90,4 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 - 2026-11-12 local: L3 done (scripts/load_retina_running.py, sb_cross.py). L4 running; Allen session for L5 downloaded.
 - 2026-11-12 web chat: read L1-L3. W1 and W3 done (scripts/experiments/exp24, exp25). Added L6-L9 and W4.
 - 2026-11-12 local: L5 done (scripts/load_allen.py; curve_eval --area-prefix). L4 still running.
+- 2026-11-12 local: L4 done (scripts/sb_labels.py). L6 runs done, L7/L8 running, L9 script ready.
