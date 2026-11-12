@@ -219,6 +219,9 @@ need to real stablebear. Work in this order.
 
 ## Done
 
+- W5 Topological clustering of the trial space: `notes/results/W5_trial_space_clustering.md`.
+  ToMATo is worse than k-means in 8 of 9 cells; its barcode suggests 7-18 clusters for 60 neurons.
+
 - L18 Spike distance reference: `notes/results/L18_spike_distance_reference.md`. Not the
   ceiling anywhere: retina frozen 80.8% at q=10 (held-out 84.5 on 30 neurons) vs time bars 87.7;
   Allen movie 27.3% at q=1 vs ISI fractions 44.8; OpenScope 12.1% vs 26.1. Across stimuli 6-12%,
@@ -322,4 +325,5 @@ need to real stablebear. Work in this order.
 - 2026-11-12 web chat: the user asked for the spike distance on the critical cells of L17. Added L18.
 - 2026-11-12 web chat: the user asked for one more well-designed embedding per family (Markov/pdf, spectral, cross-correlation), run everywhere, then move on. Added L19-L21 after L18.
 - 2026-11-12 web chat: the user found L19-L21 too narrow. Replaced them by one task, L19 (spike-feature cloud with ablations); the three narrow designs moved to "Ideas" as extras A-C. The user also allows extra ideas during implementation, as long as the original task is done.
+- 2026-11-12 web chat: read L18. W5 done (exp28: ToMATo on the trial space; negative). The user is away for a few hours; checks every 45 minutes, 5 rounds.
 

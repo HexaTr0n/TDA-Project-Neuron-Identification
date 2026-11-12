@@ -38,6 +38,7 @@ stablebear through `run_pipeline.py` for the real analysis.
 | `exp25_isi_distances.py` | Other distances for ISI fractions, and a two-parameter order-only signature |
 | `exp26_isi_by_session.py` | ISI fractions by retina session, against reliability |
 | `exp27_front_across_halves.py` | Delay Rips, delay regions, burst bars and peak matching by clustering and across movie halves |
+| `exp28_trial_space_clustering.py` | ToMATo, k-means, k-medoids and average linkage on the space of trials |
 
 `exp5` needs `hmms.pkl` from `exp2`. `exp3` to `exp12` need `baselines.npz` from `exp0`.
 `exp11` and `exp12` need `neuron_spaces.npz` from `exp9`.

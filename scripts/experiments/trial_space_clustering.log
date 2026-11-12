@@ -1,0 +1,12 @@
+                                 signature  neurons  kmeans  kmedoids  average_linkage  tomato_k5  suggested_k5  tomato_k8  suggested_k8  tomato_k12  suggested_k12
+                multi-scale sqrt time bars       60   0.681     0.551            0.363      0.388            18      0.318            15       0.263             14
+                             ISI fractions       60   0.409     0.381            0.252      0.331             8      0.280             7       0.260              8
+multi-scale sqrt time bars + ISI fractions       60   0.628     0.632            0.525      0.675            13      0.564            16       0.491             16
+                                 signature  neurons  kmeans  kmedoids  average_linkage  tomato_k5  suggested_k5  tomato_k8  suggested_k8  tomato_k12  suggested_k12
+                multi-scale sqrt time bars       60   0.677     0.564            0.089      0.457             8      0.312             7       0.130              7
+                             ISI fractions       60   0.300     0.299            0.288      0.208             7      0.180             7       0.128             14
+multi-scale sqrt time bars + ISI fractions       60   0.615     0.597            0.340      0.448            17      0.325            12       0.199              8
+                                 signature  neurons  kmeans  kmedoids  average_linkage  tomato_k5  suggested_k5  tomato_k8  suggested_k8  tomato_k12  suggested_k12
+                multi-scale sqrt time bars       60   0.410     0.307            0.181      0.199            16      0.194            17       0.189             15
+                             ISI fractions       60   0.287     0.298            0.207      0.230            10      0.214             9       0.156              7
+multi-scale sqrt time bars + ISI fractions       60   0.421     0.384            0.298      0.341            14      0.292            16       0.237             15
