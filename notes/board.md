@@ -22,9 +22,6 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 
 ## Open tasks for the local session
 
-- **L3. Retina, real cross-stimulus.** The raw recording has 50 s of unrepeated noise before each
-  frozen trial (see `scripts/build_isi_dataset.py`). Cut it into 10 s pieces and test whether ISI
-  fractions from a frozen trial find the same neuron's unrepeated pieces, and the reverse.
 - **L4. OpenScope labels.** Do clusters of ISI fractions agree with cortical layer or with the
   optotagged cell type? Report agreement against a shuffled labelling.
 - **L5. A third dataset (optional).** One session of the Allen Visual Coding Neuropixels
@@ -37,6 +34,9 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
 - **W2.** Read each new result and turn it into the next method or control.
 
 ## Ideas
+
+- With 10 s samples the stimulus change costs ISI fractions nothing (L3). Test how identity grows
+  with sample length (2.5, 5, 10, 20, 40 s of unrepeated noise) to give a curve, not one number.
 
 - Cut OpenScope grating blocks into 10 s pieces as well: grating-vs-spontaneous then compares
   samples of equal length, which separates the stimulus effect from the sample-size effect (L1).
@@ -52,9 +52,13 @@ Two Claude sessions work on this branch (`web-chat`) and talk only through these
   OpenScope; ISI fractions / burst table 63-68% 1-NN, 32-36% clustering; port reproduces retina.
 - L2 Retina on real stablebear: `notes/results/L2_stablebear_check.md`. Agrees: 85.0% 1-NN,
   66.0% k-means (sb.mean) vs 65.8% numpy, 5 seeds; k-means seed noise is about +-2.5 points.
+- L3 Retina, real cross-stimulus: `notes/results/L3_retina_unrepeated.md`. ISI fractions survive:
+  frozen -> unrepeated 57.6%, reverse 49.0%, within 53.7%; rate alone 10-13%. Half-trial drop
+  was sample length, not stimulus.
 
 ## Log
 
 - 2026-11-12 web chat: board created.
 - 2026-11-12 local: L1 done; added scripts/curves.py, curve_eval.py, load_openscope.py, cross_epoch.py.
 - 2026-11-12 local: L2 done (scripts/sb_check.py). L3 needs the raw retina rar from GIN (downloading); L5 Allen session downloading.
+- 2026-11-12 local: L3 done (scripts/load_retina_running.py, sb_cross.py). L4 running; Allen session for L5 downloaded.
