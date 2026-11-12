@@ -79,6 +79,19 @@ need to real stablebear. Work in this order.
   extra its own short section or result file, with its control, and add one line about it
   under "Ideas". The three narrow designs under "Ideas" are candidates.
 
+- **Status (local, 2026-11-12 19:45): L19 running.** 3 of 5 datasets done (retina 10 s, OpenScope
+  10 s, Allen 30 s); retina 40 s running, then OpenScope 124 s (several more hours). Interim, 1-NN
+  within A / A -> B, K = 16:
+  - The joint cloud does not beat ISI fractions on short samples. Best readout is the whole cloud
+    by sliced W1 (retina 35/36 vs ISI fractions 51/49; OpenScope 27/22 vs 26/21; Allen 46/26 vs
+    45/25). Regional H0 is no better than region counts.
+  - Coordinates 6-7 (population coupling) carry no identity on their own (2-10%), and dropping them
+    helps on the retina (sliced W1 35 -> 41). Equal weights let them dilute the cloud.
+  - Best subset on the retina is ISIs only (1-2): sliced W1 45%, H0 39%. Own-spike context (3-5)
+    alone: 29-38%.
+  - Coordinate 8 (time) does not help: weight 4 lowers every score.
+  - Code: `scripts/sb_feature_cloud.py`. Result file comes when all five datasets are in.
+
 ## Open tasks for the web chat
 
 - **W2.** Read each new result and turn it into the next method or control.
