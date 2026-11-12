@@ -69,12 +69,13 @@ METHODS = {
     "burst_table": ([(C.burst_table, 1.0)], "shuffle"),
     "isi_joint": ([(C.isi_joint, 1.0)], "shuffle"),
     "isi_order": ([(C.isi_order, 1.0)], "shuffle"),
+    "isi_fractions+isi_order": ([(C.isi_fractions, 1.0), (C.isi_order, 0.5)], "shuffle"),
 }
 
 
 # Only these ignore when spikes happen, so only they can compare trials of different
 # lengths or stimuli; --cross-session skips the rest.
-STIMULUS_FREE = ("isi_fractions", "cond_isi_fractions", "burst_table", "isi_joint", "isi_order")
+STIMULUS_FREE = ("isi_fractions", "cond_isi_fractions", "burst_table", "isi_joint", "isi_order", "isi_fractions+isi_order")
 
 
 def all_names():
