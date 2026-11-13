@@ -31,31 +31,6 @@ test there. Same rules as before: shuffled control next to every score, 1-NN and
 `legacy_scripts/embeddings.py`, `exp13_sublevel.py`, `exp21_stimulus_free.py`); port what you
 need to real stablebear. Work in this order.
 
-- **L22. Headline homology numbers (from the user: "good homology numbers, even if we rely on
-  counting spikes").** After L20 and L21. One table per dataset in the L17 layout (retina 10 s
-  with piece 2 dropped, retina 40 s, OpenScope 10 s and 124 s, Allen 30 s; within each stimulus
-  and across; 1-NN / k-medoids / k-means with mean curves), real stablebear, every row built
-  from barcodes only:
-  - **Delay regions on the whole cloud**, H0, point count left in, with the number of anchors
-    that L20 found best (fix one number for all datasets; do not pick per dataset).
-  - **The same plus ISI bars** (stable rank of the log ISI bars, not divided by the count):
-    the sum of the two distance matrices, each divided by its median over pairs of outside
-    neurons. Both are H0, one of the delay cloud and one of the spike times on a line.
-  - **Within a repeated stimulus only: the same plus burst bars** (H0 that keeps time).
-  - Next to every row: ISIs shuffled, and the twin without bars (region counts; spike count for
-    the ISI bars), so it is visible what the bars add beyond counting.
-  - Reference rows from L17 on the same samples: ISI fractions, burst table, multi-scale
-    square-root time bars.
-  - **How stable is it:** repeat the retina 10 s and OpenScope 124 s tables for neuron seeds
-    0-4 and give mean and range; and give the retina within-frozen row for all nine sessions.
-  - Write `notes/results/L22_headline_homology.md`. Start with a four-line summary: best
-    barcode-only score within and across on retina and on cortex, each with its control.
-
-  - **Two corrections from L24 (web, 2026-11-13):** use `retina40clean` for the 40 s retina
-    table; and for Allen report "across" on the pair that is adjacent in time (movie 1 <->
-    spontaneous early) next to the L17 pair, since L24 shows that time apart costs more than
-    the stimulus change.
-
 - **L23. H0+H1: make it work or close it.** H1 lowered H0 in every test so far (L19 on 25 and
   100 points; W8 inside regions on the retina). Likely reasons: at these cloud sizes H1 bars are
   sampling noise, and a plain sum gives that noise the same weight as H0. After L21:
@@ -86,20 +61,8 @@ need to real stablebear. Work in this order.
   extra its own short section or result file, with its control, and add one line about it
   under "Ideas". The three narrow designs under "Ideas" are candidates.
 
-- **Status (local, 2026-11-13 ~17:30).** L20, L21, L24 done. L22 running: seed 0 done on 5 of 6
-  datasets, OpenScope 124 s running, then seeds 1-4 and the nine retina sessions. Then L23
-  (OpenScope 124 s only) and L25. Interim L22 seed 0, 1-NN:
-  - Best barcode-only scores:
-    - Retina within frozen: regions + ISI bars + burst bars 82.3 (shuffled 39.3; time bars 87.7).
-    - Retina frozen -> unrepeated: regions + ISI bars 41.4 (ISI fractions 49.0).
-    - Retina 40 s clean: 82.4 within, 68.6 across.
-    - Allen adjacent pair: within movie 46.9, movie -> spont 37.4 (ISI fractions 50.7 / 38.7).
-  - **The regional bars add almost nothing over their counting twin** on whole clouds with
-    k = 32. Region counts are within 1-2 points of regional H0 everywhere (retina 40 s 63.1 vs
-    62.9). The order effect (shuffled 1-10 lower) is the same for both.
-  - ISI bars with the count left in are below ISI fractions (retina 40 s 43.6 vs 64.3).
-  - Different anchors (another draw of outside neurons) move regional H0 by about 3 points
-    (retina 10 s 40.6 vs L20's 43.7).
+- **Status (local, 2026-11-13 ~19:30).** L22 done (with the k = 8/16/32 twins). Next: L23 on
+  OpenScope 124 s only (H1 weighting and bar filtering), then L25.
 
 ## Open tasks for the web chat
 
@@ -266,6 +229,15 @@ need to real stablebear. Work in this order.
         keep the first 40 s. I will add this as an option to `load_retina_running.py` with L24.
 
 ## Done
+
+- L22 Headline homology: `notes/results/L22_headline_homology.md`. Barcode-only, 1-NN (shuffled):
+  - Retina within frozen: 82.3 (39.3), regions + ISI bars + burst bars.
+  - Retina frozen -> unrepeated: 41.4 (37.4), against ISI fractions 49.0.
+  - OpenScope 124 s: delay regions 69.1 (57.7) against ISI fractions 64.2 (5 seeds 67.1 vs 62.6).
+  - Allen movie -> adjacent spontaneous: 37.4 (27.4), against ISI fractions 38.7.
+  - The bars add 4-14 points over the region-count twin at k = 8, but about 0 at k = 32 except
+    +2.5 on OpenScope 124 s, so k = 32 delay regions are mostly a joint ISI histogram.
+  - Seeds move rows by about +-4; across the nine retina sessions delay regions average 27.8.
 
 - L21 Rips fixes: `notes/results/L21_rips_fixes.md`.
   - H1 on the plain whole cloud, as a Betti curve, adds to H0 on 4 of 5 datasets: retina 40 s
