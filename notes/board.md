@@ -112,50 +112,6 @@ need to real stablebear. Work in this order.
     (c) clouds of at least 200 points only.
   - Write `notes/results/L23_h1.md`.
 
-- **L24. Three data checks (cheap; can run between the others).**
-  - **Retina piece 2.** One of the four "unrepeated" 10 s pieces repeats (reliability 0.244).
-    Find out from the dataset's stimulus files or documentation what that piece is, and say
-    whether the 40 s retina numbers (which include it) need redoing without it.
-  - **Allen: stimulus change without the 70-minute gap.** For ISI fractions, burst table and
-    delay regions: movie block against the spontaneous block next to it in time, and movie
-    block 1 against movie block 2 (same stimulus, far apart). This separates drift from the
-    stimulus change for single-neuron signatures, as L16 did for the population.
-  - **A second cortical session.** If one more OpenScope or Allen session is a cheap download,
-    rerun ISI fractions, burst table and whole-cloud delay regions on it, within and across.
-    Every cortex number so far rests on one session per dataset.
-  - Write `notes/results/L24_data_checks.md`.
-
-- **Freedom to explore (from the user).** If other ideas come up while implementing L18 or
-  L19, try them as well, as long as the original task is also done as specified. Give each
-  extra its own short section or result file, with its control, and add one line about it
-  under "Ideas". The three narrow designs under "Ideas" are candidates.
-
-- **Status (local, 2026-11-13 ~06:40). L20 interim (4 of 5 datasets; OpenScope 124 s running).**
-  Delay regions H0, 1-NN within A / A -> B (ISIs shuffled within A):
-  - Whole cloud beats every other sampling. Retina 10 s k=8 42.4/41.3 (37.6) against 25
-    random points 27.9/28.4. Allen 34.4/22.7 against 27.2/17.2.
-  - Time crop 70% is in between; 50% and consecutive stretches are lower.
-  - Anchors: k = 16-32 best, 64 lower.
-    - Retina 40 s whole k=32: 67.4/70.7 (60.5), above ISI fractions 64.3 within. That run
-      still includes the repeating chunk.
-    - Allen k=32: 39.0/27.9 (30.0).
-    - OpenScope 10 s k=16: 23.0/20.6 (17.2).
-  - Dividing by the point count costs 0-4 points.
-  - H0+H1 is again below H0 everywhere.
-- **Earlier status (~05:00).** L20: 3 of 5 datasets done, retina 40 s running, then
-  OpenScope 124 s; L21 queued. L24 nearly done:
-  - Allen drift: drift dominates the stimulus change for single-neuron signatures. Same movie
-    70 min apart: ISI fractions 11.8% 1-NN across. Movie against spontaneous just before it:
-    38.7%.
-  - Second Allen session (789848216) reproduces the first: ISI fractions 46.1 within / 28.0
-    across, burst table 54.2 / 31.6, whole-cloud regions k=16 H0 43.6 / 29.1.
-  - Retina loader `--cut 24.8 30.0` removes the repeating chunk (all pieces at reliability
-    0.00); a clean 40 s rerun is queued.
-  - Write-up `L24_data_checks.md` follows when the last runs finish.
-
-## Open tasks for the web chat
-
-- **W2.** Read each new result and turn it into the next method or control.
 - **W9.** Check this branch every hour (from 2026-11-13 about 01:30, up to 12 rounds): read new
   result files, answer anything under "Questions", add follow-up tasks.
 - **W10.** When L20-L22 are in, bring `notes/state.md` and the write-up up to date. L19x already
@@ -318,6 +274,15 @@ need to real stablebear. Work in this order.
         keep the first 40 s. I will add this as an option to `load_retina_running.py` with L24.
 
 ## Done
+
+- L24 Data checks: `notes/results/L24_data_checks.md`.
+  - Retina piece 2 is a fixed 5 s chunk (24.85-29.9 s of every running stretch). Cut out with
+    `load_retina_running.py --cut 24.8 30.0` (dataset `retina40clean`), the 40 s unrepeated
+    time bars fall from 33.9% to 5.1%; ISI rows move by at most 3 points.
+  - Allen: drift beats the stimulus change. ISI fractions across: 38.7% movie <-> adjacent
+    spontaneous, 11.8% movie 1 <-> movie 2 (same movie, 70 min later).
+  - Second Allen session (789848216) reproduces the first, a few points higher: ISI fractions
+    46.1 / 28.0, burst table 54.2 / 31.6, whole-cloud regions k=16 H0 43.6 / 29.1.
 
 - L19x (extra) Cloud size: `notes/results/L19x_cloud_size.md`. Yes, Rips was held back by size.
   At equal ISIs, regional H0 (m = 2, K = 16) is 4 points below ISI fractions at 25 points but
