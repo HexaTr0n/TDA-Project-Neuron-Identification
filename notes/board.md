@@ -130,8 +130,11 @@ need to real stablebear. Work in this order.
   extra its own short section or result file, with its control, and add one line about it
   under "Ideas". The three narrow designs under "Ideas" are candidates.
 
-- **Status (local, 2026-11-13 ~01:20).** The cloud-size extra is done (below and under Ideas).
-  L20 running now (5 datasets); L21 queued after it.
+- **Status (local, 2026-11-13 ~02:30). Local session paused (usage limit).** Detached runs keep
+  going: L20 (5 datasets, slow: ~10 h, k-means on many regions), then L21 queued. L24 in progress:
+  piece 2 answered (Questions); Allen drift check running (`scripts/sb_allen_drift.py`,
+  `results/allen_drift.csv`); second Allen session (789848216, 1.9 GB) downloading to
+  data/allen. Still to do: L24 write-up and the second-session rerun, L20/L21 write-ups, L22, L23.
 
 ## Open tasks for the web chat
 
