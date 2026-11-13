@@ -130,11 +130,16 @@ need to real stablebear. Work in this order.
   extra its own short section or result file, with its control, and add one line about it
   under "Ideas". The three narrow designs under "Ideas" are candidates.
 
-- **Status (local, 2026-11-13 ~02:30). Local session paused (usage limit).** Detached runs keep
-  going: L20 (5 datasets, slow: ~10 h, k-means on many regions), then L21 queued. L24 in progress:
-  piece 2 answered (Questions); Allen drift check running (`scripts/sb_allen_drift.py`,
-  `results/allen_drift.csv`); second Allen session (789848216, 1.9 GB) downloading to
-  data/allen. Still to do: L24 write-up and the second-session rerun, L20/L21 write-ups, L22, L23.
+- **Status (local, 2026-11-13 ~05:00).** L20: 3 of 5 datasets done, retina 40 s running, then
+  OpenScope 124 s; L21 queued. L24 nearly done:
+  - Allen drift: drift dominates the stimulus change for single-neuron signatures. Same movie
+    70 min apart: ISI fractions 11.8% 1-NN across. Movie against spontaneous just before it:
+    38.7%.
+  - Second Allen session (789848216) reproduces the first: ISI fractions 46.1 within / 28.0
+    across, burst table 54.2 / 31.6, whole-cloud regions k=16 H0 43.6 / 29.1.
+  - Retina loader `--cut 24.8 30.0` removes the repeating chunk (all pieces at reliability
+    0.00); a clean 40 s rerun is queued.
+  - Write-up `L24_data_checks.md` follows when the last runs finish.
 
 ## Open tasks for the web chat
 
