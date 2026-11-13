@@ -44,6 +44,20 @@ a change of stimulus, scored by clustering as well as 1-NN?
     (30.0) against 44.8 / 25.4; OpenScope 10 s 21.5 / 19.3 (17.5) against 26.1 / 21.0.
   - Dividing by the point count changes scores by at most 2 points. Clustering lags: k-means
     36.9 on OpenScope 124 s where 1-NN is 67.2.
+- **With 32 regions the bars add almost nothing over counting points per region** (L22 interim,
+  seed 0): region counts are within 1-2 points of regional H0 on every dataset (retina 40 s
+  63.1 against 62.9), and the order effect is the same for both. With 8-16 regions and fewer
+  points the bars added 4-9 points (L19x). So the gain of the whole cloud is mostly a joint
+  histogram of consecutive ISIs.
+- **Barcode-only combinations (L22 interim, seed 0, 1-NN):** retina within frozen, regions +
+  ISI bars + burst bars 82.3 (shuffled 39.3; time bars 87.7); retina frozen -> unrepeated,
+  regions + ISI bars 41.4 (ISI fractions 49.0); retina 40 s clean 82.4 within, 68.6 across;
+  Allen adjacent pair 46.9 within, 37.4 across (ISI fractions 50.7 / 38.7).
+- **H1 (L21):** on the plain whole cloud an H1 Betti curve adds 2-13 points to H0 on 4 of 5
+  datasets (retina 40 s 33.8 -> 47.1, shuffled 44.0), but the plain cloud stays far below
+  delay regions. Inside regions H1 lowers H0. H1 alone beats its shuffled control only on
+  OpenScope 124 s (42.7 against 36.8).
+- **The time-filtered complex fails** on all five datasets (8-22%, 0-6 points over shuffled).
 - The burst table is still the best single signature on every dataset (71.8% on OpenScope
   124 s, L19).
 - **Did not work:** the joint 7-coordinate spike-feature cloud (L19); H0+H1 (below H0 in every
@@ -67,7 +81,6 @@ a change of stimulus, scored by clustering as well as 1-NN?
 
 ## Open
 
-- L21: H1 on whole clouds, Betti curves for H1, time-filtered complex (two datasets done).
 - L22: one headline table of barcode-only scores with their counting twins.
 - L23: H0+H1, fix or close. L25: the state model (per-spike mixture pdf) on long samples.
 
