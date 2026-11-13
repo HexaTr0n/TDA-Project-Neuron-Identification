@@ -1,0 +1,18 @@
+1645 trials, 60 neurons; chance 1.7%
+reference: ISI fractions   full 1-NN 54.0  k-means 40.9   halves A->B 38.8
+
+full done
+full shuffled done
+halves done
+signature                                          | full trial 1-NN (shuffled)  k-means (shuffled) | halves A->B 1-NN (shuffled)
+last point: fit to the whole sample                |  53.9 ( 53.9)    40.2 ( 39.7) |  37.3 ( 38.4)
+mean point of the path                             |  40.5 ( 41.0)    33.0 ( 33.9) |  28.1 ( 27.0)
+cloud, no homology: quantiles over points          |  42.7 ( 43.6)    34.6 ( 34.7) |  30.8 ( 29.4)
+path read at fixed times                           |  48.4 ( 44.7)    36.5 ( 37.6) |  30.8 ( 30.9)
+path with its end point subtracted (drift only)    |   8.7 (  5.3)    11.3 (  9.8) |   5.5 (  7.1)
+Rips H0 of the path, whole cloud                   |  17.1 ( 16.7)    24.5 ( 24.0) |  14.8 ( 12.8)
+Rips H0, divided by point count                    |  12.6 ( 11.0)    18.9 ( 19.0) |  12.2 ( 11.7)
+Rips H0 in 8 regions (whole cloud)                 |  23.5 ( 23.0)    23.7 ( 23.5) |  19.9 ( 18.6)
+region counts (twin without bars)                  |  20.3 ( 20.5)    26.3 ( 25.9) |  16.6 ( 16.4)
+ISI fractions + path read at fixed times           |  54.6 ( 50.4)    40.2 ( 39.3) |  34.3 ( 34.8)
+ISI fractions + Rips H0 in 8 regions (whole cloud) |  45.6 ( 44.1)    31.3 ( 31.4) |  31.4 ( 30.5)
