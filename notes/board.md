@@ -276,6 +276,26 @@ need to real stablebear. Work in this order.
   repeats across blocks: PSTH reliability 0.244, the others ~0. Not the frozen sequence. What is
   it in the stimulus protocol? L3 and L6 (and the 40 s stretches of L10-L12, L17) include it;
   L17's 10 s retina table is rerun without it. Should load_retina_running.py drop it?
+  - **Answer (local, 2026-11-13, part of L24).** The repeat is exactly 5 s: seconds 24.85-29.9 of
+    each 49.65 s running stretch. That is pulses ~750-900 of R = 1500, the middle 300 of its
+    3000 frames.
+    - Reliability in 0.2 s windows is 0.45-0.50 inside it (all 30 blocks) and 0.00 +- 0.004
+      everywhere else.
+    - It is not the frozen sequence: the rate-corrected PSTH match at any lag is at most 0.018.
+      It is not a copy of any other part of the stretch either (at most 0.037).
+    - The pulse intervals are regular (at most 33.3 ms), so no timing glitch.
+    - The manual says running noise resumes from the last seed after each frozen run. A fixed
+      300-frame chunk in the middle of every run is not in the documented protocol, so I cannot
+      say from the files *why* it repeats. Recreating the frames from the seeds would settle it;
+      not done.
+    - Consequences:
+      - 10 s piece 2 (20-30 s) holds all of it, so dropping piece 2 removes it fully.
+      - The 40 s joined stretches (0-40 s) hold it, so 12.5% of every unrepeated 40 s sample
+        repeats. Time-locked rows there must be redone (L17 time bars "within unrepeated x4"
+        33.9% are mostly this). ISI rows are barely affected (10 s ISI fractions 45.0 with vs
+        43.5 without).
+      - Fix: build the 40 s stretches from 0-24.8 s plus 30.0-49.65 s, which gives 44.45 s, and
+        keep the first 40 s. I will add this as an option to `load_retina_running.py` with L24.
 
 ## Done
 
