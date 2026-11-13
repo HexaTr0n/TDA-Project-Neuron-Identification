@@ -31,34 +31,6 @@ test there. Same rules as before: shuffled control next to every score, 1-NN and
 `legacy_scripts/embeddings.py`, `exp13_sublevel.py`, `exp21_stimulus_free.py`); port what you
 need to real stablebear. Work in this order.
 
-- **L20. Two other ways to cut a delay cloud to size (from the user).** So far every Rips cloud
-  was 25 (or 100) points drawn at random, 20 draws averaged. The user wants two alternatives,
-  on real stablebear and on the L17 datasets plus the long samples:
-  - **Whole cloud:** every point, one barcode per sample. The stable rank then starts at the
-    number of points, so the spike count leaks in. Report it as it is, and also with the stable
-    rank divided by the number of points.
-  - **Consecutive stretch:** cut a random number of spikes off the start and the end so that a
-    fixed number of CONSECUTIVE points remains (25 on short samples, 100 on long); 20 draws
-    averaged. This keeps neighbouring spikes together instead of scattering the sample.
-  - For delay Rips m = 3 (H0, H0+H1) and delay regions k = 8 (H0), each with ISIs shuffled, next
-    to the random-draw version on the same samples; within and across, 1-NN and clustering.
-  - This fits with the cloud-size test already queued (`scripts/sb_cloud_size.py`); do them
-    together if convenient. The web chat is piloting H0 on the retina meanwhile
-    (`scripts/experiments/exp30_cloud_sampling.py`).
-  - **Added by the user on 2026-11-13: no averaging, and spike count is allowed in.** A third
-    variant: cut a random amount of TIME off the start and the end of the sample and use every
-    point of what remains, one barcode, no averaging (keep 70% and 50% of the sample). The user
-    wants good homology numbers on every dataset even if they lean on the spike count, as other
-    methods do implicitly. So the headline rows of L20 are the whole cloud and the time crop,
-    without dividing by the point count; the divided version and the random-draw version are
-    for comparison.
-  - **Also sweep the number of regions for the whole cloud:** 8, 16, 32 and 64 anchors. On the
-    retina pilot (W7 addendum) the whole cloud with 16 anchors gave 46.5% 1-NN against 38.4%
-    shuffled, where 25 random points gave 30.2%.
-  - Run all of it on the other datasets too: OpenScope 10 s and 124 s, Allen 30 s, retina 10 s
-    and 40 s; within and across; 1-NN, k-medoids and k-means with mean curves; H0 and H0+H1.
-  - Write `notes/results/L20_cloud_sampling.md`.
-
 - **L21. Three fixes for what Rips cannot do (from the user).** On real stablebear, on the
   whole-cloud versions of L20, all datasets, within and across, 1-NN and clustering, each with
   ISIs shuffled.
@@ -321,6 +293,15 @@ need to real stablebear. Work in this order.
         keep the first 40 s. I will add this as an option to `load_retina_running.py` with L24.
 
 ## Done
+
+- L20 Cloud sampling: `notes/results/L20_cloud_sampling.md`.
+  - The whole cloud (every point, one barcode) beats crops, random draws and consecutive
+    stretches on all five datasets.
+  - With 32 regions (fixed for L22), whole-cloud delay regions H0 are level with or above ISI
+    fractions on long samples: OpenScope 124 s 67.2 vs 64.2 (shuffled 56.4); retina 40 s 67.4
+    vs 64.3.
+  - On short samples they are 5-7 points behind: Allen 39.0 vs 44.8, retina 10 s 43.7 vs 50.9.
+  - Dividing by the point count changes at most 2 points. H0+H1 is 6-12 points below H0.
 
 - L24 Data checks: `notes/results/L24_data_checks.md`.
   - Retina piece 2 is a fixed 5 s chunk (24.85-29.9 s of every running stretch). Cut out with
