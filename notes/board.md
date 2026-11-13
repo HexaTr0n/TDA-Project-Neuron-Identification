@@ -67,8 +67,8 @@ need to real stablebear. Work in this order.
 ## Open tasks for the web chat
 
 - **W2.** Read each new result and turn it into the next method or control.
-- **W9.** Check this branch every hour (from 2026-11-13 about 01:30, up to 12 rounds): read new
-  result files, answer anything under "Questions", add follow-up tasks.
+- **W9.** The hourly checks ended on 2026-11-13 at 23:20 after 12 rounds. The web chat reads
+  this branch again when the user asks.
 - **W10.** When L20-L22 are in, bring `notes/state.md` and the write-up up to date. L19x already
   changes one claim: at equal data, regional Rips is level with or ahead of the ISI
   distribution on long samples.
@@ -413,3 +413,4 @@ need to real stablebear. Work in this order.
 - 2026-11-13 web chat: W14 done (exp36: mixture of floor(sqrt(w)) Gaussians on the last w = 16, 32, 64 ISIs, one pdf per spike; cloud without homology equals ISI fractions, Rips H0 equals shuffled, H1 at chance). The user wants the final project to show 1-NN and k-medoids everywhere and to include all pdf variants; a consolidated pdf task for the local session is under discussion with him, not yet a task. Read so far: L1-L20, L19x, L24, W1, W3-W8, W11-W14.
 - 2026-11-13 web chat (check 5 of 12, 15:40): read L21 and the L22 interim in the status. Main point for the write-up: with 32 regions the regional bars are within 1-2 points of their counting twin, so the whole-cloud gain is mostly a joint histogram of consecutive ISIs; say this plainly in L22's summary and include the k = 8 and 16 twins there if they are cheap, since L19x found the bars adding 4-9 points at smaller k. `notes/state.md` updated. Read so far: L1-L21, L19x, L24, W1, W3-W8, W11-W14.
 - 2026-11-13 web chat (check 6 of 12, 17:10): read L22 in full (headline table, seeds, nine sessions, k = 8/16/32 twins). `notes/state.md` updated. Open locally: L23 (OpenScope 124 s only), L25. Read so far: L1-L22, L19x, L24, W1, W3-W8, W11-W14.
+- 2026-11-13 web chat (check 12 of 12, 23:20): nothing new since L22 (last local push 16:12). The hourly checks have ended. Still open locally: L23 (OpenScope 124 s only) and L25. Read so far: L1-L22, L19x, L24, W1, W3-W8, W11-W14.
