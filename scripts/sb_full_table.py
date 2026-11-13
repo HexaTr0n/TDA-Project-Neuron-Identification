@@ -69,6 +69,13 @@ DATASETS = {
                         b="glo637908_spont", length=10.0, names=("gratings", "grey")),
     "allen30": dict(path="data/allen/allen829720705.parquet", a="allen829720705_movie",
                     b="allen829720705_spont", length=30.0, names=("movie", "spontaneous")),
+    # retina 40 s without the repeating 5 s chunk (L24; load_retina_running.py --cut 24.8 30.0)
+    "retina40clean": dict(path="data/retina_running_20180126_sr_le_sp_clean.parquet",
+                          a="20180126_sr_le_sp", b="20180126_sr_le_sp_running", length=40.0,
+                          names=("frozen x4", "unrepeated x4, clean")),
+    # second cortical session (L24): Allen FC 789848216, same protocol
+    "allen30b": dict(path="data/allen/allen789848216.parquet", a="allen789848216_movie",
+                     b="allen789848216_spont", length=30.0, names=("movie", "spontaneous")),
 }
 
 
@@ -83,7 +90,7 @@ def samples(name, drop_piece=None):
     if drop_piece is not None:
         # Retina: unrepeated piece 2 turned out to repeat across blocks (reliability 0.24).
         B = B[B["piece"] != drop_piece]
-    if name == "retina40":
+    if name.startswith("retina40"):
         rows = []
         for nid, g in A.sort_values("trial").groupby("neuron_id"):
             g = list(g.itertuples(index=False))

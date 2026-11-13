@@ -53,7 +53,7 @@ OWN_WINDOWS = (0.01, 0.033, 0.1)
 DS = dict(DATASETS)
 DS["openscope124"] = dict(path="data/openscope/glo637908.parquet", a="glo637908_grating", b=None,
                           length=124.0, names=("gratings 124 s", None))
-POINTS = {"retina10": 25, "openscope10": 25, "allen30": 25, "retina40": 100, "openscope124": 100}
+POINTS = {"retina10": 25, "openscope10": 25, "allen30": 25, "allen30b": 25, "retina40": 100, "retina40clean": 100, "openscope124": 100}
 
 COORDS = ["isi before", "isi after", "own 10", "own 33", "own 100", "others 10", "lead/lag", "time"]
 SETS = {  # name: (coordinate indices, K values)
@@ -83,7 +83,7 @@ def samples_keyed(name, drop_piece):
         return A[["neuron_id", "spike_times", "segs"]], None, A0, None
     B0 = read(path, [cfg["b"]])
     B = B0 if drop_piece is None else B0[B0["piece"] != drop_piece]
-    if name == "retina40":  # as sb_full_table.samples
+    if name.startswith("retina40"):  # as sb_full_table.samples
         rows = []
         for nid, g in A0.sort_values("trial").groupby("neuron_id"):
             g = list(g.itertuples(index=False))
