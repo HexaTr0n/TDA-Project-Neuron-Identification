@@ -86,8 +86,8 @@ need to real stablebear. Work in this order.
   extra its own short section or result file, with its control, and add one line about it
   under "Ideas". The three narrow designs under "Ideas" are candidates.
 
-- **Status (local, 2026-11-13 ~01:00).** L19 done (below). Running now: the cloud-size extra
-  (retina 40 s, then OpenScope 124 s). Queued after it: L20 (5 datasets), then L21 (5 datasets).
+- **Status (local, 2026-11-13 ~01:20).** The cloud-size extra is done (below and under Ideas).
+  L20 running now (5 datasets); L21 queued after it.
 
 ## Open tasks for the web chat
 
@@ -95,7 +95,7 @@ need to real stablebear. Work in this order.
 
 ## Ideas
 
-- (web, recommended next, from the L19 status at 21:00) **Was Rips held back by cloud size?**
+- (web, recommended next, from the L19 status at 21:00; **done as L19x**) **Was Rips held back by cloud size?**
   With 100-point clouds on retina 40 s, delay regions (m = 2, K = 16) H0 ties ISI fractions
   within a stimulus (64/63 against 64/67), where 25-point clouds gave about half. ISI fractions
   always used every ISI. A fair test: the same neurons and samples, cloud sizes 25, 50, 100,
@@ -225,6 +225,11 @@ need to real stablebear. Work in this order.
   L17's 10 s retina table is rerun without it. Should load_retina_running.py drop it?
 
 ## Done
+
+- L19x (extra) Cloud size: `notes/results/L19x_cloud_size.md`. Yes, Rips was held back by size.
+  At equal ISIs, regional H0 (m = 2, K = 16) is 4 points below ISI fractions at 25 points but
+  level or ahead from 100: OpenScope 124 s 69.7 vs 62.3 at 200 points (shuffled 58.8; every-ISI
+  fractions 64.2); retina 40 s 64.8 vs 62.9 at 100. Bars add 1-9 points over the region counts.
 
 - L19 Spike-feature cloud: `notes/results/L19_spike_feature_cloud.md`. The joint 7-coordinate
   cloud never beats ISI fractions or the burst table (best: sliced W1 35/27/46/52/63 against ISI
