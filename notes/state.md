@@ -36,7 +36,16 @@ a change of stimulus, scored by clustering as well as 1-NN?
   against 62.9%.
 - The bars add 4-9 points over the region counts on long samples, and ISI order adds 9-11
   points on OpenScope and 2-6 on the retina (L19x).
-- The burst table is still the best single signature on OpenScope 124 s (71.8%, L19).
+- **The whole cloud is the simplest fix (L20).** Every point, one barcode, 32 regions, 1-NN
+  within / across (ISIs shuffled, within):
+  - long samples: OpenScope 124 s 67.2 (56.4) against ISI fractions 64.2; retina 40 s
+    67.4 / 70.7 (60.5) against 64.3 / 73.6 (old retina data with the repeating chunk);
+  - short samples: retina 10 s 43.7 / 40.0 (35.3) against 50.9 / 49.0; Allen 30 s 39.0 / 27.9
+    (30.0) against 44.8 / 25.4; OpenScope 10 s 21.5 / 19.3 (17.5) against 26.1 / 21.0.
+  - Dividing by the point count changes scores by at most 2 points. Clustering lags: k-means
+    36.9 on OpenScope 124 s where 1-NN is 67.2.
+- The burst table is still the best single signature on every dataset (71.8% on OpenScope
+  124 s, L19).
 - **Did not work:** the joint 7-coordinate spike-feature cloud (L19); H0+H1 (below H0 in every
   test); the time-filtered complex on the retina (W8); pdf-per-spike H0 (L11, L17); ToMATo
   clustering of trials (W5); a joint time x ISI signature (W6).
@@ -50,16 +59,17 @@ a change of stimulus, scored by clustering as well as 1-NN?
   movie block against the spontaneous block next to it, 11.8% for the same movie 70-100 min
   later. Whole-cloud delay regions keep 6-9 points over shuffled in every pair.
 - A second Allen session reproduces the first (ISI fractions 46.1 within / 28.0 across).
+- Per-spike pdfs with the whole history (a state model, W12; a running mixture of sqrt(n)
+  Gaussians, W13) do not beat ISI fractions on retina 10 s; their Rips H0 is near shuffled.
 - Fitting a pdf to the ISIs does not beat the empirical distribution. A lognormal or gamma
   (2 parameters) keeps 27% of 54%; a mixture of 2 Gaussians on log ISI recovers 50.6% (W11,
   retina, not stablebear).
 
 ## Open
 
-- L20: whole cloud, consecutive stretch and time crop on every dataset; number of anchors.
-- L21: H1 on whole clouds, Betti curves for H1, time-filtered complex.
+- L21: H1 on whole clouds, Betti curves for H1, time-filtered complex (two datasets done).
 - L22: one headline table of barcode-only scores with their counting twins.
-- L23: H0+H1, fix or close.
+- L23: H0+H1, fix or close. L25: the state model (per-spike mixture pdf) on long samples.
 
 ## Limits
 
