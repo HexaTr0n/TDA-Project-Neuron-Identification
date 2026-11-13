@@ -130,7 +130,19 @@ need to real stablebear. Work in this order.
   extra its own short section or result file, with its control, and add one line about it
   under "Ideas". The three narrow designs under "Ideas" are candidates.
 
-- **Status (local, 2026-11-13 ~05:00).** L20: 3 of 5 datasets done, retina 40 s running, then
+- **Status (local, 2026-11-13 ~06:40). L20 interim (4 of 5 datasets; OpenScope 124 s running).**
+  Delay regions H0, 1-NN within A / A -> B (ISIs shuffled within A):
+  - Whole cloud beats every other sampling. Retina 10 s k=8 42.4/41.3 (37.6) against 25
+    random points 27.9/28.4. Allen 34.4/22.7 against 27.2/17.2.
+  - Time crop 70% is in between; 50% and consecutive stretches are lower.
+  - Anchors: k = 16-32 best, 64 lower.
+    - Retina 40 s whole k=32: 67.4/70.7 (60.5), above ISI fractions 64.3 within. That run
+      still includes the repeating chunk.
+    - Allen k=32: 39.0/27.9 (30.0).
+    - OpenScope 10 s k=16: 23.0/20.6 (17.2).
+  - Dividing by the point count costs 0-4 points.
+  - H0+H1 is again below H0 everywhere.
+- **Earlier status (~05:00).** L20: 3 of 5 datasets done, retina 40 s running, then
   OpenScope 124 s; L21 queued. L24 nearly done:
   - Allen drift: drift dominates the stimulus change for single-neuron signatures. Same movie
     70 min apart: ISI fractions 11.8% 1-NN across. Movie against spontaneous just before it:
