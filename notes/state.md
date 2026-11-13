@@ -44,15 +44,20 @@ a change of stimulus, scored by clustering as well as 1-NN?
     (30.0) against 44.8 / 25.4; OpenScope 10 s 21.5 / 19.3 (17.5) against 26.1 / 21.0.
   - Dividing by the point count changes scores by at most 2 points. Clustering lags: k-means
     36.9 on OpenScope 124 s where 1-NN is 67.2.
-- **With 32 regions the bars add almost nothing over counting points per region** (L22 interim,
-  seed 0): region counts are within 1-2 points of regional H0 on every dataset (retina 40 s
-  63.1 against 62.9), and the order effect is the same for both. With 8-16 regions and fewer
-  points the bars added 4-9 points (L19x). So the gain of the whole cloud is mostly a joint
-  histogram of consecutive ISIs.
-- **Barcode-only combinations (L22 interim, seed 0, 1-NN):** retina within frozen, regions +
-  ISI bars + burst bars 82.3 (shuffled 39.3; time bars 87.7); retina frozen -> unrepeated,
-  regions + ISI bars 41.4 (ISI fractions 49.0); retina 40 s clean 82.4 within, 68.6 across;
-  Allen adjacent pair 46.9 within, 37.4 across (ISI fractions 50.7 / 38.7).
+- **Headline barcode-only table (L22, final).** 1-NN, seed 0, ISIs shuffled in brackets:
+  - retina within a repeated stimulus: regions + ISI bars + burst bars 82.3 (39.3); five seeds
+    83.2 [81.2-85.7]; nine sessions mean 65.6 (45.6-88.3); time bars 87.7 (nine sessions 70.2);
+  - retina across stimuli: regions + ISI bars 41.4 (37.4) at 10 s and 68.6 (65.7) at 40 s
+    clean, against ISI fractions 49.0 and 75.0;
+  - OpenScope 124 s: regions 69.1 (57.7); five seeds 67.1 [63.5-72.2] against ISI fractions
+    62.6 and the burst table 69.6;
+  - Allen adjacent pair: 46.9 (38.9) within, 37.4 (27.4) across, against ISI fractions
+    50.7 / 38.7.
+- **What the bars add over counting points per region** (regional H0 minus region counts):
+  +4 to +14 points with 8 regions, +1 to +6 with 16, -1.5 to +2.5 with 32. At 32 regions the
+  signature is mostly a joint histogram of three consecutive log ISIs. The order effect
+  (1-14 points lost by shuffling) is shared by bars and counts.
+- The neuron draw moves every row by about 4 points; the order of the rows holds in all seeds.
 - **H1 (L21):** on the plain whole cloud an H1 Betti curve adds 2-13 points to H0 on 4 of 5
   datasets (retina 40 s 33.8 -> 47.1, shuffled 44.0), but the plain cloud stays far below
   delay regions. Inside regions H1 lowers H0. H1 alone beats its shuffled control only on
@@ -81,7 +86,6 @@ a change of stimulus, scored by clustering as well as 1-NN?
 
 ## Open
 
-- L22: one headline table of barcode-only scores with their counting twins.
 - L23: H0+H1, fix or close. L25: the state model (per-spike mixture pdf) on long samples.
 
 ## Limits
