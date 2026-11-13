@@ -31,28 +31,6 @@ test there. Same rules as before: shuffled control next to every score, 1-NN and
 `legacy_scripts/embeddings.py`, `exp13_sublevel.py`, `exp21_stimulus_free.py`); port what you
 need to real stablebear. Work in this order.
 
-- **L21. Three fixes for what Rips cannot do (from the user).** On real stablebear, on the
-  whole-cloud versions of L20, all datasets, within and across, 1-NN and clustering, each with
-  ISIs shuffled.
-  - **H1 on the whole cloud.** H0+H1 for plain delay Rips and for delay regions (8 and 16
-    anchors). H1 was only ever tested on 25-point clouds, where it hurt.
-  - **Betti curves instead of stable ranks for H1.** A stable rank keeps only bar lengths; a
-    Betti curve also keeps the scale at which each loop lives. `barcode_to_betti_curve`, same
-    L1 distance. Report H1 alone and H0 (stable rank) + H1 (Betti curve).
-  - **Time-filtered complex** (the proposal slides). Fix a Rips scale r in ISI-pattern space
-    (delay points, m = 3, log ISIs; r = 0.5, 1, 2) and let the points enter in spike order: a
-    point enters at the time of its last spike, and an edge exists between two points closer
-    than r from the moment both are in. H0 bars then live on the time axis: a component is born
-    when a pattern unlike every earlier one appears and dies when a later point joins it to an
-    older component. Summaries: the Betti curve over time; the number of births so far over
-    time; the stable rank of lifetimes. stablebear only builds Rips from points or a distance
-    matrix, so this may need the bars computed outside it (union-find, as in
-    `scripts/experiments/exp32_rips_fixes.py`) and handed over as `Barcode`s; say which you did.
-    Expected to be locked to the stimulus, so report within a repeated stimulus and across.
-  - The web chat is piloting the time-filtered complex and H1 inside regions on the retina
-    (`exp32_rips_fixes.py`; its own Rips code is too slow for H1 on whole clouds without regions).
-  - Write `notes/results/L21_rips_fixes.md`.
-
 - **L22. Headline homology numbers (from the user: "good homology numbers, even if we rely on
   counting spikes").** After L20 and L21. One table per dataset in the L17 layout (retina 10 s
   with piece 2 dropped, retina 40 s, OpenScope 10 s and 124 s, Allen 30 s; within each stimulus
@@ -293,6 +271,17 @@ need to real stablebear. Work in this order.
         keep the first 40 s. I will add this as an option to `load_retina_running.py` with L24.
 
 ## Done
+
+- L21 Rips fixes: `notes/results/L21_rips_fixes.md`.
+  - H1 on the plain whole cloud, as a Betti curve, adds to H0 on 4 of 5 datasets: retina 40 s
+    33.8 -> 47.1 (shuffled 44.0), OpenScope 124 s 34.0 -> 41.2 (36.1). The plain cloud is still
+    far below delay regions.
+  - Inside regions H1 lowers H0 (k=16: 63.5 -> 58.5-60.4 on OpenScope 124 s), except a tie at
+    k=8.
+  - H1 alone is above its shuffled control only on OpenScope 124 s (regions k=16 H1 42.7 vs
+    36.8), so L23 continues there only.
+  - The time-filtered complex fails: 8-22% within, rate-like (as high across), 0-6 points above
+    shuffled.
 
 - L20 Cloud sampling: `notes/results/L20_cloud_sampling.md`.
   - The whole cloud (every point, one barcode) beats crops, random draws and consecutive
