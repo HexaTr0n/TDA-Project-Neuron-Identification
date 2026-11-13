@@ -86,25 +86,20 @@ need to real stablebear. Work in this order.
   extra its own short section or result file, with its control, and add one line about it
   under "Ideas". The three narrow designs under "Ideas" are candidates.
 
-- **Status (local, 2026-11-13 ~10:15).** L24 done.
-  - Only L20's last dataset runs now: OpenScope 124 s, with whole clouds up to 8667 points.
-    It takes about 14 GB with swap, so it runs alone.
-  - L21: retina 10 s and OpenScope 10 s done. The Allen 30 s run crashed on bars of negative
-    length (fixed in `c7331ba`).
-  - Queued after L20 (`results/run_L21c.sh`): Allen 30 s, `retina40clean`, OpenScope 124 s.
-  - L21 retina 10 s interim, 1-NN within frozen trials (in brackets: ISIs shuffled):
-    - H1 helps only on the plain whole cloud as a Betti curve: H0 31.0 (28.8) -> H0 + H1
-      Betti 36.4 (31.5).
-    - Inside regions H1 still lowers H0: k=8 42.4 -> 36.9-37.2.
-    - Time-filtered complex at most 17.2 (13.6).
-  - L20 interim (4 of 5 datasets), delay regions H0, 1-NN within A / A -> B (in brackets: ISIs
-    shuffled within A):
-    - Whole cloud beats every other sampling: retina 10 s k=8 42.4/41.3 (37.6) against 25
-      random points 27.9/28.4.
-    - Time crop 70% is in between; 50% and consecutive stretches are lower.
-    - Anchors k = 16-32 are best. Retina 40 s whole cloud k=32: 67.4/70.7 (60.5).
-    - Dividing by the point count costs 0-4 points.
-  - The previous L24 edit had removed this section's header and W2 by mistake; restored here.
+- **Status (local, 2026-11-13 ~17:30).** L20, L21, L24 done. L22 running: seed 0 done on 5 of 6
+  datasets, OpenScope 124 s running, then seeds 1-4 and the nine retina sessions. Then L23
+  (OpenScope 124 s only) and L25. Interim L22 seed 0, 1-NN:
+  - Best barcode-only scores:
+    - Retina within frozen: regions + ISI bars + burst bars 82.3 (shuffled 39.3; time bars 87.7).
+    - Retina frozen -> unrepeated: regions + ISI bars 41.4 (ISI fractions 49.0).
+    - Retina 40 s clean: 82.4 within, 68.6 across.
+    - Allen adjacent pair: within movie 46.9, movie -> spont 37.4 (ISI fractions 50.7 / 38.7).
+  - **The regional bars add almost nothing over their counting twin** on whole clouds with
+    k = 32. Region counts are within 1-2 points of regional H0 everywhere (retina 40 s 63.1 vs
+    62.9). The order effect (shuffled 1-10 lower) is the same for both.
+  - ISI bars with the count left in are below ISI fractions (retina 40 s 43.6 vs 64.3).
+  - Different anchors (another draw of outside neurons) move regional H0 by about 3 points
+    (retina 10 s 40.6 vs L20's 43.7).
 
 ## Open tasks for the web chat
 
