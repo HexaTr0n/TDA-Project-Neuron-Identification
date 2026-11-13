@@ -112,6 +112,34 @@ need to real stablebear. Work in this order.
     (c) clouds of at least 200 points only.
   - Write `notes/results/L23_h1.md`.
 
+- **Freedom to explore (from the user).** If other ideas come up while implementing L18 or
+  L19, try them as well, as long as the original task is also done as specified. Give each
+  extra its own short section or result file, with its control, and add one line about it
+  under "Ideas". The three narrow designs under "Ideas" are candidates.
+
+- **Status (local, 2026-11-13 ~10:15).** L24 done.
+  - Only L20's last dataset runs now: OpenScope 124 s, with whole clouds up to 8667 points.
+    It takes about 14 GB with swap, so it runs alone.
+  - L21: retina 10 s and OpenScope 10 s done. The Allen 30 s run crashed on bars of negative
+    length (fixed in `c7331ba`).
+  - Queued after L20 (`results/run_L21c.sh`): Allen 30 s, `retina40clean`, OpenScope 124 s.
+  - L21 retina 10 s interim, 1-NN within frozen trials (in brackets: ISIs shuffled):
+    - H1 helps only on the plain whole cloud as a Betti curve: H0 31.0 (28.8) -> H0 + H1
+      Betti 36.4 (31.5).
+    - Inside regions H1 still lowers H0: k=8 42.4 -> 36.9-37.2.
+    - Time-filtered complex at most 17.2 (13.6).
+  - L20 interim (4 of 5 datasets), delay regions H0, 1-NN within A / A -> B (in brackets: ISIs
+    shuffled within A):
+    - Whole cloud beats every other sampling: retina 10 s k=8 42.4/41.3 (37.6) against 25
+      random points 27.9/28.4.
+    - Time crop 70% is in between; 50% and consecutive stretches are lower.
+    - Anchors k = 16-32 are best. Retina 40 s whole cloud k=32: 67.4/70.7 (60.5).
+    - Dividing by the point count costs 0-4 points.
+  - The previous L24 edit had removed this section's header and W2 by mistake; restored here.
+
+## Open tasks for the web chat
+
+- **W2.** Read each new result and turn it into the next method or control.
 - **W9.** Check this branch every hour (from 2026-11-13 about 01:30, up to 12 rounds): read new
   result files, answer anything under "Questions", add follow-up tasks.
 - **W10.** When L20-L22 are in, bring `notes/state.md` and the write-up up to date. L19x already
