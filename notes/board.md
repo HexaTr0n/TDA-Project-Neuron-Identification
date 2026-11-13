@@ -229,7 +229,7 @@ need to real stablebear. Work in this order.
 - L19x (extra) Cloud size: `notes/results/L19x_cloud_size.md`. Yes, Rips was held back by size.
   At equal ISIs, regional H0 (m = 2, K = 16) is 4 points below ISI fractions at 25 points but
   level or ahead from 100: OpenScope 124 s 69.7 vs 62.3 at 200 points (shuffled 58.8; every-ISI
-  fractions 64.2); retina 40 s 64.8 vs 62.9 at 100. Bars add 1-9 points over the region counts.
+  fractions 64.2); retina 40 s 64.8 vs 62.9 at 100. Bars add 1-9 points over the region counts (8-9 on OpenScope from 100 points).
 
 - L19 Spike-feature cloud: `notes/results/L19_spike_feature_cloud.md`. The joint 7-coordinate
   cloud never beats ISI fractions or the burst table (best: sliced W1 35/27/46/52/63 against ISI

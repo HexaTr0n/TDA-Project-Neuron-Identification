@@ -107,7 +107,8 @@ python scripts/sb_cloud_size.py --dataset openscope124
   - From 100 points it is level or ahead (retina 64.8 vs 62.9; OpenScope 66.4 vs 62.6).
   - Both curves rise with size, but regional H0 rises faster. Its bars need enough points in a
     region before they say anything.
-- **The bars add to the counts at every size:** 3-9 points on OpenScope, 1-8 on the retina. The
+- **The bars add to the counts at every size:** 1-9 points on OpenScope (8-9 from 100 points up),
+  4-8 on the retina. The
   regions alone (a 16-bin joint histogram of consecutive ISI pairs) are below ISI fractions;
   the barcode of how points spread inside each region lifts them above.
 - **Order:**
