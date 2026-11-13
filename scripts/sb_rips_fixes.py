@@ -110,8 +110,11 @@ def time_filtered_bars(t, r, length):
             bars.append((born[q], when[k]))
             parent[q] = old
     alive = {find(i) for i in range(len(c))}
-    bars += [(born[q], length) for q in alive]
-    return np.array(bars, dtype=np.float64).reshape(-1, 2)
+    end = max(length, float(t[-1]))  # a sample can run a few ms past its nominal length
+    bars += [(born[q], end) for q in alive]
+    b = np.array(bars, dtype=np.float64).reshape(-1, 2)
+    b[:, 1] = np.maximum(b[:, 1], b[:, 0])
+    return b
 
 
 def tf_groups(trains, r, length):
@@ -123,7 +126,7 @@ def tf_groups(trains, r, length):
     n = len(bars)
     betti = to_list(persistence.barcode_to_betti_curve(BarcodeTensor([Barcode(b) for b in bars])), n)
     births = to_list(persistence.barcode_to_betti_curve(
-        BarcodeTensor([Barcode(np.c_[b[:, 0], np.full(len(b), length)]) for b in bars])), n)
+        BarcodeTensor([Barcode(np.c_[b[:, 0], np.maximum(b[:, 0], length)]) for b in bars])), n)
     life = to_list(persistence.barcode_to_stable_rank(BarcodeTensor([Barcode(b) for b in bars])), n)
     nb = np.median([len(b) for b in bars])
     return {"Betti curve over time": [([("pcf", betti)], 1.0)],
