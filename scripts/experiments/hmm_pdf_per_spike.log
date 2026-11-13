@@ -1,0 +1,33 @@
+1645 trials, 60 neurons, median ISIs per trial 161; chance 1.7%
+reference: ISI fractions   full 1-NN 54.0  k-means 40.9   halves A->B 38.8
+
+=== 2 hidden states (mean probability of staying in a state 0.53; 0.50 would mean no memory)
+signature                                          | full trial 1-NN (shuffled)  k-means (shuffled) | halves A->B 1-NN (shuffled)
+mean predicted pdf (no history left)               |  48.3 ( 50.6)    38.6 ( 39.5) |  33.5 ( 35.0)
+model: next-ISI pdf after each state, weighted     |  35.2 ( 35.7)    20.4 ( 22.1) |  25.5 ( 23.8)
+cloud, no homology: quantiles over spikes          |  48.0 ( 49.1)    38.3 ( 40.0) |  32.8 ( 32.5)
+how much the prediction moves (spread only)        |  26.8 ( 23.8)    18.0 ( 14.5) |  19.4 ( 15.9)
+cloud, Rips H0, whole cloud                        |  17.9 ( 16.6)    23.9 ( 21.4) |  15.1 ( 13.7)
+cloud, Rips H0, divided by point count             |  10.9 ( 12.0)    14.1 ( 15.4) |   9.2 (  9.7)
+cloud, Rips H0 in 8 regions (whole cloud)          |  27.2 ( 23.2)    24.8 ( 25.6) |  19.7 ( 20.2)
+cloud, region counts (twin without bars)           |  25.9 ( 20.7)    25.3 ( 25.2) |  19.2 ( 17.8)
+ISI fractions + cloud, no homology: quantiles over |  51.0 ( 52.7)    39.2 ( 40.0) |  34.3 ( 34.3)
+ISI fractions + cloud, Rips H0 in 8 regions (whole |  45.3 ( 47.1)    30.1 ( 29.6) |  28.4 ( 30.9)
+
+=== 3 hidden states (mean probability of staying in a state 0.38; 0.33 would mean no memory)
+signature                                          | full trial 1-NN (shuffled)  k-means (shuffled) | halves A->B 1-NN (shuffled)
+mean predicted pdf (no history left)               |  52.0 ( 51.1)    40.8 ( 39.1) |  36.2 ( 36.4)
+model: next-ISI pdf after each state, weighted     |  25.4 ( 20.8)    18.0 ( 17.5) |  19.0 ( 15.8)
+cloud, no homology: quantiles over spikes          |  49.1 ( 48.6)    39.3 ( 40.2) |  34.5 ( 32.8)
+how much the prediction moves (spread only)        |  25.8 ( 16.8)    21.8 ( 13.8) |  16.7 ( 12.9)
+cloud, Rips H0, whole cloud                        |  17.6 ( 13.2)    22.2 ( 19.6) |  13.7 ( 10.9)
+cloud, Rips H0, divided by point count             |   8.8 (  7.4)    14.9 ( 13.3) |   6.2 (  5.6)
+cloud, Rips H0 in 8 regions (whole cloud)          |  26.4 ( 22.3)    25.2 ( 23.9) |  19.1 ( 16.1)
+cloud, region counts (twin without bars)           |  25.7 ( 22.4)    24.2 ( 25.1) |  20.2 ( 17.0)
+ISI fractions + cloud, no homology: quantiles over |  52.7 ( 51.6)    42.0 ( 39.9) |  36.5 ( 33.9)
+ISI fractions + cloud, Rips H0 in 8 regions (whole |  43.6 ( 42.6)    31.9 ( 29.8) |  29.0 ( 27.7)
+
+
+real	10m32.574s
+user	10m22.527s
+sys	0m3.572s

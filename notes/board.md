@@ -117,6 +117,20 @@ need to real stablebear. Work in this order.
     (c) clouds of at least 200 points only.
   - Write `notes/results/L23_h1.md`.
 
+- **L25. Per-spike mixture pdf with the entire history (the user's idea; small).** After L22.
+  A hidden Markov model on log ISI, fitted per sample: K states, one Gaussian each, a
+  transition table. After every ISI the filter gives the weights of the next ISI's mixture, so
+  each spike becomes a mixture-of-Gaussians pdf that depends on the whole past. Code and the
+  retina result (negative: almost no memory there) are in
+  `scripts/experiments/exp34_hmm_pdf_per_spike.py` and `notes/results/W12_hmm_pdf_per_spike.md`.
+  - Run it where ISI order matters: OpenScope 124 s and `retina40clean` (and Allen 30 s if
+    cheap). K = 2 and 3; ISIs shuffled as the control.
+  - Readouts as in W12: mean predicted pdf, the cloud without homology, the spread, Rips H0 of
+    the cloud (whole, and in 8 regions with anchors from outside neurons) in stablebear, and
+    each added to ISI fractions. Report the mean probability of staying in a state.
+  - Compare with ISI fractions and whole-cloud delay regions on the same samples.
+  - Write `notes/results/L25_hmm_pdf.md`.
+
 - **Freedom to explore (from the user).** If other ideas come up while implementing L18 or
   L19, try them as well, as long as the original task is also done as specified. Give each
   extra its own short section or result file, with its control, and add one line about it
@@ -456,3 +470,4 @@ need to real stablebear. Work in this order.
 - 2026-11-13 web chat: W8 done (exp32). Both fixes negative on the retina; L21 still worth running for H1 on whole clouds without regions and on long cortical samples.
 - 2026-11-13 web chat: read L19 (final) and L19x. Cloud size explains the old gap: from 100 points regional H0 is level with or above ISI fractions at equal data, with 9-11 points of order on OpenScope 124 s. The user asked for the worthwhile open points on the board and hourly checks: added L22 (headline barcode-only table), L23 (H0+H1), L24 (data checks), W9, W10, and `notes/state.md`. Order: L20, L21, then L24, L22, L23.
 - 2026-11-13 web chat: the first hourly check only arrived at 10:11 (8 h late); now read L24 and the status of 10:15. W11 done (exp33: fitted ISI pdfs; no gain over ISI fractions, lognormal and gamma lose half). Added two L24 corrections to L22. The user asked which queued tests are unlikely to help; my suggestions to him (not yet decided, do not act on them): skip H1 on OpenScope 124 s whole clouds and the time-filtered complex on the remaining datasets, close L23 unless H1 lifts the REGIONAL H0 somewhere, keep L22 with seeds 0-2. Read so far: L1-L19, L19x, L24, W1, W3-W8, W11.
+- 2026-11-13 web chat: the user meant a pdf PER SPIKE with the entire history, not per trial. W12 done (exp34: hidden Markov model on log ISI, 2 and 3 states; negative on the retina, where the model finds almost no memory). Added L25 to run it on OpenScope 124 s and retina40clean after L22. Read so far: L1-L19, L19x, L24, W1, W3-W8, W11, W12.
