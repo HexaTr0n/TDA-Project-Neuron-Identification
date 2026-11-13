@@ -41,12 +41,25 @@ a change of stimulus, scored by clustering as well as 1-NN?
   test); the time-filtered complex on the retina (W8); pdf-per-spike H0 (L11, L17); ToMATo
   clustering of trials (W5); a joint time x ISI signature (W6).
 
+## Data checks (L24) and fitted pdfs (W11)
+
+- The repeating retina piece is a fixed 5 s chunk (24.85-29.9 s of every running stretch).
+  Cut out, the time-locked 40 s "unrepeated" scores fall from 34% to the shuffled level (5%);
+  ISI-based scores move by 1-3 points. Use `retina40clean`.
+- **Drift costs more than a stimulus change on Allen.** ISI fractions across: 38.7% for a
+  movie block against the spontaneous block next to it, 11.8% for the same movie 70-100 min
+  later. Whole-cloud delay regions keep 6-9 points over shuffled in every pair.
+- A second Allen session reproduces the first (ISI fractions 46.1 within / 28.0 across).
+- Fitting a pdf to the ISIs does not beat the empirical distribution. A lognormal or gamma
+  (2 parameters) keeps 27% of 54%; a mixture of 2 Gaussians on log ISI recovers 50.6% (W11,
+  retina, not stablebear).
+
 ## Open
 
 - L20: whole cloud, consecutive stretch and time crop on every dataset; number of anchors.
 - L21: H1 on whole clouds, Betti curves for H1, time-filtered complex.
 - L22: one headline table of barcode-only scores with their counting twins.
-- L23: H0+H1, fix or close. L24: retina piece 2, Allen drift, a second cortical session.
+- L23: H0+H1, fix or close.
 
 ## Limits
 

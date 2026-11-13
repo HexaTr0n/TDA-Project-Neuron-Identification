@@ -1,0 +1,15 @@
+1645 trials, 60 neurons; median ISIs per full trial 161, per half 81
+model                                        | full trial: 1-NN W1, 1-NN Hellinger, k-means W1 (range) | halves A->B: 1-NN W1, Hellinger
+empirical (ISI fractions, reference)         |  54.0   51.9   40.9 (40.4-41.5) |  38.8   31.1
+one Gaussian on log ISI (lognormal)          |  27.2   26.8   31.4 (31.3-31.5) |  16.7   17.3
+gamma on the ISI                             |  27.7   26.9   31.8 (31.3-32.4) |  18.7   18.9
+mixture of 2 Gaussians                       |  50.6   52.5   38.7 (38.4-39.3) |  34.6   36.0
+mixture of 3 Gaussians                       |  52.2   53.2   39.5 (38.2-41.3) |  37.4   35.5
+mixture of 4 Gaussians                       |  53.7   55.0   40.4 (39.6-41.2) |  37.8   35.4
+mixture, K by BIC per trial                  |  49.5   51.0   38.9 (37.1-39.9) |  32.2   33.1
+kernel estimate (one Gaussian per ISI)       |  50.3   55.4   37.9 (37.1-38.8) |  34.5   37.0
+K chosen by BIC (all fits, full trials and halves): K=1: 29%, K=2: 62%, K=3: 8%, K=4: 1%
+
+real	4m28.116s
+user	7m56.386s
+sys	0m1.257s

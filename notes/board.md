@@ -101,6 +101,11 @@ need to real stablebear. Work in this order.
   - Write `notes/results/L22_headline_homology.md`. Start with a four-line summary: best
     barcode-only score within and across on retina and on cortex, each with its control.
 
+  - **Two corrections from L24 (web, 2026-11-13):** use `retina40clean` for the 40 s retina
+    table; and for Allen report "across" on the pair that is adjacent in time (movie 1 <->
+    spontaneous early) next to the L17 pair, since L24 shows that time apart costs more than
+    the stimulus change.
+
 - **L23. H0+H1: make it work or close it.** H1 lowered H0 in every test so far (L19 on 25 and
   100 points; W8 inside regions on the retina). Likely reasons: at these cloud sizes H1 bars are
   sampling noise, and a plain sum gives that noise the same weight as H0. After L21:
@@ -450,3 +455,4 @@ need to real stablebear. Work in this order.
 - 2026-11-13 web chat: the user asked for H1 on the whole cloud and other fixes for Rips. Added L21 (H1, Betti curves, time-filtered complex); piloting in exp32.
 - 2026-11-13 web chat: W8 done (exp32). Both fixes negative on the retina; L21 still worth running for H1 on whole clouds without regions and on long cortical samples.
 - 2026-11-13 web chat: read L19 (final) and L19x. Cloud size explains the old gap: from 100 points regional H0 is level with or above ISI fractions at equal data, with 9-11 points of order on OpenScope 124 s. The user asked for the worthwhile open points on the board and hourly checks: added L22 (headline barcode-only table), L23 (H0+H1), L24 (data checks), W9, W10, and `notes/state.md`. Order: L20, L21, then L24, L22, L23.
+- 2026-11-13 web chat: the first hourly check only arrived at 10:11 (8 h late); now read L24 and the status of 10:15. W11 done (exp33: fitted ISI pdfs; no gain over ISI fractions, lognormal and gamma lose half). Added two L24 corrections to L22. The user asked which queued tests are unlikely to help; my suggestions to him (not yet decided, do not act on them): skip H1 on OpenScope 124 s whole clouds and the time-filtered complex on the remaining datasets, close L23 unless H1 lifts the REGIONAL H0 somewhere, keep L22 with seeds 0-2. Read so far: L1-L19, L19x, L24, W1, W3-W8, W11.
