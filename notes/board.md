@@ -81,6 +81,50 @@ need to real stablebear. Work in this order.
     (`exp32_rips_fixes.py`; its own Rips code is too slow for H1 on whole clouds without regions).
   - Write `notes/results/L21_rips_fixes.md`.
 
+- **L22. Headline homology numbers (from the user: "good homology numbers, even if we rely on
+  counting spikes").** After L20 and L21. One table per dataset in the L17 layout (retina 10 s
+  with piece 2 dropped, retina 40 s, OpenScope 10 s and 124 s, Allen 30 s; within each stimulus
+  and across; 1-NN / k-medoids / k-means with mean curves), real stablebear, every row built
+  from barcodes only:
+  - **Delay regions on the whole cloud**, H0, point count left in, with the number of anchors
+    that L20 found best (fix one number for all datasets; do not pick per dataset).
+  - **The same plus ISI bars** (stable rank of the log ISI bars, not divided by the count):
+    the sum of the two distance matrices, each divided by its median over pairs of outside
+    neurons. Both are H0, one of the delay cloud and one of the spike times on a line.
+  - **Within a repeated stimulus only: the same plus burst bars** (H0 that keeps time).
+  - Next to every row: ISIs shuffled, and the twin without bars (region counts; spike count for
+    the ISI bars), so it is visible what the bars add beyond counting.
+  - Reference rows from L17 on the same samples: ISI fractions, burst table, multi-scale
+    square-root time bars.
+  - **How stable is it:** repeat the retina 10 s and OpenScope 124 s tables for neuron seeds
+    0-4 and give mean and range; and give the retina within-frozen row for all nine sessions.
+  - Write `notes/results/L22_headline_homology.md`. Start with a four-line summary: best
+    barcode-only score within and across on retina and on cortex, each with its control.
+
+- **L23. H0+H1: make it work or close it.** H1 lowered H0 in every test so far (L19 on 25 and
+  100 points; W8 inside regions on the retina). Likely reasons: at these cloud sizes H1 bars are
+  sampling noise, and a plain sum gives that noise the same weight as H0. After L21:
+  - If H1 on the whole cloud (L21) is nowhere above its shuffled control, write one line under
+    "Done" and stop.
+  - Otherwise try, on the dataset where it was above: (a) divide each degree's distance by its
+    median over outside-neuron pairs and weight H1 by 0.25, 0.5, 1; (b) keep only H1 bars
+    longer than the 95th percentile of H1 bar lengths in ISI-shuffled clouds of the same size;
+    (c) clouds of at least 200 points only.
+  - Write `notes/results/L23_h1.md`.
+
+- **L24. Three data checks (cheap; can run between the others).**
+  - **Retina piece 2.** One of the four "unrepeated" 10 s pieces repeats (reliability 0.244).
+    Find out from the dataset's stimulus files or documentation what that piece is, and say
+    whether the 40 s retina numbers (which include it) need redoing without it.
+  - **Allen: stimulus change without the 70-minute gap.** For ISI fractions, burst table and
+    delay regions: movie block against the spontaneous block next to it in time, and movie
+    block 1 against movie block 2 (same stimulus, far apart). This separates drift from the
+    stimulus change for single-neuron signatures, as L16 did for the population.
+  - **A second cortical session.** If one more OpenScope or Allen session is a cheap download,
+    rerun ISI fractions, burst table and whole-cloud delay regions on it, within and across.
+    Every cortex number so far rests on one session per dataset.
+  - Write `notes/results/L24_data_checks.md`.
+
 - **Freedom to explore (from the user).** If other ideas come up while implementing L18 or
   L19, try them as well, as long as the original task is also done as specified. Give each
   extra its own short section or result file, with its control, and add one line about it
@@ -92,6 +136,11 @@ need to real stablebear. Work in this order.
 ## Open tasks for the web chat
 
 - **W2.** Read each new result and turn it into the next method or control.
+- **W9.** Check this branch every hour (from 2026-11-13 about 01:30, up to 12 rounds): read new
+  result files, answer anything under "Questions", add follow-up tasks.
+- **W10.** When L20-L22 are in, bring `notes/state.md` and the write-up up to date. L19x already
+  changes one claim: at equal data, regional Rips is level with or ahead of the ISI
+  distribution on long samples.
 
 ## Ideas
 
@@ -195,6 +244,10 @@ need to real stablebear. Work in this order.
   3. **Lag diagram.** For each partner, persistence of the cross-correlogram (bars with lag and
      prominence); pool over partners into one diagram per neuron; compare by matching in lag.
      Spontaneous periods only.
+- (web, from L19's own conclusion) **Scale the joint cloud's coordinates on outside neurons.**
+  With equal weights, seven coordinates dilute the two good ones. Fit one weight per coordinate
+  on neurons outside the comparison (for example by maximising 1-NN on those), then rerun the
+  joint cloud's regional H0 and sliced W1. Not a task yet; only worth it if L22 leaves a gap.
 - (web) L16 is the strongest "with whom" result so far: 99.5-100% of 851 units re-identified
   from correlation distances alone within a condition. Worth a drift-free stimulus test.
 
@@ -363,4 +416,4 @@ need to real stablebear. Work in this order.
 - 2026-11-13 web chat: the user added a no-averaging time crop to L20 and wants the whole-cloud homology numbers on every dataset, spike count allowed. W7 addendum posted (exp31).
 - 2026-11-13 web chat: the user asked for H1 on the whole cloud and other fixes for Rips. Added L21 (H1, Betti curves, time-filtered complex); piloting in exp32.
 - 2026-11-13 web chat: W8 done (exp32). Both fixes negative on the retina; L21 still worth running for H1 on whole clouds without regions and on long cortical samples.
-
+- 2026-11-13 web chat: read L19 (final) and L19x. Cloud size explains the old gap: from 100 points regional H0 is level with or above ISI fractions at equal data, with 9-11 points of order on OpenScope 124 s. The user asked for the worthwhile open points on the board and hourly checks: added L22 (headline barcode-only table), L23 (H0+H1), L24 (data checks), W9, W10, and `notes/state.md`. Order: L20, L21, then L24, L22, L23.
