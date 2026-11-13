@@ -1,0 +1,47 @@
+1645 trials, 60 neurons; chance 1.7%
+reference: ISI fractions   full 1-NN 54.0  k-medoids 38.2   halves A->B 38.8
+
+=== last 16 ISIs, 4 Gaussians; median points per trial 146, per half 66
+signature                                          | full trial 1-NN (shuffled)  k-medoids (shuffled) | halves A->B 1-NN (shuffled)
+mean point of the path                             |  51.8 ( 51.1)    36.7 ( 37.2) |  35.9 ( 34.8)
+cloud, no homology: quantiles over points          |  53.9 ( 51.7)    35.5 ( 36.3) |  36.8 ( 33.6)
+path read at fixed times                           |  34.1 ( 20.7)    26.0 ( 20.0) |  19.4 ( 19.0)
+spread of the path (sd per grid point)             |  33.7 ( 25.5)    28.0 ( 24.4) |  19.0 ( 16.3)
+Rips H0 of the path, whole cloud                   |  23.3 ( 25.0)    20.8 ( 20.1) |  17.8 ( 15.7)
+Rips H0, divided by point count                    |  12.4 ( 13.3)    17.4 ( 17.3) |   9.5 (  9.4)
+Rips H1, 40 landmarks                              |   4.4 (  4.2)    11.7 ( 11.5) |   4.4 (  3.8)
+Rips H0 in 8 regions (whole cloud)                 |  33.4 ( 33.3)    28.0 ( 25.8) |  23.8 ( 22.9)
+region counts (twin without bars)                  |  31.7 ( 30.6)    27.6 ( 25.0) |  21.7 ( 21.9)
+ISI fractions + path read at fixed times           |  51.2 ( 43.0)    35.5 ( 31.3) |  28.5 ( 33.0)
+ISI fractions + Rips H0 in 8 regions (whole cloud) |  48.6 ( 47.3)    35.7 ( 33.6) |  30.9 ( 30.9)
+ISI fractions + Rips H0 of the path, whole cloud   |  50.6 ( 49.8)    36.1 ( 35.9) |  36.4 ( 35.9)
+
+=== last 32 ISIs, 5 Gaussians; median points per trial 130, per half 50
+signature                                          | full trial 1-NN (shuffled)  k-medoids (shuffled) | halves A->B 1-NN (shuffled)
+mean point of the path                             |  51.9 ( 50.6)    36.6 ( 37.4) |  35.5 ( 34.2)
+cloud, no homology: quantiles over points          |  53.1 ( 50.2)    37.2 ( 35.9) |  35.0 ( 34.0)
+path read at fixed times                           |  43.6 ( 32.5)    32.6 ( 27.9) |  25.0 ( 26.9)
+spread of the path (sd per grid point)             |  24.9 ( 22.1)    22.7 ( 20.8) |  13.1 ( 12.8)
+Rips H0 of the path, whole cloud                   |  22.3 ( 20.8)    20.0 ( 20.0) |  15.2 ( 15.7)
+Rips H0, divided by point count                    |  11.4 ( 13.9)    16.2 ( 16.3) |   8.4 (  8.6)
+Rips H1, 40 landmarks                              |   4.0 (  3.5)    12.0 ( 11.9) |   3.6 (  4.0)
+Rips H0 in 8 regions (whole cloud)                 |  32.0 ( 28.8)    24.4 ( 23.7) |  21.6 ( 18.7)
+region counts (twin without bars)                  |  28.3 ( 26.1)    25.0 ( 22.3) |  20.0 ( 18.5)
+ISI fractions + path read at fixed times           |  53.3 ( 47.1)    38.1 ( 35.2) |  33.1 ( 34.3)
+ISI fractions + Rips H0 in 8 regions (whole cloud) |  46.9 ( 44.3)    31.8 ( 33.6) |  31.1 ( 31.4)
+ISI fractions + Rips H0 of the path, whole cloud   |  50.7 ( 50.0)    36.2 ( 35.5) |  36.7 ( 34.8)
+
+=== last 64 ISIs, 8 Gaussians; median points per trial 98; halves too short
+signature                                          | full trial 1-NN (shuffled)  k-medoids (shuffled) | halves A->B 1-NN (shuffled)
+mean point of the path                             |  52.2 ( 48.0)    35.9 ( 36.4) |     -
+cloud, no homology: quantiles over points          |  52.3 ( 47.8)    37.3 ( 36.0) |     -
+path read at fixed times                           |  52.3 ( 42.9)    36.8 ( 32.2) |     -
+spread of the path (sd per grid point)             |  17.9 ( 14.0)    19.5 ( 16.6) |     -
+Rips H0 of the path, whole cloud                   |  18.7 ( 20.9)    18.5 ( 19.7) |     -
+Rips H0, divided by point count                    |   9.0 ( 12.5)    16.0 ( 17.2) |     -
+Rips H1, 40 landmarks                              |   4.5 (  4.0)    11.3 ( 11.5) |     -
+Rips H0 in 8 regions (whole cloud)                 |  28.7 ( 28.1)    21.7 ( 21.7) |     -
+region counts (twin without bars)                  |  27.1 ( 26.1)    21.5 ( 20.8) |     -
+ISI fractions + path read at fixed times           |  56.7 ( 51.0)    39.6 ( 37.8) |     -
+ISI fractions + Rips H0 in 8 regions (whole cloud) |  46.6 ( 45.2)    32.4 ( 31.0) |     -
+ISI fractions + Rips H0 of the path, whole cloud   |  50.3 ( 50.4)    35.6 ( 35.3) |     -
