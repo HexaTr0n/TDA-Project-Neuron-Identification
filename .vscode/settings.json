@@ -1,0 +1,5 @@
+{
+    // Build the report with latexmk (runs pdflatex as many times as needed, so the table of
+    // contents, page totals and \ref are filled in). The recipe is defined in the user settings.
+    "latex-workshop.latex.recipe.default": "latexmk 🔃"
+}

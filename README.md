@@ -23,22 +23,26 @@ scripts/
   load_dataset.py                  load the dataset in Python  <- start here
   extract.py                       download + extract the raw archives
   build_isi_dataset.py             rebuild the ISI dataset from the raw data
-  README.md                        the analysis: methods, and how to replicate every result
-  sb_*.py, run_pipeline.py, ...    the analysis scripts (see scripts/README.md)
-  pilots/                          small pdf-fitting experiments (not stablebear)
   requirements.txt
-notes/
-  summary.md                       the results in one page
-  results/                         one file per experiment, with full tables and commands
-  keep_or_cut.md                   every method tried, and why it was kept or dropped
-figures/                           example raster plots
+analysis/
+  tda_utils.py                     shared functions (point clouds, stablebear calls, scores)
+  01_explore.py, 02_stable_ranks.py, 03_identify.py   the three analysis steps
+  EXPLANATIONS.md                  what everything does and what the results mean
+figures/analysis/                  figures made by the analysis
+results/                           result tables (git-ignored, re-created by 03_identify.py)
 ```
 
-**Analysis.** The project asks whether one short sample of spikes identifies its neuron, with
-topological signatures computed in stablebear. Start with `notes/summary.md` for the results
-and `scripts/README.md` for how to rerun them. Two more datasets (OpenScope and Allen
-Neuropixels) are used there; they are too large for this repository and
-`scripts/README.md` says how to download them.
+## Analysis
+
+Can one 10 s trial tell which neuron it came from? Each trial becomes a point cloud, then
+Vietoris–Rips barcodes, then stable ranks (with [stablebear](https://pypi.org/project/stablebear/)),
+and trials are matched to neurons by L1 distance. See `analysis/EXPLANATIONS.md`.
+
+```bash
+python analysis/01_explore.py        # data figures                     (~5 s)
+python analysis/02_stable_ranks.py   # barcodes and stable ranks         (~5 s)
+python analysis/03_identify.py       # main experiment, 5 neuron draws   (~4 min)
+```
 
 ## Quick start (use the ready-made dataset)
 
