@@ -7,6 +7,8 @@ Each family is one method with several settings. "1-NN" is the best setting on a
 so it flatters families with many settings. "Held-out" fixes that: settings are chosen on
 half the neurons and scored on the other half, over many random splits. The same splits
 are used for every row. Chance on a half is one over the number of neurons in it.
+"cluster" is k-medoids on all neurons with k = number of neurons: the share of trials that
+land in the cluster matched to their neuron.
 """
 import argparse
 import fnmatch
@@ -17,13 +19,14 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from run_pipeline import RESULTS, Config, data_tag, scaled
+from run_pipeline import RESULTS, Config, data_tag, k_medoids, matched_accuracy, scaled
 
 FAMILIES = {
     "Delay embedding, H0": ["m?_fixed__H0"],
     "Delay embedding, H0+H1": ["m?_fixed__H0+H1"],
     "Delay regions": ["regions_m3_k?__H*"],
     "Time bars": ["time_bars_s???__D", "time_bars_s??__D"],
+    "Burst bars": ["burst_bars_s???__D", "burst_bars_s??__D"],
     "Window count": ["window_count_s*__D"],
     "ISI bars": ["isi_bars_*__D"],
     "Peak matching": ["peak_s*_q*__D"],
@@ -54,11 +57,12 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--session", default=Config().sessions[0])
     ap.add_argument("--neurons", type=int)
+    ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--weight", type=float, default=0.5, help="weight of the added partner")
     ap.add_argument("--splits", type=int, default=50)
     args = ap.parse_args()
 
-    folder = RESULTS / "distances" / data_tag(args.session, args.neurons)
+    folder = RESULTS / "distances" / data_tag(args.session, args.neurons, args.seed)
     if not (folder / "labels.npy").exists():
         sys.exit(f"nothing saved in {folder}; run run_pipeline.py first")
     y = np.unique(np.load(folder / "labels.npy"), return_inverse=True)[1]
@@ -89,6 +93,13 @@ def main():
             if partner in matrices and partner not in settings:
                 extra = args.weight * scaled(matrices[partner])
                 row[label] = held_out({n: scaled(D) + extra for n, D in settings.items()}, y, splits)
+        # Clustering uses no labels to form groups. The setting is the 1-NN best one.
+        D = np.array(settings[best], dtype=np.float64)
+        row["cluster"] = matched_accuracy(y, k_medoids(D, k))
+        partner = PARTNERS["+ log ISI bars"]
+        if partner in matrices and partner not in settings:
+            both = scaled(D) + args.weight * scaled(np.array(matrices[partner], dtype=np.float64))
+            row["cluster + log ISI bars"] = matched_accuracy(y, k_medoids(both, k))
         rows.append(row)
     table = pd.DataFrame(rows).round(3)
     print(f"{len(y)} trials, {k} neurons. Chance: 1-NN about {1 / k:.3f}, held-out about {2 / k:.3f}")

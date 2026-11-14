@@ -9,6 +9,7 @@ into piecewise constant functions and compare them.
                  of spikes in the last s seconds, which is exactly the sliding window count.
     isi_bars     one bar per ISI. With log=False these are the H0 bars of the spike times
                  as a 1D Rips cloud. The stable rank says how many ISIs exceed each length.
+    burst_bars   one bar per burst at scale s: H0 of the spike train thickened by s.
     peak_events  H0 persistence of the smoothed rate: one event per peak, with its time.
 """
 import numpy as np
@@ -29,6 +30,20 @@ def shuffle_isis(spike_times, rng):
 def time_bars(spike_times, s):
     t = np.asarray(spike_times, dtype=np.float64)
     return np.c_[t, t + s]
+
+
+def burst_bars(spike_times, s):
+    """One bar [first spike, last spike + s) per burst, where a burst is a run of spikes
+    with gaps of at most s.
+
+    Thicken every spike t to the interval [t, t + s) and take the union. Intervals overlap
+    when the gap is below s, so the pieces of the union are the bursts. These are the H0
+    classes of the thickened train. The Betti curve is 1 inside a burst and 0 outside, so
+    unlike time_bars it ignores how many spikes a burst has.
+    """
+    t = np.asarray(spike_times, dtype=np.float64)
+    cut = np.flatnonzero(np.diff(t) > s)
+    return np.c_[t[np.r_[0, cut + 1]], t[np.r_[cut, len(t) - 1]] + s]
 
 
 def isi_bars(spike_times, log=True):

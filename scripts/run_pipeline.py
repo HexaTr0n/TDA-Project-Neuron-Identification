@@ -23,12 +23,13 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from scipy.ndimage import gaussian_filter1d
+from scipy.optimize import linear_sum_assignment
 from scipy.spatial.distance import cdist
 from sklearn.cluster import AgglomerativeClustering, KMeans
 from sklearn.metrics import adjusted_mutual_info_score
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from barcodes import isi_bars, peak_events, shuffle_isis, smoothed_rate, time_bars
+from barcodes import burst_bars, isi_bars, peak_events, shuffle_isis, smoothed_rate, time_bars
 from embeddings import EMBEDDINGS
 from load_dataset import DEFAULT_PATH, load_dataset
 from spike_distance import matching_matrix, vp_distance_matrix
@@ -107,6 +108,9 @@ CONFIGS = {
     # --- Barcodes written by hand, summarised by stablebear
     **{f"time_bars_{k}": method("time_bars", s=s) for k, s in WINDOWS.items()},
     "time_bars_s67_shuffled": method("time_bars", s=2 / 30, shuffle=True),
+    # One bar per burst: real H0 of the thickened train, and it keeps time.
+    **{f"burst_bars_{k}": method("burst_bars", s=s) for k, s in WINDOWS.items()},
+    "burst_bars_s67_shuffled": method("burst_bars", s=2 / 30, shuffle=True),
     "isi_bars_raw": method("isi_bars", log=False),
     "isi_bars_log": method("isi_bars", log=True),
     # --- H0 of the smoothed rate, compared in time
@@ -235,7 +239,7 @@ def distance_matrices(bcs, cfg):
 
     to_pcf = {"stable_rank": persistence.barcode_to_stable_rank,
               "betti_curve": persistence.barcode_to_betti_curve}[cfg.summary]
-    pcfs = to_pcf(bcs)  # shape (blocks, subsamples, [regions,] max_dim + 1)
+    pcfs = to_pcf(bcs)  # shape (blocks, subsamples, [regions,] [max_dim + 1])
 
     def l1(x):
         return np.asarray(sb.pdist(sb.mean(x, dim=1), p=cfg.p).to_dense(), dtype=np.float64)
@@ -245,7 +249,8 @@ def distance_matrices(bcs, cfg):
         if cfg.regions:
             out[f"H{d}"] = sum(l1(pcfs[:, :, r, d]) for r in range(cfg.regions))
         else:
-            out[f"H{d}"] = l1(pcfs[:, :, d])
+            # With max_dim=0 stablebear returns no homology axis.
+            out[f"H{d}"] = l1(pcfs[:, :, d] if cfg.max_dim else pcfs)
     if cfg.max_dim >= 1:
         # Median-scale each dimension, otherwise H0 swamps H1.
         out["H0+H1"] = sum(scaled(D) for D in out.values())
@@ -328,6 +333,10 @@ def time_bars_distance(trains, s):
     return l1_between([time_bars(t, s) for t in trains], "betti_curve") / s
 
 
+def burst_bars_distance(trains, s):
+    return l1_between([burst_bars(t, s) for t in trains], "betti_curve") / s
+
+
 def isi_bars_distance(trains, log):
     return l1_between([isi_bars(t, log) for t in trains], "stable_rank")
 
@@ -340,6 +349,7 @@ METHODS = {
     "spike_distance": spike_distance,
     "peak_matching": peak_matching,
     "time_bars": time_bars_distance,
+    "burst_bars": burst_bars_distance,
     "isi_bars": isi_bars_distance,
 }
 NEEDS_JOBS = {"spike_distance", "peak_matching"}
@@ -364,8 +374,52 @@ def scaled(D):
     return D / np.median(D[D > 0])
 
 
+def k_medoids(D, k, seed=0, restarts=5, iters=100):
+    """k-means for a distance matrix: centres are trials, not averages. No labels used."""
+    rng = np.random.default_rng(seed)
+    n = len(D)
+    best, best_cost = None, np.inf
+    for _ in range(restarts):
+        medoids = [int(rng.integers(n))]  # k-means++ style start
+        near = D[medoids[0]].copy()
+        for _ in range(k - 1):
+            medoids.append(int(rng.choice(n, p=near ** 2 / (near ** 2).sum())))
+            near = np.minimum(near, D[medoids[-1]])
+        medoids = np.array(medoids)
+        for _ in range(iters):
+            assign = D[:, medoids].argmin(1)
+            new = medoids.copy()
+            for c in range(k):
+                members = np.flatnonzero(assign == c)
+                if len(members):
+                    new[c] = members[D[np.ix_(members, members)].sum(0).argmin()]
+            if np.array_equal(new, medoids):
+                break
+            medoids = new
+        assign = D[:, medoids].argmin(1)
+        cost = D[np.arange(n), medoids[assign]].sum()
+        if cost < best_cost:
+            best, best_cost = assign, cost
+    return best
+
+
+def matched_accuracy(y, clusters):
+    """Share of trials in the right cluster, after pairing each cluster with one neuron
+    so that as many trials as possible agree (Hungarian method)."""
+    table = np.zeros((y.max() + 1, clusters.max() + 1))
+    np.add.at(table, (y, clusters), 1)
+    rows, cols = linear_sum_assignment(-table)
+    return float(table[rows, cols].sum() / len(y))
+
+
 def evaluate(D, labels, seed=0):
-    """Can we tell which neuron a cloud came from, given a distance matrix?"""
+    """Can we tell which neuron a cloud came from, given a distance matrix?
+
+    acc_1nn      each trial takes the label of its nearest other trial: needs labelled trials.
+    cluster_acc  k-medoids with k = number of neurons, no labels used to form the groups;
+                 then the share of trials whose cluster is matched to their neuron.
+    ami, cluster_ami   agreement of average-linkage and k-medoids clusters with neurons.
+    """
     D = np.array(D, dtype=np.float64)
     names, y = np.unique(labels, return_inverse=True)
     n = len(y)
@@ -380,19 +434,22 @@ def evaluate(D, labels, seed=0):
     chance = float(np.mean((counts[y] - 1) / (n - 1)))
     pred = AgglomerativeClustering(n_clusters=len(names), metric="precomputed",
                                    linkage="average").fit_predict(D)
+    medoid = k_medoids(D, len(names), seed)
     return dict(n_clouds=n, n_neurons=len(names), acc_1nn=acc, chance=chance,
-                ami=float(adjusted_mutual_info_score(y, pred)))
+                ami=float(adjusted_mutual_info_score(y, pred)),
+                cluster_acc=matched_accuracy(y, medoid),
+                cluster_ami=float(adjusted_mutual_info_score(y, medoid)))
 
 
 # ------------------------------------------------------------------ main
 
 
-def data_tag(session, neurons):
-    return f"{session}_{neurons or 'all'}"
+def data_tag(session, neurons, seed=0):
+    return f"{session}_{neurons or 'all'}" + (f"_seed{seed}" if seed else "")
 
 
 def run(name, cfg, df, neurons, jobs, force):
-    tag = data_tag("+".join(cfg.sessions), neurons)
+    tag = data_tag("+".join(cfg.sessions), neurons, cfg.seed)
     folder = RESULTS / "distances" / tag
     folder.mkdir(parents=True, exist_ok=True)
     if not force and list(folder.glob(f"{name}__*.npy")):
@@ -425,6 +482,7 @@ def main():
     ap.add_argument("--session", help="override the session of every config")
     ap.add_argument("--summary", choices=["stable_rank", "betti_curve"])
     ap.add_argument("--neurons", type=int, help="use this many random neurons (faster)")
+    ap.add_argument("--seed", type=int, help="another random choice of neurons and subsamples")
     ap.add_argument("--jobs", type=int, default=1, help="processes for the matching distances")
     ap.add_argument("--force", action="store_true", help="recompute what is already saved")
     args = ap.parse_args()
@@ -439,6 +497,8 @@ def main():
     chosen = {n: CONFIGS[n] for n in names}
     if args.session:
         chosen = {n: replace(c, sessions=(args.session,)) for n, c in chosen.items()}
+    if args.seed is not None:
+        chosen = {n: replace(c, seed=args.seed) for n, c in chosen.items()}
     if args.summary:
         chosen = {n: replace(c, summary=args.summary) for n, c in chosen.items()}
 

@@ -1,6 +1,12 @@
 numpy
 scipy
-h5py
 pandas
 pyarrow
+scikit-learn
+numba
+stablebear
+h5py
 matplotlib
+# only for the cortical datasets (scripts/load_openscope.py, scripts/load_allen.py):
+pynwb
+dandi
