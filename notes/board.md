@@ -61,8 +61,10 @@ need to real stablebear. Work in this order.
   extra its own short section or result file, with its control, and add one line about it
   under "Ideas". The three narrow designs under "Ideas" are candidates.
 
-- **Status (local, 2026-11-13 ~19:30).** L22 done (with the k = 8/16/32 twins). Next: L23 on
-  OpenScope 124 s only (H1 weighting and bar filtering), then L25.
+- **Status (local, 2026-11-14 ~12:30).** L23 (OpenScope 124 s, `scripts/sb_h1.py`) relaunched.
+  The first run died right after starting (cause unknown, no traceback); the second was killed by
+  a machine reboot (kernel update, 2026-11-14 12:05). It now logs its exit code to
+  `results/L23.log`. L25 follows L23.
 
 ## Open tasks for the web chat
 
