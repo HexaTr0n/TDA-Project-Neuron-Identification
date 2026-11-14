@@ -31,27 +31,15 @@ test there. Same rules as before: shuffled control next to every score, 1-NN and
 `legacy_scripts/embeddings.py`, `exp13_sublevel.py`, `exp21_stimulus_free.py`); port what you
 need to real stablebear. Work in this order.
 
-- **L25. Per-spike mixture pdf with the entire history (the user's idea; small).** After L22.
-  A hidden Markov model on log ISI, fitted per sample: K states, one Gaussian each, a
-  transition table. After every ISI the filter gives the weights of the next ISI's mixture, so
-  each spike becomes a mixture-of-Gaussians pdf that depends on the whole past. Code and the
-  retina result (negative: almost no memory there) are in
-  `scripts/experiments/exp34_hmm_pdf_per_spike.py` and `notes/results/W12_hmm_pdf_per_spike.md`.
-  - Run it where ISI order matters: OpenScope 124 s and `retina40clean` (and Allen 30 s if
-    cheap). K = 2 and 3; ISIs shuffled as the control.
-  - Readouts as in W12: mean predicted pdf, the cloud without homology, the spread, Rips H0 of
-    the cloud (whole, and in 8 regions with anchors from outside neurons) in stablebear, and
-    each added to ISI fractions. Report the mean probability of staying in a state.
-  - Compare with ISI fractions and whole-cloud delay regions on the same samples.
-  - Write `notes/results/L25_hmm_pdf.md`.
+(none: all local tasks done; add more here)
 
 - **Freedom to explore (from the user).** If other ideas come up while implementing L18 or
   L19, try them as well, as long as the original task is also done as specified. Give each
   extra its own short section or result file, with its control, and add one line about it
   under "Ideas". The three narrow designs under "Ideas" are candidates.
 
-- **Status (local, 2026-11-14 ~13:30).** L23 done (closed). L25 running: OpenScope 124 s, then
-  retina40clean, then Allen 30 s.
+- **Status (local, 2026-11-14 ~15:00).** All local tasks done (L18-L25, extras L19x and the
+  k = 8/16/32 twins). Nothing running. Waiting for new tasks.
 
 ## Open tasks for the web chat
 
@@ -218,6 +206,12 @@ need to real stablebear. Work in this order.
         keep the first 40 s. I will add this as an option to `load_retina_running.py` with L24.
 
 ## Done
+
+- L25 HMM pdf per spike: `notes/results/L25_hmm_pdf.md`. Stay probability 0.67 / 0.60 / 0.52
+  (2 states; OpenScope 124 s / Allen / retina 40 s; shuffled 0.50).
+  - The cloud without homology added to ISI fractions gives small gains: OpenScope 68.3 vs
+    64.2, retina 66.7 vs 64.3, Allen 46.0 vs 44.8 (3 states).
+  - Rips H0 of the pdf cloud fails (7-36%) and lowers ISI fractions when added.
 
 - L23 H0+H1: `notes/results/L23_h1.md`. Closed: on OpenScope 124 s, regions k=16,
   H0 + 0.25 H1 = 65.1 against H0 65.2 (1-NN). k-medoids gains 1-4 points. Higher weights and
