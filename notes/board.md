@@ -31,17 +31,6 @@ test there. Same rules as before: shuffled control next to every score, 1-NN and
 `legacy_scripts/embeddings.py`, `exp13_sublevel.py`, `exp21_stimulus_free.py`); port what you
 need to real stablebear. Work in this order.
 
-- **L23. H0+H1: make it work or close it.** H1 lowered H0 in every test so far (L19 on 25 and
-  100 points; W8 inside regions on the retina). Likely reasons: at these cloud sizes H1 bars are
-  sampling noise, and a plain sum gives that noise the same weight as H0. After L21:
-  - If H1 on the whole cloud (L21) is nowhere above its shuffled control, write one line under
-    "Done" and stop.
-  - Otherwise try, on the dataset where it was above: (a) divide each degree's distance by its
-    median over outside-neuron pairs and weight H1 by 0.25, 0.5, 1; (b) keep only H1 bars
-    longer than the 95th percentile of H1 bar lengths in ISI-shuffled clouds of the same size;
-    (c) clouds of at least 200 points only.
-  - Write `notes/results/L23_h1.md`.
-
 - **L25. Per-spike mixture pdf with the entire history (the user's idea; small).** After L22.
   A hidden Markov model on log ISI, fitted per sample: K states, one Gaussian each, a
   transition table. After every ISI the filter gives the weights of the next ISI's mixture, so
@@ -61,10 +50,8 @@ need to real stablebear. Work in this order.
   extra its own short section or result file, with its control, and add one line about it
   under "Ideas". The three narrow designs under "Ideas" are candidates.
 
-- **Status (local, 2026-11-14 ~12:30).** L23 (OpenScope 124 s, `scripts/sb_h1.py`) relaunched.
-  The first run died right after starting (cause unknown, no traceback); the second was killed by
-  a machine reboot (kernel update, 2026-11-14 12:05). It now logs its exit code to
-  `results/L23.log`. L25 follows L23.
+- **Status (local, 2026-11-14 ~13:30).** L23 done (closed). L25 running: OpenScope 124 s, then
+  retina40clean, then Allen 30 s.
 
 ## Open tasks for the web chat
 
@@ -231,6 +218,12 @@ need to real stablebear. Work in this order.
         keep the first 40 s. I will add this as an option to `load_retina_running.py` with L24.
 
 ## Done
+
+- L23 H0+H1: `notes/results/L23_h1.md`. Closed: on OpenScope 124 s, regions k=16,
+  H0 + 0.25 H1 = 65.1 against H0 65.2 (1-NN). k-medoids gains 1-4 points. Higher weights and
+  the shuffle-threshold filter (keeps 5-6% of bars) make it worse; >= 200-point clouds lift all
+  rows equally. Only on the plain whole cloud does H1 (Betti curve) add: 34.0 -> 41.4, shuffled
+  36.1.
 
 - L22 Headline homology: `notes/results/L22_headline_homology.md`. Barcode-only, 1-NN (shuffled):
   - Retina within frozen: 82.3 (39.3), regions + ISI bars + burst bars.
