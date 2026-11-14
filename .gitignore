@@ -4,3 +4,6 @@ data/rar_full/
 __pycache__/
 *.pyc
 results/
+librips.so
+!notes/results/
+*.nwb

@@ -23,9 +23,22 @@ scripts/
   load_dataset.py                  load the dataset in Python  <- start here
   extract.py                       download + extract the raw archives
   build_isi_dataset.py             rebuild the ISI dataset from the raw data
+  README.md                        the analysis: methods, and how to replicate every result
+  sb_*.py, run_pipeline.py, ...    the analysis scripts (see scripts/README.md)
+  pilots/                          small pdf-fitting experiments (not stablebear)
   requirements.txt
+notes/
+  summary.md                       the results in one page
+  results/                         one file per experiment, with full tables and commands
+  keep_or_cut.md                   every method tried, and why it was kept or dropped
 figures/                           example raster plots
 ```
+
+**Analysis.** The project asks whether one short sample of spikes identifies its neuron, with
+topological signatures computed in stablebear. Start with `notes/summary.md` for the results
+and `scripts/README.md` for how to rerun them. Two more datasets (OpenScope and Allen
+Neuropixels) are used there; they are too large for this repository and
+`scripts/README.md` says how to download them.
 
 ## Quick start (use the ready-made dataset)
 

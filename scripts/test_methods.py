@@ -6,8 +6,8 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from barcodes import isi_bars, peak_events, smoothed_rate, time_bars
-from run_pipeline import isi_bars_distance, time_bars_distance, window_count
+from barcodes import burst_bars, isi_bars, peak_events, smoothed_rate, time_bars
+from run_pipeline import k_medoids, matched_accuracy, isi_bars_distance, time_bars_distance, window_count
 from spike_distance import match_one_to_many, matching_matrix, vp_distance_matrix
 
 rng = np.random.default_rng(0)
@@ -111,6 +111,28 @@ def test_betti_is_window_count():
     print("time bars: Betti curve equals the sliding window count")
 
 
+def test_burst_bars():
+    for _ in range(50):
+        t = np.sort(rng.uniform(0, 10, 60)); s = rng.choice([.02, .1, .3])
+        b = burst_bars(t, s)
+        g = np.linspace(-1, 11, 6001)
+        union = ((t[None] <= g[:, None]) & (g[:, None] < t[None] + s)).any(1)
+        alive = ((b[:, 0][None] <= g[:, None]) & (g[:, None] < b[:, 1][None])).sum(1)
+        assert np.array_equal(alive, union.astype(int))
+        assert len(b) == (np.diff(t) > s).sum() + 1  # bursts = long ISIs + 1
+    print("burst bars: Betti curve is the thickened train, and bursts = ISIs above s, plus 1")
+
+
+def test_clustering():
+    centres = rng.normal(size=(6, 5)) * 20
+    y = np.repeat(np.arange(6), 15)
+    x = centres[y] + rng.normal(size=(90, 5))
+    D = np.linalg.norm(x[:, None] - x[None], axis=2)
+    assert matched_accuracy(y, k_medoids(D, 6)) == 1.0
+    assert matched_accuracy(y, rng.permutation(6)[y]) == 1.0
+    print("clustering: k-medoids recovers separated groups, score ignores cluster names")
+
+
 def test_peaks_are_h0():
     c = 0.02 * np.sqrt(2 * np.pi)
     for trial in range(40):
@@ -140,7 +162,7 @@ def test_stablebear():
     print("stablebear: stable rank L1 of ISI bars is the sorted ISI difference")
     tensor = sb.zeros((1,), dtype=sb.pcloud64)
     tensor[0] = a[0][:, None]
-    bars = np.asarray(persistence.compute_persistent_homology(tensor, max_dim=0, reduced=True)[0, 0])
+    bars = np.asarray(persistence.compute_persistent_homology(tensor, max_dim=1, reduced=True)[0, 0])
     assert np.allclose(np.sort(bars[:, 1] - bars[:, 0]), np.sort(np.diff(a[0])))
     print("stablebear: H0 Rips of the spike times gives the ISIs")
 
@@ -150,6 +172,8 @@ if __name__ == "__main__":
     test_padding_and_matrix()
     test_single_edits()
     test_betti_is_window_count()
+    test_burst_bars()
+    test_clustering()
     test_peaks_are_h0()
     test_stablebear()
     print("all passed")
