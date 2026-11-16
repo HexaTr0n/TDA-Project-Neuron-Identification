@@ -18,11 +18,14 @@ Two parts are run for every dataset:
                 1-NN          is the closest OTHER sample from the same neuron?
                 k-medoids     cluster all samples without labels; share in the right cluster
                 nearest mean  as in step 3 (only for the methods of step 3)
-    across   the same neurons under stimulus A and stimulus B
-                1-NN          every B sample takes the neuron of its closest A sample
-                k-medoids     cluster the A samples, then give every B sample to the cluster
-                              of its closest medoid
-             The within scores of stimulus A are printed next to them, on the same neurons.
+    across   the same neurons under stimulus A and stimulus B, scored in three ways
+             A only       1-NN and k-medoids inside stimulus A (as "within", on these neurons)
+             A -> B       1-NN: every B sample takes the neuron of its closest A sample
+                          k-medoids: cluster the A samples, then give every B sample to the
+                          cluster of its closest medoid
+             all stimuli  every neuron gives the same number of samples from A and from B;
+                          1-NN and k-medoids on that mixed pool, where the stimulus of a
+                          sample is not used at all
 
 Stimuli:
     retina       A = frozen noise (the same 10 s movie every time)
@@ -48,7 +51,7 @@ Outputs (dataset = retina or neuropixels):
     results/extended_<dataset>_within.csv / .md    scores, mean +/- std over the neuron draws
     results/extended_<dataset>_across.csv / .md
     figures/analysis/ext_<dataset>_within.png      bar charts
-    figures/analysis/ext_<dataset>_across.png
+    figures/analysis/ext_<dataset>_across.png      top: 1-NN, bottom: k-medoids
     figures/analysis/ext_<dataset>_vp.png          Victor-Purpura score against q
 
 Usage:
@@ -223,20 +226,22 @@ def write_table(table, cols, heads, path, title):
     print("\n" + open(path).read(), flush=True)
 
 
-def figure_bars(table, cols, labs, chance, title, name):
-    fig, ax = plt.subplots(figsize=(13, 5))
+def figure_bars(table, panels, chance, title, name):
+    """One row of bars per panel. panels = [(y label, [score columns], [legend labels]), ...]."""
+    fig, axes = plt.subplots(len(panels), 1, figsize=(13, 4.2 * len(panels) + 1), sharex=True, squeeze=False)
     x = np.arange(len(table))
-    w = 0.8 / len(cols)
-    for j, (col, lab) in enumerate(zip(cols, labs)):
-        ax.bar(x + (j - (len(cols) - 1) / 2) * w, 100 * table[f"{col}_mean"], w,
-               yerr=100 * table[f"{col}_std"].fillna(0), capsize=2, label=lab)
-    ax.axhline(100 * chance, color="k", ls="--", lw=1, label=f"chance ({100 * chance:.1f} %)")
-    ax.set_xticks(x)
-    ax.set_xticklabels(table["method"], rotation=35, ha="right", fontsize=9)
-    ax.set_ylabel("accuracy (%)")
-    ax.set_title(title)
-    ax.set_ylim(0, ax.get_ylim()[1] * 1.18)          # room for the legend above the bars
-    ax.legend(loc="upper center", ncol=len(cols) + 1, fontsize=10)
+    for ax, (ylab, cols, labs) in zip(axes[:, 0], panels):
+        w = 0.8 / len(cols)
+        for j, (col, lab) in enumerate(zip(cols, labs)):
+            ax.bar(x + (j - (len(cols) - 1) / 2) * w, 100 * table[f"{col}_mean"], w,
+                   yerr=100 * table[f"{col}_std"].fillna(0), capsize=2, label=lab)
+        ax.axhline(100 * chance, color="k", ls="--", lw=1, label=f"chance ({100 * chance:.1f} %)")
+        ax.set_ylabel(ylab)
+        ax.set_ylim(0, ax.get_ylim()[1] * 1.18)          # room for the legend above the bars
+        ax.legend(loc="upper center", ncol=len(cols) + 1, fontsize=10)
+    axes[0, 0].set_title(title)
+    axes[-1, 0].set_xticks(x)
+    axes[-1, 0].set_xticklabels(table["method"], rotation=35, ha="right", fontsize=9)
     savefig(fig, name)
 
 
@@ -286,7 +291,7 @@ def main():
                     RESULTS_DIR / f"extended_{a.dataset}_within.md",
                     f"WITHIN one stimulus. {cfg['label']}: accuracy (%), {cfg['within']['n_trials']} samples per "
                     f"neuron, {head}")
-        figure_bars(table, ["nn1", "kmedoids"], ["1-NN", "k-medoids"], chance,
+        figure_bars(table, [("accuracy (%)", ["nn1", "kmedoids"], ["1-NN", "k-medoids"])], chance,
                     f"{cfg['label']}: which neuron is this sample from? (same stimulus)", f"ext_{a.dataset}_within.png")
         vp += [(table, "nn1", "within, 1-NN"), (table, "kmedoids", "within, k-medoids")]
 
@@ -299,17 +304,21 @@ def main():
             print(f"{a.dataset} across, draw {seed}: {time.time() - t0:.0f} s", flush=True)
         df = pd.DataFrame(rows)
         df.to_csv(RESULTS_DIR / f"extended_{a.dataset}_across_runs.csv", index=False)
-        cols = ["nn_within", "kmed_within", "nn_across", "kmed_across"]
+        cols = ["nn_within", "kmed_within", "nn_across", "kmed_across", "nn_pooled", "kmed_pooled"]
         table = summarise(df, cols)
         table.to_csv(RESULTS_DIR / f"extended_{a.dataset}_across.csv", index=False)
-        write_table(table, cols, [f"1-NN within {c['name_a']}", "k-medoids within",
-                                  f"1-NN {c['name_a']} -> {c['name_b']}", "k-medoids across"],
+        m = min(c["n_a"], c["n_b"])
+        write_table(table, cols, ["1-NN, A only", "k-medoids, A only", "1-NN, A -> B", "k-medoids, A -> B",
+                                  "1-NN, all stimuli", "k-medoids, all stimuli"],
                     RESULTS_DIR / f"extended_{a.dataset}_across.md",
                     f"ACROSS stimuli. {a.dataset}: A = {c['name_a']} ({c['n_a']} samples per neuron), "
-                    f"B = {c['name_b']} ({c['n_b']} samples per neuron). Accuracy (%), {head}")
-        figure_bars(table, ["nn_within", "nn_across"], [f"1-NN within {c['name_a']}", f"1-NN across to {c['name_b']}"],
-                    chance, f"{a.dataset}: same stimulus against a new stimulus", f"ext_{a.dataset}_across.png")
-        vp += [(table, "nn_across", "across, 1-NN")]
+                    f"B = {c['name_b']} ({c['n_b']} samples per neuron); all stimuli = {m} samples of A and "
+                    f"{m} of B per neuron, mixed. Accuracy (%), {head}")
+        labs = [f"{c['name_a']} only", f"{c['name_a']} -> {c['name_b']}", "all stimuli mixed"]
+        figure_bars(table, [("1-NN accuracy (%)", ["nn_within", "nn_across", "nn_pooled"], labs),
+                            ("k-medoids accuracy (%)", ["kmed_within", "kmed_across", "kmed_pooled"], labs)],
+                    chance, f"{a.dataset}: one stimulus, a new stimulus, and all stimuli mixed", f"ext_{a.dataset}_across.png")
+        vp += [(table, "nn_across", "A -> B, 1-NN"), (table, "nn_pooled", "all stimuli, 1-NN")]
 
     figure_vp(vp, chance, f"{a.dataset}: Victor-Purpura distance against its time precision", f"ext_{a.dataset}_vp.png")
 

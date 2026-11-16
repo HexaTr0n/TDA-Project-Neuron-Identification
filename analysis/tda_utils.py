@@ -519,6 +519,10 @@ def scores_across(D, labels, ia, ib, seeds=3):
         kmed_across   cluster the A samples with k-medoids, name each cluster after a neuron
                       (using the A labels only), then give every B sample to the cluster of
                       its nearest medoid
+        nn_pooled, kmed_pooled   all stimuli mixed: every neuron gives the same number of
+                      samples from A and from B, and the two scores are computed on that
+                      mixed pool exactly like the within scores (the nearest other sample, or
+                      the cluster, may come from either stimulus)
     """
     k = labels.max() + 1
     ya, yb = labels[ia], labels[ib]
@@ -531,6 +535,11 @@ def scores_across(D, labels, ia, ib, seeds=3):
         _, name = _match(ya, clusters, k)
         acc.append(np.mean(name[D[np.ix_(ib, ia[med])].argmin(1)] == yb))
     r["kmed_across"] = float(np.mean(acc))
+    m = min(np.bincount(ya).min(), np.bincount(yb).min())      # samples per neuron and stimulus
+    pool = np.array([i for idx in (ia, ib) for lab in range(k) for i in idx[labels[idx] == lab][:m]])
+    Dp, yp = D[np.ix_(pool, pool)], labels[pool]
+    r["nn_pooled"] = score_1nn(Dp, yp)
+    r["kmed_pooled"] = score_kmedoids(Dp, yp, seeds)
     return r
 
 

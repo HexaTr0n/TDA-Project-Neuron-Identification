@@ -18,9 +18,16 @@ was changed; `tda_utils.py` only gained new functions and three optional argumen
 **Across two stimuli.** The neurons are known from stimulus A; samples recorded under stimulus B
 must be given to the right neuron.
 
-- 1-NN: every B sample takes the neuron of its closest A sample.
-- k-medoids: the A samples are clustered without labels, each cluster is named after a neuron
-  with the A labels, and every B sample goes to the cluster of its closest medoid.
+The across table has three groups of columns, each with 1-NN and k-medoids:
+
+- **A only:** inside stimulus A, as in the within part, on the neurons of this part.
+- **A -> B:** 1-NN: every B sample takes the neuron of its closest A sample. k-medoids: the A
+  samples are clustered without labels, each cluster is named after a neuron with the A
+  labels, and every B sample goes to the cluster of its closest medoid.
+- **All stimuli:** every neuron gives the same number of samples from A and from B (30 + 30 on
+  the retina, 15 + 15 on Neuropixels). 1-NN and k-medoids are computed on that mixed pool
+  exactly like the within scores. The stimulus of a sample is not used, so the closest sample
+  or the cluster may come from either stimulus.
 
 | Dataset | Stimulus A | Stimulus B |
 |---|---|---|
@@ -82,7 +89,8 @@ python analysis/04_extended.py --dataset neuropixels
 
 Tables are printed and written to `results/extended_<dataset>_within.md` and
 `..._across.md` (plus `.csv`, and `..._runs.csv` with one row per draw). Figures go to
-`figures/analysis/ext_<dataset>_*.png`.
+`figures/analysis/ext_<dataset>_*.png`. The across figure has two rows of bars, 1-NN on top and
+k-medoids below.
 
 Expected time: the retina should take a few minutes more than step 3. Neuropixels samples are
 three times longer, so H1 of the delay cloud and the Victor-Purpura distance take longer there;
