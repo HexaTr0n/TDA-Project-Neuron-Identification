@@ -14,7 +14,7 @@ random draws, mean +/- std) and adds:
 
 Two parts are run for every dataset:
 
-    within   every sample shows stimulus A (as in step 3)
+    within   every sample shows the same stimulus (as in step 3)
                 1-NN          is the closest OTHER sample from the same neuron?
                 k-medoids     cluster all samples without labels; share in the right cluster
                 nearest mean  as in step 3 (only for the methods of step 3)
