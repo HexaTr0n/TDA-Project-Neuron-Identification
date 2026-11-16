@@ -85,9 +85,20 @@ between the log-ISI distributions of two samples.
 | `data/retina_running_20180126_sr_le_sp_clean.parquet` | retina, across | no |
 | `data/allen/allen829720705.parquet` | neuropixels, both parts | no |
 
-The two files that are not in git were made earlier on Maxim's machine (branch `main`,
-`scripts/README.md`, steps A and C explain how). They stay in place when the branch is switched,
-because git does not touch untracked files.
+The two files that are not in git are made from the raw data with the scripts below (also
+on this branch). If they already exist in another copy of the repository, copying them into
+`data/` is enough.
+
+```bash
+# retina, unrepeated noise: needs the raw session in extracted/20180126_sr_le_sp
+python scripts/extract.py --data-dir data --out-dir extracted --download      # only if extracted/ is missing
+python scripts/load_retina_running.py --extracted-dir extracted --session 20180126_sr_le_sp --cut 24.8 30.0
+
+# Neuropixels: needs the NWB file of session 829720705 from DANDI 000022
+python scripts/load_allen.py data/allen/sub-811322604_ses-829720705.nwb
+```
+
+`--cut 24.8 30.0` removes a 5 s chunk that repeats inside every "unrepeated" stretch.
 
 ## How to run
 
