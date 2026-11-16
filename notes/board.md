@@ -31,35 +31,7 @@ test there. Same rules as before: shuffled control next to every score, 1-NN and
 `legacy_scripts/embeddings.py`, `exp13_sublevel.py`, `exp21_stimulus_free.py`); port what you
 need to real stablebear. Work in this order.
 
-- **N1. More stimuli for the report (from the user, 2026-11-16). Work on branch `night-run`, not
-  here.** The final report now uses the group's own scripts (`analysis/01-03` on branch
-  `here-we-go-again`) plus a step 4, `analysis/04_extended.py`, on branch `night-run`. Read
-  `analysis/EXTENDED.md` there first. Step 4 asks "which neuron is this sample from?" within one
-  stimulus and with samples from several stimuli mixed in one unlabelled pool (k-medoids and
-  1-NN). **Problem:** every dataset so far has only two stimuli (retina: frozen vs unrepeated
-  noise, both white noise; Neuropixels: movie vs grey screen). The user wants more. Do this:
-  1. **Neuropixels.** Find `sub-811322604_ses-829720705.nwb`, then
-     `python scripts/load_allen.py <nwb> --all-stimuli --out data/allen/allen829720705.parquet`.
-     This option is new and was only tested on synthetic tables: check that every stimulus of
-     the session appears with sensible window counts and times, and fix the converter if not.
-     Then `python analysis/04_extended.py --dataset neuropixels --part across`. It prints the
-     stimuli it picked (all within 30 min of the first movie block). If it picks only the grey
-     screen, rerun with `--max-gap 45` and say so.
-  2. **Retina.** List every stimulus in `extracted/20180126_sr_le_sp/stimuli/*.mat`
-     (`stimpara.stimulus`, original name, duration, number of frames). Write a converter like
-     `scripts/load_retina_running.py` for each stimulus with enough spikes (at least the flashed
-     natural images the dataset is about): 10 s samples, same columns, own `session` value,
-     written to `data/retina_running_20180126_sr_le_sp_clean.parquet` or a new file. Add each
-     to the retina `across` list at the top of `analysis/04_extended.py`, then
-     `python analysis/04_extended.py --dataset retina --part across`.
-  3. **Rules.** Keep the protocol and the method definitions exactly as in step 4 (40 neurons,
-     at least 1 Hz, 5 draws, mean +- std). Commit code, `results/extended_*` and
-     `figures/analysis/ext_*` to `night-run` only; never push to `main` or `here-we-go-again`.
-     The data tables stay out of git.
-  4. **Report** in `notes/results/N1_more_stimuli.md` on this branch: the full stimulus list of
-     both recordings with times; which ones were used and how many samples per neuron each;
-     the two across tables; and anything you had to change or could not do.
-
+(none: N1 done; more Neuropixels sessions wait for disk space)
 
 - **Freedom to explore (from the user).** If other ideas come up while implementing L18 or
   L19, try them as well, as long as the original task is also done as specified. Give each
@@ -234,6 +206,16 @@ need to real stablebear. Work in this order.
         keep the first 40 s. I will add this as an option to `load_retina_running.py` with L24.
 
 ## Done
+
+- N1 More stimuli: `notes/results/N1_more_stimuli.md` (code and results on `night-run`, 350d3ce).
+  - Neuropixels pool: movie + drifting gratings + contrast gratings + shuffled movie + grey
+    screen, 10 samples each. Flashes are out (9 windows).
+  - All stimuli mixed: LINE log-scale share 37.5% 1-NN (movie only 52.2), ISI histogram 32.1,
+    Victor-Purpura best 12.0, DELAY H0 20.9 (shuffled 20.2).
+  - Retina extra stimuli: converter written and tested, then stopped by the user; the retina
+    keeps two stimuli.
+  - Memory fixes in step 4 give identical scores.
+  - Next (user): more of the 26 Neuropixels sessions once disk space is allocated.
 
 - L25 HMM pdf per spike: `notes/results/L25_hmm_pdf.md`. Stay probability 0.67 / 0.60 / 0.52
   (2 states; OpenScope 124 s / Allen / retina 40 s; shuffled 0.50).
