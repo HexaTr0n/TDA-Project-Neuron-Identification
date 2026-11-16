@@ -27,6 +27,8 @@ scripts/
 analysis/
   tda_utils.py                     shared functions (point clouds, stablebear calls, scores)
   01_explore.py, 02_stable_ranks.py, 03_identify.py   the three analysis steps
+  04_extended.py                   step 4: second dataset, across-stimulus test, k-medoids,
+                                   Victor-Purpura distance, more controls (see EXTENDED.md)
   EXPLANATIONS.md                  what everything does and what the results mean
 figures/analysis/                  figures made by the analysis
 results/                           result tables (git-ignored, re-created by 03_identify.py)
@@ -42,6 +44,8 @@ and trials are matched to neurons by L1 distance. See `analysis/EXPLANATIONS.md`
 python analysis/01_explore.py        # data figures                     (~5 s)
 python analysis/02_stable_ranks.py   # barcodes and stable ranks         (~5 s)
 python analysis/03_identify.py       # main experiment, 5 neuron draws   (~4 min)
+python analysis/04_extended.py --dataset retina        # step 4, see analysis/EXTENDED.md
+python analysis/04_extended.py --dataset neuropixels   # needs data/allen/allen829720705.parquet
 ```
 
 ## Quick start (use the ready-made dataset)

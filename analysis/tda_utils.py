@@ -42,8 +42,14 @@ RESULTS_DIR = ROOT / "results"
 # Data
 # ---------------------------------------------------------------------------
 
-def load_trials(n_neurons=40, min_rate=1.0, n_trials=30, seed=0, block=1):
+def load_trials(n_neurons=40, min_rate=1.0, n_trials=30, seed=0, block=1,
+                path=None, session=None, query=None, trial_s=9.94, exclude=()):
     """Pick `n_neurons` random neurons and return their trials as samples.
+
+    With the default arguments this is the retina frozen-noise dataset, all sessions (the
+    first report). `path`, `session`, `query` and `trial_s` select another table with the same
+    columns (for example the Neuropixels movie repeats, 30 s each). `exclude` removes neuron
+    ids from the draw (to pick a parameter on other neurons than the ones that are scored).
 
     Only neurons firing at least `min_rate` Hz on average and with at least `n_trials`
     trials are eligible. We keep the first `n_trials` trials of each neuron, so every
@@ -60,9 +66,15 @@ def load_trials(n_neurons=40, min_rate=1.0, n_trials=30, seed=0, block=1):
         labels  int array, the neuron index (0..n_neurons-1) of each sample
         neurons list of neuron ids, neurons[label] is the id of that neuron
     """
-    df = load_dataset()
-    summ = neuron_summary(df)
+    df = load_dataset(path) if path is not None else load_dataset()
+    if session is not None:
+        df = df[df.session == session]
+    if query:
+        df = df.query(query)
+    summ = neuron_summary(df, trial_s)
     ok = summ[(summ.rate_hz >= min_rate) & (summ.n_trials >= n_trials)].index.to_numpy()
+    if len(exclude):
+        ok = ok[~np.isin(ok, list(exclude))]
     rng = np.random.default_rng(seed)
     neurons = sorted(rng.choice(ok, n_neurons, replace=False))
 
@@ -74,7 +86,8 @@ def load_trials(n_neurons=40, min_rate=1.0, n_trials=30, seed=0, block=1):
         times = list(g["spike_times"])[:n_trials]
         for start in range(0, n_trials - block + 1, block):
             isis.append(np.concatenate(trials[start:start + block]))
-            spikes.append(np.concatenate([times[start + j] + 10.0 * j for j in range(block)]))
+            shift = 10.0 if trial_s == 9.94 else trial_s
+            spikes.append(np.concatenate([times[start + j] + shift * j for j in range(block)]))
             labels.append(label)
     return dict(isis=isis, spikes=spikes, labels=np.array(labels), neurons=neurons)
 
@@ -255,6 +268,270 @@ def score_1nn(D, labels):
 def score_nearest_mean(M, labels):
     """Leave-one-out nearest-mean accuracy: assign each sample to the closest neuron mean."""
     return float(np.mean(M.argmin(1) == labels))
+
+
+# ---------------------------------------------------------------------------
+# Extensions (second version of the report): a second stimulus, the Victor-Purpura distance,
+# the random time cutoff control, k-medoids, and scores across two stimuli.
+# ---------------------------------------------------------------------------
+
+def load_pair(n_neurons=40, min_rate=1.0, n_a=30, n_b=30, seed=0, path_a=None, session_a=None,
+              path_b=None, session_b=None, query_a=None, query_b=None, trial_s=9.94):
+    """The same neurons under two stimuli: A (drawn like `load_trials`) and B.
+
+    Eligible neurons fire at least `min_rate` Hz in A, have at least `n_a` samples in A and
+    at least `n_b` samples in B (after the optional pandas queries, for example
+    query_b="piece == 0"). We keep the first `n_a` samples of A and the first `n_b` of B.
+    Returns two dicts like `load_trials` with identical `neurons` and label numbering.
+    """
+    dfa = load_dataset(path_a) if path_a is not None else load_dataset()
+    dfa = dfa[dfa.session == session_a] if session_a is not None else dfa
+    dfb = load_dataset(path_b)
+    dfb = dfb[dfb.session == session_b]
+    if query_a:
+        dfa = dfa.query(query_a)
+    if query_b:
+        dfb = dfb.query(query_b)
+    summ = neuron_summary(dfa, trial_s)
+    nb = dfb.groupby("neuron_id").size()
+    ok = summ[(summ.rate_hz >= min_rate) & (summ.n_trials >= n_a)].index
+    ok = np.array(sorted(set(ok) & set(nb.index[nb >= n_b])))
+    rng = np.random.default_rng(seed)
+    neurons = sorted(rng.choice(ok, n_neurons, replace=False))
+    out = []
+    for df, n in ((dfa, n_a), (dfb, n_b)):
+        isis, spikes, labels = [], [], []
+        by = {nid: g.sort_values("trial") for nid, g in df[df.neuron_id.isin(neurons)].groupby("neuron_id")}
+        for label, nid in enumerate(neurons):
+            for t in list(by[nid]["spike_times"])[:n]:
+                t = np.asarray(t, dtype=float)
+                spikes.append(t)
+                isis.append(np.diff(t))
+                labels.append(label)
+        out.append(dict(isis=isis, spikes=spikes, labels=np.array(labels), neurons=neurons))
+    return out[0], out[1]
+
+
+def random_time_cut(spikes, duration, seed=0, max_cut=0.25):
+    """Control: cut a random amount of time off the start AND off the end of every sample.
+
+    The two cuts are independent, each uniform between 0 and `max_cut` * duration, so between
+    50 % and 100 % of the sample is kept (75 % on average) and the kept part differs from
+    sample to sample. The ISI distribution of the neuron is (statistically) unchanged, but two
+    samples of the same neuron no longer cover the same part of the stimulus and no longer
+    have comparable spike counts. What a method loses under this cut is what it owed to the
+    spike count and to seeing the same piece of the stimulus.
+    Returns (spike times from the new start, ISIs).
+    """
+    rng = np.random.default_rng(seed)
+    out_t, out_i = [], []
+    for t in spikes:
+        a = rng.uniform(0, max_cut) * duration
+        b = duration - rng.uniform(0, max_cut) * duration
+        t = np.asarray(t, dtype=float)
+        t = t[(t >= a) & (t < b)] - a
+        out_t.append(t)
+        out_i.append(np.diff(t))
+    return out_t, out_i
+
+
+def cloud_line_log(isis, floor=1e-4):
+    """LINE cloud whose H0 bars have length log10(ISI / 0.1 ms) instead of ISI.
+
+    H0 of points on a line gives one bar [0, gap) per gap between neighbours. So we place the
+    points with gaps log10(ISI) - log10(floor): the barcode is the LINE barcode with the bar
+    lengths read on a logarithmic scale. `floor` = 0.1 ms is below every real ISI, so all gaps
+    are positive.
+    """
+    gaps = np.maximum(np.log10(np.maximum(isis, floor)) - np.log10(floor), 1e-9)
+    return np.concatenate([[0.0], np.cumsum(gaps)])[:, None]
+
+
+def normalise_pcfs(pcfs, n):
+    """Divide every stable rank by its value at 0 (its number of bars).
+
+    The result starts at 1 and gives the SHARE of bars longer than t, so the number of bars
+    (the spike count) no longer enters the distance. Empty barcodes stay the zero function.
+    """
+    out = []
+    for i in range(n):
+        a = np.asarray(pcfs[i].to_numpy(), dtype=float).reshape(-1, 2)
+        top = a[0, 1] if len(a) and a[0, 1] > 0 else 1.0
+        out.append(sb.Pcf(np.c_[a[:, 0], a[:, 1] / top]))
+    return sb.PcfTensor(out)
+
+
+def pcf_matrix(pcfs):
+    """L1 distance matrix between stable ranks (no neuron means, so no labels needed)."""
+    return np.asarray(sb.pdist(pcfs, p=1).to_dense(), dtype=float)
+
+
+def vector_matrix(X):
+    """L1 distance matrix between plain feature vectors."""
+    X = np.asarray(X, dtype=float).reshape(len(X), -1)
+    return np.abs(X[:, None, :] - X[None, :, :]).sum(-1)
+
+
+def combine_matrices(mats):
+    """Add distance matrices after dividing each by the median of its off-diagonal entries."""
+    tot = 0
+    for D in mats:
+        v = D[np.triu_indices(len(D), 1)]
+        v = v[v > 0]
+        tot = tot + D / (np.median(v) if len(v) else 1.0)
+    return tot
+
+
+def _vp_kernel():
+    """Victor-Purpura for all pairs, compiled with numba (threads: NUMBA_NUM_THREADS)."""
+    from numba import njit, prange
+
+    @njit(cache=True)
+    def pair(a, b, q, D):
+        m = len(b)
+        for j in range(m + 1):
+            D[j] = j
+        for i in range(1, len(a) + 1):
+            prev = D[0]
+            D[0] = i
+            for j in range(1, m + 1):
+                cur = D[j]
+                D[j] = min(cur + 1.0, D[j - 1] + 1.0, prev + q * abs(a[i - 1] - b[j - 1]))
+                prev = cur
+        return D[m]
+
+    @njit(parallel=True, cache=True)
+    def all_pairs(flat, start, q):
+        n = len(start) - 1
+        out = np.zeros((n, n))
+        longest = 0
+        for i in range(n):
+            longest = max(longest, start[i + 1] - start[i])
+        for i in prange(n):
+            D = np.empty(longest + 1)
+            a = flat[start[i]:start[i + 1]]
+            for j in range(i + 1, n):
+                v = pair(a, flat[start[j]:start[j + 1]], q, D)
+                out[i, j] = v
+                out[j, i] = v
+        return out
+
+    return all_pairs
+
+
+_VP = None
+
+
+def victor_purpura(spikes, q):
+    """Victor-Purpura spike-train distance between all pairs of samples (n x n matrix).
+
+    The distance between two spike trains is the cheapest way to turn one into the other with
+    three moves: delete a spike (cost 1), add a spike (cost 1), shift a spike by dt seconds
+    (cost q * dt). q (per second) sets the time precision: for q = 0 the distance is the
+    difference of the spike counts, for large q every spike that is not at exactly the same
+    time is deleted and re-added. It is computed by dynamic programming, like an edit distance.
+    Uses numba if it is installed; the fallback gives the same numbers, slowly.
+    """
+    global _VP
+    trains = [np.asarray(t, dtype=np.float64) for t in spikes]
+    try:
+        if _VP is None:
+            _VP = _vp_kernel()
+        flat = np.concatenate(trains) if trains else np.zeros(0)
+        start = np.r_[0, np.cumsum([len(t) for t in trains])].astype(np.int64)
+        return _VP(flat, start, float(q))
+    except ImportError:
+        n = len(trains)
+        out = np.zeros((n, n))
+        for i in range(n):
+            a = trains[i]
+            for j in range(i + 1, n):
+                b = trains[j]
+                D = np.arange(len(b) + 1, dtype=float)
+                idx = np.arange(len(b) + 1)
+                for k, x in enumerate(a, 1):
+                    c = np.empty(len(b) + 1)
+                    c[0] = k
+                    c[1:] = np.minimum(D[1:] + 1.0, D[:-1] + q * np.abs(x - b))
+                    D = idx + np.minimum.accumulate(c - idx)      # also allows D[j-1] + 1
+                out[i, j] = out[j, i] = D[-1]
+        return out
+
+
+def kmedoids(D, k, seed=0, restarts=5, iters=100):
+    """k-medoids clustering of a distance matrix: like k-means, but every centre is one of
+    the samples (a "medoid"), so it works for any distance, also without a notion of mean.
+    No labels are used. Returns (cluster index of every sample, indices of the k medoids)."""
+    rng = np.random.default_rng(seed)
+    n = len(D)
+    best, best_med, best_cost = None, None, np.inf
+    for _ in range(restarts):
+        medoids = [int(rng.integers(n))]                       # k-means++ style start
+        near = D[medoids[0]].copy()
+        for _ in range(k - 1):
+            w = near ** 2
+            medoids.append(int(rng.choice(n, p=w / w.sum())) if w.sum() > 0 else int(rng.integers(n)))
+            near = np.minimum(near, D[medoids[-1]])
+        medoids = np.array(medoids)
+        for _ in range(iters):
+            assign = D[:, medoids].argmin(1)
+            new = medoids.copy()
+            for c in range(k):
+                members = np.flatnonzero(assign == c)
+                if len(members):
+                    new[c] = members[D[np.ix_(members, members)].sum(0).argmin()]
+            if np.array_equal(new, medoids):
+                break
+            medoids = new
+        assign = D[:, medoids].argmin(1)
+        cost = D[np.arange(n), medoids[assign]].sum()
+        if cost < best_cost:
+            best, best_med, best_cost = assign, medoids, cost
+    return best, best_med
+
+
+def _match(labels, clusters, k):
+    """Pair every cluster with one neuron so that as many samples as possible agree
+    (Hungarian method). Returns (accuracy, neuron given to each cluster)."""
+    from scipy.optimize import linear_sum_assignment
+    table = np.zeros((labels.max() + 1, k))
+    np.add.at(table, (labels, clusters), 1)
+    rows, cols = linear_sum_assignment(-table)
+    name = np.full(k, -1)
+    name[cols] = rows
+    return float(table[rows, cols].sum() / len(labels)), name
+
+
+def score_kmedoids(D, labels, seeds=3):
+    """Unsupervised score: cluster all samples into (number of neurons) groups with k-medoids,
+    pair clusters with neurons, and count the samples that sit in their neuron's cluster.
+    Mean over `seeds` runs of the clustering (each with 5 restarts)."""
+    k = labels.max() + 1
+    return float(np.mean([_match(labels, kmedoids(D, k, seed=s)[0], k)[0] for s in range(seeds)]))
+
+
+def scores_across(D, labels, ia, ib, seeds=3):
+    """Scores for two stimuli. D is the distance matrix of all samples, `ia` / `ib` are the
+    indices of the samples of stimulus A / B, `labels` the neuron of every sample.
+
+        nn_within, kmed_within   as before, inside stimulus A
+        nn_across     every B sample takes the neuron of its nearest A sample
+        kmed_across   cluster the A samples with k-medoids, name each cluster after a neuron
+                      (using the A labels only), then give every B sample to the cluster of
+                      its nearest medoid
+    """
+    k = labels.max() + 1
+    ya, yb = labels[ia], labels[ib]
+    Daa = D[np.ix_(ia, ia)]
+    r = dict(nn_within=score_1nn(Daa, ya), kmed_within=score_kmedoids(Daa, ya, seeds),
+             nn_across=float(np.mean(ya[D[np.ix_(ib, ia)].argmin(1)] == yb)))
+    acc = []
+    for s in range(seeds):
+        clusters, med = kmedoids(Daa, k, seed=s)
+        _, name = _match(ya, clusters, k)
+        acc.append(np.mean(name[D[np.ix_(ib, ia[med])].argmin(1)] == yb))
+    r["kmed_across"] = float(np.mean(acc))
+    return r
 
 
 # ---------------------------------------------------------------------------
