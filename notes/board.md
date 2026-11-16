@@ -31,7 +31,35 @@ test there. Same rules as before: shuffled control next to every score, 1-NN and
 `legacy_scripts/embeddings.py`, `exp13_sublevel.py`, `exp21_stimulus_free.py`); port what you
 need to real stablebear. Work in this order.
 
-(none: all local tasks done; add more here)
+- **N1. More stimuli for the report (from the user, 2026-11-16). Work on branch `night-run`, not
+  here.** The final report now uses the group's own scripts (`analysis/01-03` on branch
+  `here-we-go-again`) plus a step 4, `analysis/04_extended.py`, on branch `night-run`. Read
+  `analysis/EXTENDED.md` there first. Step 4 asks "which neuron is this sample from?" within one
+  stimulus and with samples from several stimuli mixed in one unlabelled pool (k-medoids and
+  1-NN). **Problem:** every dataset so far has only two stimuli (retina: frozen vs unrepeated
+  noise, both white noise; Neuropixels: movie vs grey screen). The user wants more. Do this:
+  1. **Neuropixels.** Find `sub-811322604_ses-829720705.nwb`, then
+     `python scripts/load_allen.py <nwb> --all-stimuli --out data/allen/allen829720705.parquet`.
+     This option is new and was only tested on synthetic tables: check that every stimulus of
+     the session appears with sensible window counts and times, and fix the converter if not.
+     Then `python analysis/04_extended.py --dataset neuropixels --part across`. It prints the
+     stimuli it picked (all within 30 min of the first movie block). If it picks only the grey
+     screen, rerun with `--max-gap 45` and say so.
+  2. **Retina.** List every stimulus in `extracted/20180126_sr_le_sp/stimuli/*.mat`
+     (`stimpara.stimulus`, original name, duration, number of frames). Write a converter like
+     `scripts/load_retina_running.py` for each stimulus with enough spikes (at least the flashed
+     natural images the dataset is about): 10 s samples, same columns, own `session` value,
+     written to `data/retina_running_20180126_sr_le_sp_clean.parquet` or a new file. Add each
+     to the retina `across` list at the top of `analysis/04_extended.py`, then
+     `python analysis/04_extended.py --dataset retina --part across`.
+  3. **Rules.** Keep the protocol and the method definitions exactly as in step 4 (40 neurons,
+     at least 1 Hz, 5 draws, mean +- std). Commit code, `results/extended_*` and
+     `figures/analysis/ext_*` to `night-run` only; never push to `main` or `here-we-go-again`.
+     The data tables stay out of git.
+  4. **Report** in `notes/results/N1_more_stimuli.md` on this branch: the full stimulus list of
+     both recordings with times; which ones were used and how many samples per neuron each;
+     the two across tables; and anything you had to change or could not do.
+
 
 - **Freedom to explore (from the user).** If other ideas come up while implementing L18 or
   L19, try them as well, as long as the original task is also done as specified. Give each
@@ -39,7 +67,7 @@ need to real stablebear. Work in this order.
   under "Ideas". The three narrow designs under "Ideas" are candidates.
 
 - **Status (local, 2026-11-14 ~15:00).** All local tasks done (L18-L25, extras L19x and the
-  k = 8/16/32 twins). Nothing running. Waiting for new tasks.
+  k = 8/16/32 twins). Nothing running. Waiting for new tasks. (web, 2026-11-16: N1 added.)
 
 ## Open tasks for the web chat
 
@@ -405,3 +433,4 @@ need to real stablebear. Work in this order.
 - 2026-11-13 web chat (check 12 of 12, 23:20): nothing new since L22 (last local push 16:12). The hourly checks have ended. Still open locally: L23 (OpenScope 124 s only) and L25. Read so far: L1-L22, L19x, L24, W1, W3-W8, W11-W14.
 - 2026-11-14 web chat: the user is deciding what goes to `main`. Proposal in `notes/keep_or_cut.md` (methods to keep for main and the report, methods to cut, with reasons). He wants the delay embedding shown both as the whole cloud and with a random time cut; the time cut exists only for 8 regions (L20). Nothing moved to `main`.
 - 2026-11-14 web chat: at the user's request, a branch `release-methods` (from `main`) was pushed and merged into `main` (merge commit 5a13d0f). It holds the scripts behind L2, L6, L17-L22, L24, their result files, the loaders, four pdf pilots in `scripts/pilots/`, `notes/summary.md`, `notes/keep_or_cut.md` and a new `scripts/README.md` with the commands for every result. One code change against this branch: `sb_full_table.py` now loads the pdf-per-spike code from `scripts/predictive_state.py` (a copy of `experiments/legacy_scripts/embeddings.py`). Not on `main`: this board, `scripts/experiments/`, the other `sb_*` scripts and result files. The derived data tables (`data/retina_running_*.parquet`, `data/openscope/*.parquet`, `data/allen/*.parquet`) are not in git; the README says how to rebuild them. Keep working on `web-chat` as before.
+- 2026-11-16 web chat: added N1 (more stimuli on Neuropixels and retina for the report, on branch `night-run`). Step 4 already ran on real stablebear on the user's machine with two stimuli per dataset.
