@@ -379,8 +379,11 @@ def pcf_matrix(pcfs):
 
 def vector_matrix(X):
     """L1 distance matrix between plain feature vectors."""
+    from scipy.spatial.distance import cdist
     X = np.asarray(X, dtype=float).reshape(len(X), -1)
-    return np.abs(X[:, None, :] - X[None, :, :]).sum(-1)
+    # cdist gives the same L1 distances without an n x n x features array (which needs
+    # 14 GB for 6600 samples of the 40-bin ISI histogram).
+    return cdist(X, X, "cityblock")
 
 
 def combine_matrices(mats):

@@ -148,8 +148,34 @@ ORDER = (["B1 firing rate", "B2 ISI histogram"] + [f"B3 Victor-Purpura, q = {q:g
             "C3 DELAY H0, share"])
 
 
-def all_distances(isis, spikes, duration, seed, labels=None):
+class _Scored(dict):
+    """Stands in for the result dict of `all_distances` when a `sink` is given: every matrix is
+    handed to `sink(name, (D, M))` as soon as it exists and only kept if a later method needs it
+    (the H0 and H1 matrices for the H0+H1 sum). This keeps memory at a few matrices instead of
+    all of them, which matters for large pools of samples (many stimuli or neurons)."""
+    KEEP = ("T2 DELAY H0", "T2 DELAY H1")
+
+    def __init__(self, sink):
+        super().__init__()
+        self.sink = sink
+
+    def __setitem__(self, name, value):
+        D = value[0]
+        n = len(D)
+        assert D.shape == (n, n) and np.allclose(D, D.T) and np.allclose(np.diag(D), 0), f"{name}: bad distance matrix"
+        self.sink(name, value)
+        if name in self.KEEP:
+            super().__setitem__(name, value)
+        if name == "T2 DELAY H0+H1":
+            for k in self.KEEP:
+                self.pop(k, None)
+
+
+def all_distances(isis, spikes, duration, seed, labels=None, sink=None):
     """{method name: (D, M)} for one list of samples.
+
+    With `sink`, every (D, M) is passed to `sink(name, (D, M))` right away and not kept (to
+    save memory); the return value is then empty.
 
     D is the n x n distance matrix. M (distances to the leave-one-out neuron means, for the
     nearest-mean score of step 3) is only computed when `labels` is given, and only for the
@@ -158,7 +184,7 @@ def all_distances(isis, spikes, duration, seed, labels=None):
     """
     n = len(isis)
     duration = np.broadcast_to(np.asarray(duration, dtype=float), (n,))
-    out = {}
+    out = {} if sink is None else _Scored(sink)
 
     def pcf(pcfs):
         return pcf_distances(pcfs, labels) if labels is not None else (pcf_matrix(pcfs), None)
@@ -212,6 +238,8 @@ def all_distances(isis, spikes, duration, seed, labels=None):
     # C3: the delay cloud's H0 stable rank divided by its number of bars.
     out["C3 DELAY H0, share"] = (pcf_matrix(normalise_pcfs(h0, n)), None)
 
+    if sink is not None:
+        return {}
     for name, (D, _) in out.items():
         assert D.shape == (n, n) and np.allclose(D, D.T) and np.allclose(np.diag(D), 0), f"{name}: bad distance matrix"
     return out
@@ -244,10 +272,12 @@ def run_across(cfg, args, seed, stimuli):
     labels = np.concatenate([d["labels"] for d in data])
     edges = np.r_[0, np.cumsum([len(d["labels"]) for d in data])]
     groups = [np.arange(edges[j], edges[j + 1]) for j in range(len(data))]
-    dists = all_distances(isis, spikes, cfg["trial_s"], seed)       # no labels: no neuron means
     rows = []
-    for name, (D, _) in dists.items():
-        rows.append(dict(method=name, seed=seed, **scores_across(D, labels, groups, args.kmedoids_seeds)))
+
+    def score(name, value):                                        # no labels: no neuron means
+        rows.append(dict(method=name, seed=seed, **scores_across(value[0], labels, groups, args.kmedoids_seeds)))
+
+    all_distances(isis, spikes, cfg["trial_s"], seed, sink=score)  # scores each matrix, then drops it
     return rows
 
 
