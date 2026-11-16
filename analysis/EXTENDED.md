@@ -112,33 +112,32 @@ python analysis/04_extended.py --dataset neuropixels
 
 Tables are printed and written to `results/extended_<dataset>_within.md` and
 `..._across.md` (plus `.csv`, and `..._runs.csv` with one row per draw). Figures go to
-`figures/analysis/ext_<dataset>_*.png`. The across figure has two rows of bars, 1-NN on top and
-k-medoids below.
+`figures/analysis/ext_<dataset>_*.png`. Every figure shows 1-NN and k-medoids side by side;
+the within and the across part have one figure each.
 
 **k-medoids chance.** k-medoids has a higher chance level than 1-NN (about 10 % with 30 samples
 per neuron, instead of 2.5 %), because pairing clusters with neurons picks the best pairing. The
 columns `kmedoids_chance` (within) and `kmed_within_chance`, `kmed_pooled_chance` (across) give
-it: the same clustering scored against shuffled labels. The bar figures draw it as a dotted line.
+it: the same clustering scored against shuffled labels. It is only in the tables, not in the
+figures.
 
 | Report figure | Command | File |
 |---|---|---|
 | distance matrices (as Fig. 7), across stimuli | `--part across` (or `--part across --figure-only`, draw 0 only, about 5 min) | `ext_<dataset>_distance_matrix.png` |
 | scores (as Fig. 8), within | `--part within` | `ext_<dataset>_within.png`, `ext_<dataset>_vp.png` |
-| scores (as Fig. 8), across | `--part across` | `ext_<dataset>_across.png` |
-| sample length (as Fig. 9), one stimulus and all stimuli mixed | `--part length` | `ext_<dataset>_sample_length.png`, `results/extended_<dataset>_length.md` |
+| scores (as Fig. 8), across (all stimuli mixed) | `--part across` | `ext_<dataset>_across.png` |
+| sample length (as Fig. 9), within and across | `--part length` | `ext_<dataset>_length_within.png`, `ext_<dataset>_length_across.png`, `results/extended_<dataset>_length.md` |
 
 The distance-matrix figure shows 10 neurons of draw 0 for five methods and the best `q` of the
 Victor-Purpura distance. Inside each neuron's block the samples are ordered by stimulus; thick
 white lines separate neurons, dotted lines separate stimuli. `--part length` glues 1, 2 or 3
 consecutive samples into one (10, 20, 30 s on the retina, as in step 3) and scores both the
-within part (top row) and the mixed pool (bottom row); with 30 samples per neuron and stimulus
+within part and the mixed pool (one figure each); with 30 samples per neuron and stimulus
 there are 30, 15 and 10 glued samples per neuron and stimulus.
 
-**Methods in the bar figures.** The bar figures show a fixed set, chosen by role and not by
-score: firing rate, ISI histogram, the best Victor-Purpura `q` (the whole sweep is in
-`ext_<dataset>_vp.png`), LINE H0 and its log-share version, the LINE cutoff control, DELAY H0,
-H1, H0+H1, and the shuffled and cutoff controls of DELAY H0 (`BAR_METHODS` in the script). The
-tables have every row.
+**Methods in the bar figures.** Every row of the table by default. `BAR_METHODS` in the script
+can be set to a shorter list (an example is in a comment there); it should be fixed by role,
+not picked by score.
 
 Expected time: the retina should take a few minutes more than step 3. Neuropixels samples are
 three times longer, so H1 of the delay cloud and the Victor-Purpura distance take longer there;

@@ -275,13 +275,13 @@ def stimulus_list(cfg, args):
 FIG_METHODS = ["B2 ISI histogram", "T1 LINE H0", "T1 LINE H0, log scale, share",
                "T2 DELAY H0+H1", "C1 DELAY H0+H1, ISIs shuffled"]   # + the best Victor-Purpura q
 
-# Methods in the bar figures, fixed in advance by their role (not by their score): the
-# references, the topological methods, and the control that belongs to each of them. The best
-# Victor-Purpura q is added (the whole q sweep has its own figure). The tables have every row.
-BAR_METHODS = ["B1 firing rate", "B2 ISI histogram",
-               "T1 LINE H0", "T1 LINE H0, log scale, share", "C2 LINE H0, random time cutoff",
-               "T2 DELAY H0", "T2 DELAY H1", "T2 DELAY H0+H1",
-               "C1 DELAY H0, ISIs shuffled", "C2 DELAY H0, random time cutoff"]
+# Methods in the bar figures. None = every row of the table. To show fewer bars, set it to a
+# list fixed in advance by role (not by score), e.g. the one below; the best Victor-Purpura q
+# is then added after the first two. The tables always have every row.
+BAR_METHODS = None
+# BAR_METHODS = ["B1 firing rate", "B2 ISI histogram",
+#                "T1 LINE H0", "C2 LINE H0, random time cutoff", "T1 LINE H0, log scale, share",
+#                "T2 DELAY H0", "C1 DELAY H0, ISIs shuffled", "C2 DELAY H0, random time cutoff", "T2 DELAY H1"]
 
 
 def run_across(cfg, args, seed, stimuli, figure=None, k_fig=10, block=1):
@@ -369,35 +369,33 @@ def write_table(table, cols, heads, path, title):
 
 
 def bar_rows(table, col):
-    """The rows of BAR_METHODS, with the best Victor-Purpura q (by `col`) after the references."""
+    """The rows shown in the bar figures (see BAR_METHODS)."""
+    if BAR_METHODS is None:
+        return table
     vp = table[table.method.str.startswith("B3")]
-    best = vp.loc[vp[f"{col}_mean"].idxmax(), "method"]
-    names = BAR_METHODS[:2] + [best] + BAR_METHODS[2:]
+    names = list(BAR_METHODS)
+    if not vp.empty:
+        names = names[:2] + [vp.loc[vp[f"{col}_mean"].idxmax(), "method"]] + names[2:]
     return table.set_index("method").loc[[m for m in names if m in set(table.method)]].reset_index()
 
 
-def figure_bars(table, panels, chance, title, name):
-    """One row of bars per panel. panels = [(y label, [score columns], [legend labels],
-    k-medoids chance column or None), ...]. The dashed line is the 1-NN chance level (1 / number
-    of neurons); the dotted line, if given, is the k-medoids chance level (mean over methods)."""
-    table = bar_rows(table, panels[0][1][0])
-    fig, axes = plt.subplots(len(panels), 1, figsize=(13, 4.2 * len(panels) + 1), sharex=True, squeeze=False)
+def figure_bars(table, cols, labs, chance, title, name):
+    """One panel, one bar per score column (1-NN, k-medoids) for every method. Dashed line: 1-NN
+    chance (1 / number of neurons). k-medoids chance is in the tables, not drawn."""
+    table = bar_rows(table, cols[0])
+    fig, ax = plt.subplots(figsize=(13, 5))
     x = np.arange(len(table))
-    for ax, (ylab, cols, labs, kchance) in zip(axes[:, 0], panels):
-        w = 0.8 / len(cols)
-        for j, (col, lab) in enumerate(zip(cols, labs)):
-            ax.bar(x + (j - (len(cols) - 1) / 2) * w, 100 * table[f"{col}_mean"], w,
-                   yerr=100 * table[f"{col}_std"].fillna(0), capsize=2, label=lab)
-        ax.axhline(100 * chance, color="k", ls="--", lw=1, label=f"1-NN chance ({100 * chance:.1f} %)")
-        if kchance:
-            c = 100 * table[f"{kchance}_mean"].mean()
-            ax.axhline(c, color="k", ls=":", lw=1.2, label=f"k-medoids chance ({c:.1f} %)")
-        ax.set_ylabel(ylab)
-        ax.set_ylim(0, ax.get_ylim()[1] * 1.18)          # room for the legend above the bars
-        ax.legend(loc="upper center", ncol=len(cols) + 2, fontsize=9)
-    axes[0, 0].set_title(title)
-    axes[-1, 0].set_xticks(x)
-    axes[-1, 0].set_xticklabels(table["method"], rotation=35, ha="right", fontsize=9)
+    w = 0.8 / len(cols)
+    for j, (col, lab) in enumerate(zip(cols, labs)):
+        ax.bar(x + (j - (len(cols) - 1) / 2) * w, 100 * table[f"{col}_mean"], w,
+               yerr=100 * table[f"{col}_std"].fillna(0), capsize=2, label=lab)
+    ax.axhline(100 * chance, color="k", ls="--", lw=1, label=f"1-NN chance ({100 * chance:.1f} %)")
+    ax.set_ylabel("accuracy (%)")
+    ax.set_ylim(0, ax.get_ylim()[1] * 1.12)              # room for the legend above the bars
+    ax.legend(loc="upper center", ncol=len(cols) + 1, fontsize=9)
+    ax.set_title(title)
+    ax.set_xticks(x)
+    ax.set_xticklabels(table["method"], rotation=35, ha="right", fontsize=9)
     savefig(fig, name)
 
 
@@ -456,29 +454,24 @@ def run_length(cfg, a, chance):
             f.write(f"| {m} | {sec:g} | " + " | ".join("-" if np.isnan(v) else f"{100 * v:.1f}" for v in vals) + " |\n")
     print("\n" + open(RESULTS_DIR / f"extended_{a.dataset}_length.md").read(), flush=True)
 
-    parts = [p for p in ("within", "mixed") if p in set(df.part)]
-    fig, axes = plt.subplots(len(parts), 2, figsize=(13, 4.3 * len(parts) + 0.6), squeeze=False)
-    for i, part in enumerate(parts):
+    for part, suffix, what in (("within", "within", "one stimulus"), ("mixed", "across", "all stimuli mixed")):
         d = df[df.part == part]
-        for ax, col, ylab in zip(axes[i], ["nn", "kmed"], ["1-NN accuracy (%)", "k-medoids accuracy (%)"]):
+        if d.empty:
+            continue
+        fig, axes = plt.subplots(1, 2, figsize=(13, 4.6), sharey=True)
+        for ax, col, ylab in zip(axes, ["nn", "kmed"], ["1-NN", "k-medoids"]):
             for name in methods:
                 g = d[d.method == name].groupby("seconds")[col]
                 ax.errorbar(g.mean().index, 100 * g.mean(), yerr=100 * g.std(), marker="o", capsize=3, label=name)
-            if col == "nn":
-                ax.axhline(100 * chance, color="k", ls="--", lw=1, label="1-NN chance")
-            else:
-                g = d.groupby("seconds")["kmed_chance"].mean()
-                ax.plot(g.index, 100 * g.values, "k:", lw=1.2, label="k-medoids chance")
-            ax.set_title("one stimulus" if part == "within" else "all stimuli mixed", fontsize=10)
-            ax.set_ylabel(ylab)
+            ax.axhline(100 * chance, color="k", ls="--", lw=1, label="1-NN chance")
+            ax.set_title(ylab)
+            ax.set_xlabel("sample length (s)")
             ax.set_xticks(sorted(d.seconds.unique()))
-        axes[i, 0].set_ylim(0, 100)
-        axes[i, 1].set_ylim(0, 100)
-    for ax in axes[-1]:
-        ax.set_xlabel("sample length (s)")
-    axes[0, 0].legend(fontsize=8)
-    fig.suptitle(f"{a.dataset}: longer samples")
-    savefig(fig, f"ext_{a.dataset}_sample_length.png")
+            ax.set_ylim(0, 100)
+        axes[0].set_ylabel("accuracy (%)")
+        axes[0].legend(fontsize=8)
+        fig.suptitle(f"{a.dataset}, {what}: longer samples")
+        savefig(fig, f"ext_{a.dataset}_length_{suffix}.png")
 
 
 def main():
@@ -516,7 +509,7 @@ def main():
                     RESULTS_DIR / f"extended_{a.dataset}_within.md",
                     f"WITHIN one stimulus. {cfg['label']}: accuracy (%), {cfg['within']['n_trials']} samples per "
                     f"neuron, {head}")
-        figure_bars(table, [("accuracy (%)", ["nn1", "kmedoids"], ["1-NN", "k-medoids"], "kmedoids_chance")], chance,
+        figure_bars(table, ["nn1", "kmedoids"], ["1-NN", "k-medoids"], chance,
                     f"{cfg['label']}: which neuron is this sample from? (same stimulus)", f"ext_{a.dataset}_within.png")
         vp += [(table, "nn1", "within, 1-NN"), (table, "kmedoids", "within, k-medoids")]
 
@@ -545,11 +538,9 @@ def main():
                     RESULTS_DIR / f"extended_{a.dataset}_across.md",
                     f"ACROSS stimuli. {a.dataset}: {listing}. All stimuli mixed = {m} samples per neuron from "
                     f"each stimulus in one unlabelled pool. Accuracy (%), {head}")
-        figure_bars(table, [("1-NN accuracy (%)", ["nn_within", "nn_pooled", "nn_other"],
-                             [f"{first} only", "all stimuli mixed", "nearest sample from another stimulus"], None),
-                            ("k-medoids accuracy (%)", ["kmed_within", "kmed_pooled"], [f"{first} only", "all stimuli mixed"],
-                             "kmed_pooled_chance")],
-                    chance, f"{a.dataset}: one stimulus against several stimuli", f"ext_{a.dataset}_across.png")
+        figure_bars(table, ["nn_pooled", "kmed_pooled"], ["1-NN", "k-medoids"], chance,
+                    f"{a.dataset}: which neuron is this sample from? (all stimuli mixed, stimulus not used)",
+                    f"ext_{a.dataset}_across.png")
         vp += [(table, "nn_pooled", "all stimuli mixed, 1-NN"), (table, "kmed_pooled", "all stimuli mixed, k-medoids")]
 
     if a.part == "length":
