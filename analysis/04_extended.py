@@ -57,6 +57,8 @@ Outputs (dataset = retina or neuropixels):
     figures/analysis/ext_<dataset>_within.png      bar charts
     figures/analysis/ext_<dataset>_across.png      top: 1-NN, bottom: k-medoids
     figures/analysis/ext_<dataset>_vp.png          Victor-Purpura score against q
+    figures/analysis/ext_<dataset>_distance_matrix.png   distances between the samples of 10
+                                                   neurons, sorted by neuron, then stimulus
 
 Usage:
     python analysis/04_extended.py --dataset retina
@@ -253,8 +255,8 @@ def run_within(cfg, args, seed):
     dists = all_distances(data["isis"], data["spikes"], cfg["trial_s"], seed, labels)
     rows = []
     for name, (D, M) in dists.items():
-        rows.append(dict(method=name, seed=seed, nn1=score_1nn(D, labels),
-                         kmedoids=score_kmedoids(D, labels, args.kmedoids_seeds),
+        km, km_chance = score_kmedoids(D, labels, args.kmedoids_seeds, chance=True)
+        rows.append(dict(method=name, seed=seed, nn1=score_1nn(D, labels), kmedoids=km, kmedoids_chance=km_chance,
                          nearest_mean=score_nearest_mean(M, labels) if M is not None else np.nan))
     return rows
 
@@ -265,20 +267,72 @@ def stimulus_list(cfg, args):
     return cfg["across"]
 
 
-def run_across(cfg, args, seed, stimuli):
-    data = load_stimuli(stimuli, args.n_neurons, args.min_rate, seed=seed, trial_s=cfg["trial_s"])
+FIG_METHODS = ["B2 ISI histogram", "T1 LINE H0", "T1 LINE H0, log scale, share",
+               "T2 DELAY H0+H1", "C1 DELAY H0+H1, ISIs shuffled"]   # + the best Victor-Purpura q
+
+
+def run_across(cfg, args, seed, stimuli, figure=None, k_fig=10, block=1):
+    """Scores of one neuron draw. With `figure` (a dict), also keeps the distance matrices of
+    `k_fig` neurons for the figure: for each neuron its samples of stimulus 1, then of
+    stimulus 2, and so on, with the same number of samples per stimulus as the mixed pool."""
+    data = load_stimuli(stimuli, args.n_neurons, args.min_rate, seed=seed, trial_s=cfg["trial_s"], block=block)
     isis = [x for d in data for x in d["isis"]]
     spikes = [x for d in data for x in d["spikes"]]
     labels = np.concatenate([d["labels"] for d in data])
     edges = np.r_[0, np.cumsum([len(d["labels"]) for d in data])]
     groups = [np.arange(edges[j], edges[j + 1]) for j in range(len(data))]
     rows = []
+    if figure is not None:
+        k = labels.max() + 1
+        m = min(np.bincount(labels[g], minlength=k).min() for g in groups)
+        show = np.linspace(0, k - 1, k_fig).astype(int)
+        keep = np.array([i for c in show for g in groups for i in g[labels[g] == c][:m]])
+        figure.update(keep=keep, m=m, n_stim=len(groups), k=k_fig, mats={})
 
     def score(name, value):                                        # no labels: no neuron means
-        rows.append(dict(method=name, seed=seed, **scores_across(value[0], labels, groups, args.kmedoids_seeds)))
+        rows.append(dict(method=name, seed=seed, block=block,
+                         **scores_across(value[0], labels, groups, args.kmedoids_seeds)))
+        if figure is not None and (name in FIG_METHODS or name.startswith("B3")):
+            figure["mats"][name] = value[0][np.ix_(figure["keep"], figure["keep"])]
 
-    all_distances(isis, spikes, cfg["trial_s"], seed, sink=score)  # scores each matrix, then drops it
+    duration = block * (10.0 if cfg["trial_s"] == 9.94 else cfg["trial_s"]) if block > 1 else cfg["trial_s"]
+    all_distances(isis, spikes, duration, seed, sink=score)        # scores each matrix, then drops it
+    if figure is not None:                                         # keep the Victor-Purpura q that does best here
+        vp = [r for r in rows if r["method"].startswith("B3")]
+        best = max(vp, key=lambda r: r["nn_within"])["method"]
+        figure["mats"] = {n: D for n, D in figure["mats"].items() if not n.startswith("B3") or n == best}
     return rows
+
+
+def figure_matrices_across(fig_data, stimuli, dataset):
+    """Like figure 7 of step 3, with the samples of several stimuli. Rows and columns: k neurons;
+    inside each neuron, its samples of stimulus 1, then stimulus 2, ... (thick white lines
+    separate neurons, thin dotted lines separate stimuli). Light = small distance. A light
+    square that covers the whole neuron block means the neuron is recognised across stimuli;
+    light only in the small squares on the diagonal means only within one stimulus."""
+    mats, m, S, k = fig_data["mats"], fig_data["m"], fig_data["n_stim"], fig_data["k"]
+    names = [n for n in FIG_METHODS if n in mats] + [n for n in mats if n.startswith("B3")]
+    cols = 3
+    rows = int(np.ceil(len(names) / cols))
+    fig, axes = plt.subplots(rows, cols, figsize=(6 * cols, 5.6 * rows), squeeze=False)
+    per = m * S
+    for ax, name in zip(axes.flat, names):
+        D = mats[name]
+        im = ax.imshow(D, cmap="viridis_r", vmin=0, vmax=np.percentile(D, 95), interpolation="nearest")
+        for j in range(1, k * S):
+            e = j * m - 0.5
+            thick = j % S == 0
+            ax.axhline(e, color="w", lw=0.8 if thick else 0.3, ls="-" if thick else ":")
+            ax.axvline(e, color="w", lw=0.8 if thick else 0.3, ls="-" if thick else ":")
+        ax.set_title(name)
+        ax.set_xlabel(f"sample ({k} neurons x {S} stimuli x {m} samples)")
+        ax.set_ylabel("sample (sorted by neuron, then stimulus)")
+        fig.colorbar(im, ax=ax, fraction=0.046)
+    for ax in axes.flat[len(names):]:
+        ax.axis("off")
+    order = ", ".join(f"{j + 1}. {st['name']}" for j, st in enumerate(stimuli))
+    fig.suptitle(f"{dataset}: distances between samples of {k} neurons. Inside each neuron: {order}", fontsize=12)
+    savefig(fig, f"ext_{dataset}_distance_matrix.png")
 
 
 def summarise(df, cols):
@@ -303,18 +357,23 @@ def write_table(table, cols, heads, path, title):
 
 
 def figure_bars(table, panels, chance, title, name):
-    """One row of bars per panel. panels = [(y label, [score columns], [legend labels]), ...]."""
+    """One row of bars per panel. panels = [(y label, [score columns], [legend labels],
+    k-medoids chance column or None), ...]. The dashed line is the 1-NN chance level (1 / number
+    of neurons); the dotted line, if given, is the k-medoids chance level (mean over methods)."""
     fig, axes = plt.subplots(len(panels), 1, figsize=(13, 4.2 * len(panels) + 1), sharex=True, squeeze=False)
     x = np.arange(len(table))
-    for ax, (ylab, cols, labs) in zip(axes[:, 0], panels):
+    for ax, (ylab, cols, labs, kchance) in zip(axes[:, 0], panels):
         w = 0.8 / len(cols)
         for j, (col, lab) in enumerate(zip(cols, labs)):
             ax.bar(x + (j - (len(cols) - 1) / 2) * w, 100 * table[f"{col}_mean"], w,
                    yerr=100 * table[f"{col}_std"].fillna(0), capsize=2, label=lab)
-        ax.axhline(100 * chance, color="k", ls="--", lw=1, label=f"chance ({100 * chance:.1f} %)")
+        ax.axhline(100 * chance, color="k", ls="--", lw=1, label=f"1-NN chance ({100 * chance:.1f} %)")
+        if kchance:
+            c = 100 * table[f"{kchance}_mean"].mean()
+            ax.axhline(c, color="k", ls=":", lw=1.2, label=f"k-medoids chance ({c:.1f} %)")
         ax.set_ylabel(ylab)
         ax.set_ylim(0, ax.get_ylim()[1] * 1.18)          # room for the legend above the bars
-        ax.legend(loc="upper center", ncol=len(cols) + 1, fontsize=10)
+        ax.legend(loc="upper center", ncol=len(cols) + 2, fontsize=9)
     axes[0, 0].set_title(title)
     axes[-1, 0].set_xticks(x)
     axes[-1, 0].set_xticklabels(table["method"], rotation=35, ha="right", fontsize=9)
@@ -337,14 +396,66 @@ def figure_vp(tables, chance, title, name):
     savefig(fig, name)
 
 
+LENGTH_METHODS = ["B1 firing rate", "B2 ISI histogram", "T1 LINE H0", "T1 LINE H0, log scale, share",
+                  "T2 DELAY H0+H1", "C1 DELAY H0+H1, ISIs shuffled"]       # + the best Victor-Purpura q
+
+
+def run_length(cfg, a, chance):
+    """Across scores (all stimuli mixed) for samples made of 1, 2 and 3 glued samples."""
+    stimuli = stimulus_list(cfg, a)
+    base = 10.0 if cfg["trial_s"] == 9.94 else cfg["trial_s"]
+    rows = []
+    for block in (1, 2, 3):
+        if min(st["n"] for st in stimuli) // block < 2:
+            print(f"samples of {block} x {base:g} s: fewer than 2 per stimulus, skipped", flush=True)
+            continue
+        for seed in range(a.seeds):
+            t0 = time.time()
+            rows += [dict(r, seconds=block * base) for r in run_across(cfg, a, seed, stimuli, block=block)]
+            print(f"{a.dataset} length {block * base:g} s, draw {seed}: {time.time() - t0:.0f} s", flush=True)
+    df = pd.DataFrame(rows)
+    df.to_csv(RESULTS_DIR / f"extended_{a.dataset}_length.csv", index=False)
+    one = df[df.block == 1]
+    vp = one[one.method.str.startswith("B3")].groupby("method")["nn_pooled"].mean().idxmax()
+    methods = LENGTH_METHODS[:2] + [vp] + LENGTH_METHODS[2:]
+    cols = ["nn_pooled", "kmed_pooled", "nn_other", "kmed_pooled_chance"]
+    t = df[df.method.isin(methods)].groupby(["method", "seconds"])[cols].mean().reset_index()
+    with open(RESULTS_DIR / f"extended_{a.dataset}_length.md", "w") as f:
+        f.write(f"SAMPLE LENGTH, all stimuli mixed. {a.dataset}: accuracy (%), mean over {a.seeds} neuron draws. "
+                f"1-NN chance = {100 * chance:.1f} %.\n\n| method | seconds | 1-NN, all stimuli mixed | "
+                f"k-medoids, all stimuli mixed | 1-NN, other stimuli only | k-medoids chance |\n|---|---|---|---|---|---|\n")
+        for _, r in t.iterrows():
+            f.write(f"| {r.method} | {r.seconds:g} | " + " | ".join(f"{100 * r[c]:.1f}" for c in cols) + " |\n")
+    print("\n" + open(RESULTS_DIR / f"extended_{a.dataset}_length.md").read(), flush=True)
+    fig, axes = plt.subplots(1, 2, figsize=(13, 4.8))
+    for ax, col, ylab in zip(axes, ["nn_pooled", "kmed_pooled"], ["1-NN accuracy (%)", "k-medoids accuracy (%)"]):
+        for name in methods:
+            g = df[df.method == name].groupby("seconds")[col]
+            ax.errorbar(g.mean().index, 100 * g.mean(), yerr=100 * g.std(), marker="o", capsize=3, label=name)
+        if col == "nn_pooled":
+            ax.axhline(100 * chance, color="k", ls="--", lw=1, label="chance")
+        else:
+            g = df.groupby("seconds")["kmed_pooled_chance"].mean()
+            ax.plot(g.index, 100 * g.values, "k:", lw=1.2, label="k-medoids chance")
+        ax.set_xlabel("sample length (s)")
+        ax.set_ylabel(ylab)
+        ax.set_xticks(sorted(df.seconds.unique()))
+    axes[0].legend(fontsize=8)
+    fig.suptitle(f"{a.dataset}: all stimuli mixed, longer samples")
+    savefig(fig, f"ext_{a.dataset}_sample_length.png")
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--dataset", choices=list(DATASETS), required=True)
-    p.add_argument("--part", choices=["within", "across", "both"], default="both")
+    p.add_argument("--part", choices=["within", "across", "both", "length"], default="both",
+                   help="length: the across scores for samples of 1, 2 and 3 glued samples")
     p.add_argument("--n-neurons", type=int, default=40)
     p.add_argument("--min-rate", type=float, default=1.0)
     p.add_argument("--seeds", type=int, default=5, help="number of random neuron draws")
     p.add_argument("--kmedoids-seeds", type=int, default=3, help="k-medoids runs averaged per score")
+    p.add_argument("--figure-only", action="store_true",
+                   help="across part: only draw 0 and the distance-matrix figure; the tables are not rewritten")
     p.add_argument("--max-gap", type=float, default=30.0,
                    help="Neuropixels: use stimuli recorded within this many minutes of the first movie block")
     a = p.parse_args()
@@ -362,43 +473,52 @@ def main():
             print(f"{a.dataset} within, draw {seed}: {time.time() - t0:.0f} s", flush=True)
         df = pd.DataFrame(rows)
         df.to_csv(RESULTS_DIR / f"extended_{a.dataset}_within_runs.csv", index=False)
-        cols = ["nn1", "kmedoids", "nearest_mean"]
+        cols = ["nn1", "kmedoids", "kmedoids_chance", "nearest_mean"]
         table = summarise(df, cols)
         table.to_csv(RESULTS_DIR / f"extended_{a.dataset}_within.csv", index=False)
-        write_table(table, cols, ["1-NN", "k-medoids", "nearest mean"],
+        write_table(table, cols, ["1-NN", "k-medoids", "k-medoids chance", "nearest mean"],
                     RESULTS_DIR / f"extended_{a.dataset}_within.md",
                     f"WITHIN one stimulus. {cfg['label']}: accuracy (%), {cfg['within']['n_trials']} samples per "
                     f"neuron, {head}")
-        figure_bars(table, [("accuracy (%)", ["nn1", "kmedoids"], ["1-NN", "k-medoids"])], chance,
+        figure_bars(table, [("accuracy (%)", ["nn1", "kmedoids"], ["1-NN", "k-medoids"], "kmedoids_chance")], chance,
                     f"{cfg['label']}: which neuron is this sample from? (same stimulus)", f"ext_{a.dataset}_within.png")
         vp += [(table, "nn1", "within, 1-NN"), (table, "kmedoids", "within, k-medoids")]
 
     if a.part in ("across", "both"):
         stimuli = stimulus_list(cfg, a)
-        rows = []
-        for seed in range(a.seeds):
+        rows, fig_data = [], {}
+        for seed in range(1 if a.figure_only else a.seeds):
             t0 = time.time()
-            rows += run_across(cfg, a, seed, stimuli)
+            rows += run_across(cfg, a, seed, stimuli, figure=fig_data if seed == 0 else None)
             print(f"{a.dataset} across, draw {seed}: {time.time() - t0:.0f} s", flush=True)
+        figure_matrices_across(fig_data, stimuli, a.dataset)
+        if a.figure_only:
+            return
         df = pd.DataFrame(rows)
         df.to_csv(RESULTS_DIR / f"extended_{a.dataset}_across_runs.csv", index=False)
-        cols = ["nn_within", "kmed_within", "nn_pooled", "kmed_pooled", "nn_other"]
+        cols = ["nn_within", "kmed_within", "nn_pooled", "kmed_pooled", "nn_other", "kmed_within_chance",
+                "kmed_pooled_chance"]
         table = summarise(df, cols)
         table.to_csv(RESULTS_DIR / f"extended_{a.dataset}_across.csv", index=False)
         m = min(st["n"] for st in stimuli)
         first = stimuli[0]["name"]
         listing = ", ".join(f"{st['name']} ({st['n']} samples per neuron)" for st in stimuli)
         write_table(table, cols, [f"1-NN, {first} only", f"k-medoids, {first} only", "1-NN, all stimuli mixed",
-                                  "k-medoids, all stimuli mixed", "1-NN, other stimuli only"],
+                                  "k-medoids, all stimuli mixed", "1-NN, other stimuli only",
+                                  f"k-medoids chance, {first} only", "k-medoids chance, all stimuli mixed"],
                     RESULTS_DIR / f"extended_{a.dataset}_across.md",
                     f"ACROSS stimuli. {a.dataset}: {listing}. All stimuli mixed = {m} samples per neuron from "
                     f"each stimulus in one unlabelled pool. Accuracy (%), {head}")
         figure_bars(table, [("1-NN accuracy (%)", ["nn_within", "nn_pooled", "nn_other"],
-                             [f"{first} only", "all stimuli mixed", "nearest sample from another stimulus"]),
-                            ("k-medoids accuracy (%)", ["kmed_within", "kmed_pooled"], [f"{first} only", "all stimuli mixed"])],
+                             [f"{first} only", "all stimuli mixed", "nearest sample from another stimulus"], None),
+                            ("k-medoids accuracy (%)", ["kmed_within", "kmed_pooled"], [f"{first} only", "all stimuli mixed"],
+                             "kmed_pooled_chance")],
                     chance, f"{a.dataset}: one stimulus against several stimuli", f"ext_{a.dataset}_across.png")
         vp += [(table, "nn_pooled", "all stimuli mixed, 1-NN"), (table, "kmed_pooled", "all stimuli mixed, k-medoids")]
 
+    if a.part == "length":
+        run_length(cfg, a, chance)
+        return
     figure_vp(vp, chance, f"{a.dataset}: Victor-Purpura distance against its time precision", f"ext_{a.dataset}_vp.png")
 
 

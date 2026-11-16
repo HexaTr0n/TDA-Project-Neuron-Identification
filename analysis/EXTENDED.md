@@ -115,6 +115,24 @@ Tables are printed and written to `results/extended_<dataset>_within.md` and
 `figures/analysis/ext_<dataset>_*.png`. The across figure has two rows of bars, 1-NN on top and
 k-medoids below.
 
+**k-medoids chance.** k-medoids has a higher chance level than 1-NN (about 10 % with 30 samples
+per neuron, instead of 2.5 %), because pairing clusters with neurons picks the best pairing. The
+columns `kmedoids_chance` (within) and `kmed_within_chance`, `kmed_pooled_chance` (across) give
+it: the same clustering scored against shuffled labels. The bar figures draw it as a dotted line.
+
+| Report figure | Command | File |
+|---|---|---|
+| distance matrices (as Fig. 7), across stimuli | `--part across` (or `--part across --figure-only`, draw 0 only, about 5 min) | `ext_<dataset>_distance_matrix.png` |
+| scores (as Fig. 8), within | `--part within` | `ext_<dataset>_within.png`, `ext_<dataset>_vp.png` |
+| scores (as Fig. 8), across | `--part across` | `ext_<dataset>_across.png` |
+| sample length (as Fig. 9), all stimuli mixed | `--part length` | `ext_<dataset>_sample_length.png`, `results/extended_<dataset>_length.md` |
+
+The distance-matrix figure shows 10 neurons of draw 0 for five methods and the best `q` of the
+Victor-Purpura distance. Inside each neuron's block the samples are ordered by stimulus; thick
+white lines separate neurons, dotted lines separate stimuli. `--part length` glues 1, 2 or 3
+consecutive samples into one (10, 20, 30 s on the retina) and scores the mixed pool; with 30
+samples per neuron and stimulus it then has 10 glued samples per neuron and stimulus.
+
 Expected time: the retina should take a few minutes more than step 3. Neuropixels samples are
 three times longer, so H1 of the delay cloud and the Victor-Purpura distance take longer there;
 if it is too slow, `--seeds 2` gives a first answer.

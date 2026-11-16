@@ -275,7 +275,7 @@ def score_nearest_mean(M, labels):
 # the random time cutoff control, k-medoids, and scores across two stimuli.
 # ---------------------------------------------------------------------------
 
-def load_stimuli(stimuli, n_neurons=40, min_rate=1.0, seed=0, trial_s=9.94):
+def load_stimuli(stimuli, n_neurons=40, min_rate=1.0, seed=0, trial_s=9.94, block=1):
     """The same neurons under several stimuli.
 
     `stimuli` is a list of dicts, one per stimulus, with the keys
@@ -286,6 +286,8 @@ def load_stimuli(stimuli, n_neurons=40, min_rate=1.0, seed=0, trial_s=9.94):
     Eligible neurons fire at least `min_rate` Hz in the FIRST stimulus (as in `load_trials`)
     and have at least `n` samples in every stimulus. Returns one dict per stimulus, like
     `load_trials`, all with the same `neurons` and the same label numbering.
+    With block > 1, `block` consecutive samples of the same neuron and stimulus are glued into
+    one longer sample (as in `load_trials`), so each stimulus gives n // block samples.
     """
     tables, ok, cache = [], None, {}
     for k, st in enumerate(stimuli):
@@ -313,11 +315,13 @@ def load_stimuli(stimuli, n_neurons=40, min_rate=1.0, seed=0, trial_s=9.94):
     for df, st in zip(tables, stimuli):
         isis, spikes, labels = [], [], []
         by = {nid: g.sort_values("trial") for nid, g in df[df.neuron_id.isin(neurons)].groupby("neuron_id")}
+        shift = 10.0 if trial_s == 9.94 else trial_s
         for label, nid in enumerate(neurons):
-            for t in list(by[nid]["spike_times"])[:st["n"]]:
-                t = np.asarray(t, dtype=float)
-                spikes.append(t)
-                isis.append(np.diff(t))
+            times = [np.asarray(t, dtype=float) for t in list(by[nid]["spike_times"])[:st["n"]]]
+            for start in range(0, len(times) - block + 1, block):
+                part = times[start:start + block]
+                spikes.append(np.concatenate([t + shift * j for j, t in enumerate(part)]))
+                isis.append(np.concatenate([np.diff(t) for t in part]))     # no ISI across a joint
                 labels.append(label)
         out.append(dict(isis=isis, spikes=spikes, labels=np.array(labels), neurons=neurons))
     return out
@@ -516,12 +520,23 @@ def _match(labels, clusters, k):
     return float(table[rows, cols].sum() / len(labels)), name
 
 
-def score_kmedoids(D, labels, seeds=3):
+def score_kmedoids(D, labels, seeds=3, chance=False):
     """Unsupervised score: cluster all samples into (number of neurons) groups with k-medoids,
     pair clusters with neurons, and count the samples that sit in their neuron's cluster.
-    Mean over `seeds` runs of the clustering (each with 5 restarts)."""
+    Mean over `seeds` runs of the clustering (each with 5 restarts).
+
+    With chance=True, also returns the chance level of this score: the same clusterings scored
+    against randomly permuted neuron labels (5 permutations each). The pairing of clusters with
+    neurons is chosen to fit, so this is well above 1 / (number of neurons).
+    """
     k = labels.max() + 1
-    return float(np.mean([_match(labels, kmedoids(D, k, seed=s)[0], k)[0] for s in range(seeds)]))
+    rng = np.random.default_rng(12345)
+    acc, ch = [], []
+    for s in range(seeds):
+        clusters = kmedoids(D, k, seed=s)[0]
+        acc.append(_match(labels, clusters, k)[0])
+        ch += [_match(rng.permutation(labels), clusters, k)[0] for _ in range(5)]
+    return (float(np.mean(acc)), float(np.mean(ch))) if chance else float(np.mean(acc))
 
 
 def scores_across(D, labels, groups, seeds=3):
@@ -536,6 +551,8 @@ def scores_across(D, labels, groups, seeds=3):
                       sample of the pool from the same neuron? k-medoids: sort the pool into
                       (number of neurons) buckets without labels, pair buckets with neurons,
                       and count the samples that sit in their neuron's bucket.
+        kmed_within_chance, kmed_pooled_chance   chance levels of the two k-medoids scores
+                      (see `score_kmedoids`)
         nn_other      a stricter 1-NN: the nearest sample is searched only among the samples
                       of the OTHER stimuli. In the mixed pool a sample can find its neighbour
                       in its own stimulus; here it cannot, so this shows what carries over.
@@ -543,12 +560,13 @@ def scores_across(D, labels, groups, seeds=3):
     k = labels.max() + 1
     first = groups[0]
     D0 = D[np.ix_(first, first)]
-    r = dict(nn_within=score_1nn(D0, labels[first]), kmed_within=score_kmedoids(D0, labels[first], seeds))
+    r = dict(nn_within=score_1nn(D0, labels[first]))
+    r["kmed_within"], r["kmed_within_chance"] = score_kmedoids(D0, labels[first], seeds, chance=True)
     m = min(np.bincount(labels[g], minlength=k).min() for g in groups)      # samples per neuron and stimulus
     pool = np.array([i for g in groups for lab in range(k) for i in g[labels[g] == lab][:m]])
     Dp, yp = D[np.ix_(pool, pool)], labels[pool]
     r["nn_pooled"] = score_1nn(Dp, yp)
-    r["kmed_pooled"] = score_kmedoids(Dp, yp, seeds)
+    r["kmed_pooled"], r["kmed_pooled_chance"] = score_kmedoids(Dp, yp, seeds, chance=True)
     stim = np.concatenate([np.full(len(g), j) for j, g in enumerate(groups)])
     idx = np.concatenate(groups)
     Dx = D[np.ix_(idx, idx)].copy()
