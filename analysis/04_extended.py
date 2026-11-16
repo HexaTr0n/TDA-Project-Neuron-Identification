@@ -33,8 +33,9 @@ Two parts are run for every dataset:
 Stimuli (the lists are in DATASETS below; a stimulus is added by adding one line there):
     retina       frozen noise (the same 10 s movie every time)
                  unrepeated noise shown just before each frozen trial (new noise every time)
-    neuropixels  natural movie, first block of 30 repeats (30 s each)
-                 spontaneous activity on a grey screen, recorded just before that block
+    neuropixels  natural movie, first block of 30 repeats (30 s each), and every other stimulus
+                 in the table recorded within --max-gap minutes of that block: the grey screen,
+                 and after `scripts/load_allen.py --all-stimuli` also gratings, flashes, ...
 
 Methods (all distances are between two samples):
     B1  firing rate                |rate_i - rate_j|                              (no topology)
@@ -71,7 +72,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from tda_utils import (RESULTS_DIR, ROOT, cloud_delay, cloud_line, cloud_line_log, combine,
+from tda_utils import (RESULTS_DIR, ROOT, load_dataset, cloud_delay, cloud_line, cloud_line_log, combine,
                        combine_matrices, load_stimuli, load_trials, normalise_pcfs, pcf_distances,
                        pcf_matrix, random_time_cut, savefig, score_1nn, score_kmedoids,
                        score_nearest_mean, scores_across, shuffle_isis, stable_ranks,
@@ -94,13 +95,48 @@ DATASETS = {
         label="Neuropixels (natural movie, 30 s)", trial_s=30.0,
         within=dict(path=ROOT / "data" / "allen" / "allen829720705.parquet",
                     session="allen829720705_movie", query="start < 3600", n_trials=30),
-        # More stimuli of the session can be added here once they are in the table (same
-        # columns, one `session` value per stimulus, samples of 30 s, close in time to the others).
-        across=[dict(name="natural movie", path=ROOT / "data" / "allen" / "allen829720705.parquet",
-                     session="allen829720705_movie", query="start < 3600", n=30),
-                dict(name="grey screen", path=ROOT / "data" / "allen" / "allen829720705.parquet",
-                     session="allen829720705_spont", query="start < 2280", n=15)]),
+        # The stimulus list is built from the table when the script runs (see
+        # neuropixels_stimuli): the first movie block, plus every other stimulus with enough
+        # 30 s windows recorded within --max-gap minutes of that block.
+        across="neuropixels"),
 }
+
+NPX_PATH = ROOT / "data" / "allen" / "allen829720705.parquet"
+NPX_MOVIE = "allen829720705_movie"
+
+
+def neuropixels_stimuli(max_gap_min=30.0, n_max=15, n_min=10, path=None):
+    """Stimuli for the Neuropixels "across" part, chosen from what the table contains.
+
+    Stimulus 1 is the first block of natural-movie repeats (30 samples, as in the within part).
+    Every other `session` of the table (grey screen, and the stimuli added by
+    `load_allen.py --all-stimuli`) is used with the windows that start within `max_gap_min`
+    minutes of that block, if it has at least `n_min` of them. Neurons drift slowly, so stimuli
+    recorded far apart in time would be told apart by the drift and not by the stimulus.
+    All other stimuli use the same number of samples per neuron: the smallest count, at most
+    `n_max`.
+    """
+    path = path or NPX_PATH
+    df = load_dataset(path)
+    movie = df[(df.session == NPX_MOVIE) & (df.start < 3600)]
+    lo = float(movie.start.min()) - 60 * max_gap_min
+    hi = float((movie.start + movie.duration).max()) + 60 * max_gap_min
+    found = {}
+    for name, g in df[df.session != NPX_MOVIE].groupby("session"):
+        g = g[(g.start >= lo) & (g.start + g.duration <= hi)]
+        n = g.groupby("neuron_id").size().min() if len(g) else 0
+        if n >= n_min:
+            found[name] = int(n)
+    if not found:
+        raise ValueError(f"no stimulus besides the movie has {n_min} windows within {max_gap_min} min of it")
+    n = min(n_max, min(found.values()))
+    out = [dict(name="natural movie", path=path, session=NPX_MOVIE, query="start < 3600", n=30)]
+    for name in sorted(found):
+        label = name.replace("allen829720705_", "").replace("spont", "grey screen").replace("_", " ")
+        out.append(dict(name=label, path=path, session=name, query=f"start >= {lo} and start + duration <= {hi}", n=n))
+    print("Neuropixels stimuli: " + ", ".join(f"{st['name']} ({st['n']})" for st in out), flush=True)
+    return out
+
 
 STEP3_ROWS = ["B1 firing rate", "B2 ISI histogram", "T1 LINE H0", "T2 DELAY H0", "T2 DELAY H1",
               "T2 DELAY H0+H1", "C1 DELAY H0+H1, ISIs shuffled"]
@@ -195,8 +231,13 @@ def run_within(cfg, args, seed):
     return rows
 
 
-def run_across(cfg, args, seed):
-    stimuli = cfg["across"]
+def stimulus_list(cfg, args):
+    if cfg["across"] == "neuropixels":
+        return neuropixels_stimuli(args.max_gap)
+    return cfg["across"]
+
+
+def run_across(cfg, args, seed, stimuli):
     data = load_stimuli(stimuli, args.n_neurons, args.min_rate, seed=seed, trial_s=cfg["trial_s"])
     isis = [x for d in data for x in d["isis"]]
     spikes = [x for d in data for x in d["spikes"]]
@@ -274,6 +315,8 @@ def main():
     p.add_argument("--min-rate", type=float, default=1.0)
     p.add_argument("--seeds", type=int, default=5, help="number of random neuron draws")
     p.add_argument("--kmedoids-seeds", type=int, default=3, help="k-medoids runs averaged per score")
+    p.add_argument("--max-gap", type=float, default=30.0,
+                   help="Neuropixels: use stimuli recorded within this many minutes of the first movie block")
     a = p.parse_args()
     cfg = DATASETS[a.dataset]
     chance = 1 / a.n_neurons
@@ -301,11 +344,11 @@ def main():
         vp += [(table, "nn1", "within, 1-NN"), (table, "kmedoids", "within, k-medoids")]
 
     if a.part in ("across", "both"):
-        stimuli = cfg["across"]
+        stimuli = stimulus_list(cfg, a)
         rows = []
         for seed in range(a.seeds):
             t0 = time.time()
-            rows += run_across(cfg, a, seed)
+            rows += run_across(cfg, a, seed, stimuli)
             print(f"{a.dataset} across, draw {seed}: {time.time() - t0:.0f} s", flush=True)
         df = pd.DataFrame(rows)
         df.to_csv(RESULTS_DIR / f"extended_{a.dataset}_across_runs.csv", index=False)

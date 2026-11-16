@@ -32,13 +32,13 @@ three groups of scores:
 | Dataset | Stimuli in the pool |
 |---|---|
 | retina | frozen noise (30 repeats of 9.94 s); the first 10 s of the unrepeated noise shown before each frozen trial (30 pieces) |
-| neuropixels | natural movie, first block (30 repeats of 30 s); grey screen recorded just before that block (15 windows of 30 s) |
+| neuropixels | natural movie, first block (30 repeats of 30 s); every other stimulus in the table with at least 10 windows of 30 s recorded within 30 min of that block (`--max-gap`): the grey screen, and after `load_allen.py --all-stimuli` also gratings, flashes, dot motion and so on |
 
-Both raw datasets contain more stimuli than these two, but only these were converted into
-tables. A stimulus is added by converting it into the table of its dataset (same columns, its
-own value in the `session` column, samples as long as the others, recorded close in time to
-them) and adding one line to the `across` list of that dataset in `DATASETS` at the top of
-`04_extended.py`. The pool then uses every stimulus in the list.
+**More stimuli.** On Neuropixels, `python scripts/load_allen.py <nwb> --all-stimuli` adds every
+stimulus of the session to the table (receptive field mapping and invalid times are left out),
+each block cut into windows of 30 s. `04_extended.py` then picks them up by itself and prints
+the list it uses. On the retina only the two noise stimuli are in a table; the recordings also
+contain flashed natural images, which would need their own converter.
 
 The retina's unrepeated noise only exists for the recording `20180126_sr_le_sp`, so the retina
 "across" part draws its 40 neurons from that recording. The retina "within" part uses all
@@ -46,8 +46,9 @@ recordings, exactly like step 3.
 
 On Neuropixels the stimuli must be close in time: for one neuron, the same movie 70-100 minutes
 later is harder to recognise than a different stimulus recorded right next to it (recording
-drift). That is why only the first movie block and the grey screen just before it are used, and
-why the grey screen has 15 samples per neuron and not 30.
+drift). That is why only the first movie block is used, together with stimuli recorded within
+30 minutes of it. All stimuli except the movie get the same number of samples per neuron: the
+smallest number available, at most 15.
 
 **k-medoids** is k-means for a distance matrix: every centre is one of the samples. It uses no
 labels. The score is the share of samples that sit in the cluster paired with their neuron

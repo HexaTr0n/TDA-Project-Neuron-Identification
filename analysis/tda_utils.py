@@ -287,9 +287,12 @@ def load_stimuli(stimuli, n_neurons=40, min_rate=1.0, seed=0, trial_s=9.94):
     and have at least `n` samples in every stimulus. Returns one dict per stimulus, like
     `load_trials`, all with the same `neurons` and the same label numbering.
     """
-    tables, ok = [], None
+    tables, ok, cache = [], None, {}
     for k, st in enumerate(stimuli):
-        df = load_dataset(st["path"]) if st.get("path") is not None else load_dataset()
+        key = str(st.get("path"))
+        if key not in cache:                       # read every table file only once
+            cache[key] = load_dataset(st["path"]) if st.get("path") is not None else load_dataset()
+        df = cache[key]
         if st.get("session") is not None:
             df = df[df.session == st["session"]]
         if st.get("query"):
