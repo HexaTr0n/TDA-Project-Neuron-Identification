@@ -442,16 +442,22 @@ def run_length(cfg, a, chance):
     one = df[(df.block == 1) & (df.part == "within")]
     vp = one[one.method.str.startswith("B3")].groupby("method")["nn"].mean().idxmax()
     methods = LENGTH_METHODS[:2] + [vp] + LENGTH_METHODS[2:]
-    t = (df[df.method.isin(methods)].groupby(["method", "seconds", "part"])[["nn", "kmed", "kmed_chance"]]
-         .mean().unstack("part"))
+    # The table has every method (the figures only the ones in `methods`), mean ± std over draws.
+    t = df.groupby(["method", "seconds", "part"])[["nn", "kmed", "kmed_chance"]].agg(["mean", "std"]).unstack("part")
+    order = [m for m in ORDER if m in set(df.method)]
+
+    def fmt(r, c, p):
+        m, sd = r.get((c, "mean", p), np.nan), r.get((c, "std", p), np.nan)
+        return "-" if np.isnan(m) else f"{100 * m:.1f} ± {100 * (0 if np.isnan(sd) else sd):.1f}"
+
     with open(RESULTS_DIR / f"extended_{a.dataset}_length.md", "w") as f:
-        f.write(f"SAMPLE LENGTH. {a.dataset}: accuracy (%), mean over {a.seeds} neuron draws. "
+        f.write(f"SAMPLE LENGTH. {a.dataset}: accuracy (%), mean ± std over {a.seeds} neuron draws. "
                 f"1-NN chance = {100 * chance:.1f} %.\n\n| method | seconds | 1-NN, one stimulus | "
                 f"k-medoids, one stimulus | k-medoids chance | 1-NN, all stimuli mixed | "
                 f"k-medoids, all stimuli mixed | k-medoids chance |\n|---|---|---|---|---|---|---|---|\n")
-        for (m, sec), r in t.reindex(methods, level=0).iterrows():
-            vals = [r.get((c, p), np.nan) for p in ("within", "mixed") for c in ("nn", "kmed", "kmed_chance")]
-            f.write(f"| {m} | {sec:g} | " + " | ".join("-" if np.isnan(v) else f"{100 * v:.1f}" for v in vals) + " |\n")
+        for (m, sec), r in t.reindex(order, level=0).iterrows():
+            vals = [fmt(r, c, p) for p in ("within", "mixed") for c in ("nn", "kmed", "kmed_chance")]
+            f.write(f"| {m} | {sec:g} | " + " | ".join(vals) + " |\n")
     print("\n" + open(RESULTS_DIR / f"extended_{a.dataset}_length.md").read(), flush=True)
 
     for part, suffix, what in (("within", "within", "one stimulus"), ("mixed", "across", "all stimuli mixed")):
