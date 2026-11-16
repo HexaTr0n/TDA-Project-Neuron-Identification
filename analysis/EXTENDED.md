@@ -15,28 +15,39 @@ was changed; `tda_utils.py` only gained new functions and three optional argumen
 | References without topology | firing rate, ISI histogram | the same, and the Victor-Purpura distance |
 | Controls for the delay cloud | shuffled ISIs | shuffled ISIs, random time cutoff, share of bars |
 
-**Across two stimuli.** The neurons are known from stimulus A; samples recorded under stimulus B
-must be given to the right neuron.
+**Across stimuli.** The same neurons are recorded under several stimuli. The across table has
+three groups of scores:
 
-The across table has three groups of columns, each with 1-NN and k-medoids:
+- **First stimulus only:** 1-NN and k-medoids inside the first stimulus, as in the within part,
+  on the neurons of this part.
+- **All stimuli mixed** (the main one): every neuron gives the same number of samples from every
+  stimulus. The samples go into one pool, and the stimulus of a sample is not used. 1-NN asks
+  whether the nearest other sample of the pool is from the same neuron. k-medoids sorts the
+  unlabelled pool into as many buckets as there are neurons; buckets are then paired with
+  neurons, and the score is the share of samples that sit in their neuron's bucket.
+- **Other stimuli only:** a stricter 1-NN, where the nearest sample is searched only among the
+  samples of the other stimuli. In the mixed pool a sample can find its neighbour inside its
+  own stimulus; here it cannot, so this column shows what carries over between stimuli.
 
-- **A only:** inside stimulus A, as in the within part, on the neurons of this part.
-- **A -> B:** 1-NN: every B sample takes the neuron of its closest A sample. k-medoids: the A
-  samples are clustered without labels, each cluster is named after a neuron with the A
-  labels, and every B sample goes to the cluster of its closest medoid.
-- **All stimuli:** every neuron gives the same number of samples from A and from B (30 + 30 on
-  the retina, 15 + 15 on Neuropixels). 1-NN and k-medoids are computed on that mixed pool
-  exactly like the within scores. The stimulus of a sample is not used, so the closest sample
-  or the cluster may come from either stimulus.
+| Dataset | Stimuli in the pool |
+|---|---|
+| retina | frozen noise (30 repeats of 9.94 s); the first 10 s of the unrepeated noise shown before each frozen trial (30 pieces) |
+| neuropixels | natural movie, first block (30 repeats of 30 s); grey screen recorded just before that block (15 windows of 30 s) |
 
-| Dataset | Stimulus A | Stimulus B |
-|---|---|---|
-| retina | frozen noise, 30 repeats of 9.94 s | the first 10 s of the unrepeated noise shown before each frozen trial (30 pieces) |
-| neuropixels | natural movie, first block, 30 repeats of 30 s | grey screen (spontaneous activity) recorded just before that block, 15 windows of 30 s |
+Both raw datasets contain more stimuli than these two, but only these were converted into
+tables. A stimulus is added by converting it into the table of its dataset (same columns, its
+own value in the `session` column, samples as long as the others, recorded close in time to
+them) and adding one line to the `across` list of that dataset in `DATASETS` at the top of
+`04_extended.py`. The pool then uses every stimulus in the list.
 
 The retina's unrepeated noise only exists for the recording `20180126_sr_le_sp`, so the retina
 "across" part draws its 40 neurons from that recording. The retina "within" part uses all
 recordings, exactly like step 3.
+
+On Neuropixels the stimuli must be close in time: for one neuron, the same movie 70-100 minutes
+later is harder to recognise than a different stimulus recorded right next to it (recording
+drift). That is why only the first movie block and the grey screen just before it are used, and
+why the grey screen has 15 samples per neuron and not 30.
 
 **k-medoids** is k-means for a distance matrix: every centre is one of the samples. It uses no
 labels. The score is the share of samples that sit in the cluster paired with their neuron

@@ -18,20 +18,23 @@ Two parts are run for every dataset:
                 1-NN          is the closest OTHER sample from the same neuron?
                 k-medoids     cluster all samples without labels; share in the right cluster
                 nearest mean  as in step 3 (only for the methods of step 3)
-    across   the same neurons under stimulus A and stimulus B, scored in three ways
-             A only       1-NN and k-medoids inside stimulus A (as "within", on these neurons)
-             A -> B       1-NN: every B sample takes the neuron of its closest A sample
-                          k-medoids: cluster the A samples, then give every B sample to the
-                          cluster of its closest medoid
-             all stimuli  every neuron gives the same number of samples from A and from B;
-                          1-NN and k-medoids on that mixed pool, where the stimulus of a
-                          sample is not used at all
+    across   the same neurons under several stimuli
+             first stimulus only   1-NN and k-medoids inside the first stimulus (as "within",
+                                   but on the neurons of this part)
+             all stimuli mixed     every neuron gives the same number of samples from every
+                                   stimulus; the samples go into one pool and the stimulus of
+                                   a sample is not used. 1-NN and k-medoids on that pool:
+                                   k-medoids sorts the unlabelled pool into (number of neurons)
+                                   buckets, and we count the samples in their neuron's bucket.
+             other stimuli only    a stricter 1-NN: the nearest sample is searched only among
+                                   samples of the OTHER stimuli, so a sample cannot be matched
+                                   to its own stimulus
 
-Stimuli:
-    retina       A = frozen noise (the same 10 s movie every time)
-                 B = unrepeated noise shown just before each frozen trial (new noise every time)
-    neuropixels  A = natural movie, first block of 30 repeats (30 s each)
-                 B = spontaneous activity on a grey screen, recorded just before that block
+Stimuli (the lists are in DATASETS below; a stimulus is added by adding one line there):
+    retina       frozen noise (the same 10 s movie every time)
+                 unrepeated noise shown just before each frozen trial (new noise every time)
+    neuropixels  natural movie, first block of 30 repeats (30 s each)
+                 spontaneous activity on a grey screen, recorded just before that block
 
 Methods (all distances are between two samples):
     B1  firing rate                |rate_i - rate_j|                              (no topology)
@@ -69,7 +72,7 @@ import numpy as np
 import pandas as pd
 
 from tda_utils import (RESULTS_DIR, ROOT, cloud_delay, cloud_line, cloud_line_log, combine,
-                       combine_matrices, load_pair, load_trials, normalise_pcfs, pcf_distances,
+                       combine_matrices, load_stimuli, load_trials, normalise_pcfs, pcf_distances,
                        pcf_matrix, random_time_cut, savefig, score_1nn, score_kmedoids,
                        score_nearest_mean, scores_across, shuffle_isis, stable_ranks,
                        vector_distances, vector_matrix, victor_purpura)
@@ -83,18 +86,20 @@ DATASETS = {
         label="retina (frozen noise, 10 s)", trial_s=9.94,
         within=dict(path=None, session=None, query=None, n_trials=30),
         # The unrepeated noise only exists for one recording, so the across part uses that one.
-        across=dict(path=ROOT / "data" / "retina_running_20180126_sr_le_sp_clean.parquet",
-                    session_a="20180126_sr_le_sp", query_a=None, n_a=30,
-                    session_b="20180126_sr_le_sp_running", query_b="piece == 0", n_b=30,
-                    name_a="frozen noise", name_b="unrepeated noise")),
+        across=[dict(name="frozen noise", path=ROOT / "data" / "retina_running_20180126_sr_le_sp_clean.parquet",
+                     session="20180126_sr_le_sp", query=None, n=30),
+                dict(name="unrepeated noise", path=ROOT / "data" / "retina_running_20180126_sr_le_sp_clean.parquet",
+                     session="20180126_sr_le_sp_running", query="piece == 0", n=30)]),
     "neuropixels": dict(
         label="Neuropixels (natural movie, 30 s)", trial_s=30.0,
         within=dict(path=ROOT / "data" / "allen" / "allen829720705.parquet",
                     session="allen829720705_movie", query="start < 3600", n_trials=30),
-        across=dict(path=ROOT / "data" / "allen" / "allen829720705.parquet",
-                    session_a="allen829720705_movie", query_a="start < 3600", n_a=30,
-                    session_b="allen829720705_spont", query_b="start < 2280", n_b=15,
-                    name_a="natural movie", name_b="grey screen")),
+        # More stimuli of the session can be added here once they are in the table (same
+        # columns, one `session` value per stimulus, samples of 30 s, close in time to the others).
+        across=[dict(name="natural movie", path=ROOT / "data" / "allen" / "allen829720705.parquet",
+                     session="allen829720705_movie", query="start < 3600", n=30),
+                dict(name="grey screen", path=ROOT / "data" / "allen" / "allen829720705.parquet",
+                     session="allen829720705_spont", query="start < 2280", n=15)]),
 }
 
 STEP3_ROWS = ["B1 firing rate", "B2 ISI histogram", "T1 LINE H0", "T2 DELAY H0", "T2 DELAY H1",
@@ -191,17 +196,17 @@ def run_within(cfg, args, seed):
 
 
 def run_across(cfg, args, seed):
-    c = cfg["across"]
-    A, B = load_pair(args.n_neurons, args.min_rate, c["n_a"], c["n_b"], seed=seed, path_a=c["path"],
-                     session_a=c["session_a"], path_b=c["path"], session_b=c["session_b"],
-                     query_a=c["query_a"], query_b=c["query_b"], trial_s=cfg["trial_s"])
-    isis, spikes = A["isis"] + B["isis"], A["spikes"] + B["spikes"]
-    labels = np.concatenate([A["labels"], B["labels"]])
-    ia, ib = np.arange(len(A["labels"])), len(A["labels"]) + np.arange(len(B["labels"]))
+    stimuli = cfg["across"]
+    data = load_stimuli(stimuli, args.n_neurons, args.min_rate, seed=seed, trial_s=cfg["trial_s"])
+    isis = [x for d in data for x in d["isis"]]
+    spikes = [x for d in data for x in d["spikes"]]
+    labels = np.concatenate([d["labels"] for d in data])
+    edges = np.r_[0, np.cumsum([len(d["labels"]) for d in data])]
+    groups = [np.arange(edges[j], edges[j + 1]) for j in range(len(data))]
     dists = all_distances(isis, spikes, cfg["trial_s"], seed)       # no labels: no neuron means
     rows = []
     for name, (D, _) in dists.items():
-        rows.append(dict(method=name, seed=seed, **scores_across(D, labels, ia, ib, args.kmedoids_seeds)))
+        rows.append(dict(method=name, seed=seed, **scores_across(D, labels, groups, args.kmedoids_seeds)))
     return rows
 
 
@@ -296,7 +301,7 @@ def main():
         vp += [(table, "nn1", "within, 1-NN"), (table, "kmedoids", "within, k-medoids")]
 
     if a.part in ("across", "both"):
-        c = cfg["across"]
+        stimuli = cfg["across"]
         rows = []
         for seed in range(a.seeds):
             t0 = time.time()
@@ -304,21 +309,22 @@ def main():
             print(f"{a.dataset} across, draw {seed}: {time.time() - t0:.0f} s", flush=True)
         df = pd.DataFrame(rows)
         df.to_csv(RESULTS_DIR / f"extended_{a.dataset}_across_runs.csv", index=False)
-        cols = ["nn_within", "kmed_within", "nn_across", "kmed_across", "nn_pooled", "kmed_pooled"]
+        cols = ["nn_within", "kmed_within", "nn_pooled", "kmed_pooled", "nn_other"]
         table = summarise(df, cols)
         table.to_csv(RESULTS_DIR / f"extended_{a.dataset}_across.csv", index=False)
-        m = min(c["n_a"], c["n_b"])
-        write_table(table, cols, ["1-NN, A only", "k-medoids, A only", "1-NN, A -> B", "k-medoids, A -> B",
-                                  "1-NN, all stimuli", "k-medoids, all stimuli"],
+        m = min(st["n"] for st in stimuli)
+        first = stimuli[0]["name"]
+        listing = ", ".join(f"{st['name']} ({st['n']} samples per neuron)" for st in stimuli)
+        write_table(table, cols, [f"1-NN, {first} only", f"k-medoids, {first} only", "1-NN, all stimuli mixed",
+                                  "k-medoids, all stimuli mixed", "1-NN, other stimuli only"],
                     RESULTS_DIR / f"extended_{a.dataset}_across.md",
-                    f"ACROSS stimuli. {a.dataset}: A = {c['name_a']} ({c['n_a']} samples per neuron), "
-                    f"B = {c['name_b']} ({c['n_b']} samples per neuron); all stimuli = {m} samples of A and "
-                    f"{m} of B per neuron, mixed. Accuracy (%), {head}")
-        labs = [f"{c['name_a']} only", f"{c['name_a']} -> {c['name_b']}", "all stimuli mixed"]
-        figure_bars(table, [("1-NN accuracy (%)", ["nn_within", "nn_across", "nn_pooled"], labs),
-                            ("k-medoids accuracy (%)", ["kmed_within", "kmed_across", "kmed_pooled"], labs)],
-                    chance, f"{a.dataset}: one stimulus, a new stimulus, and all stimuli mixed", f"ext_{a.dataset}_across.png")
-        vp += [(table, "nn_across", "A -> B, 1-NN"), (table, "nn_pooled", "all stimuli, 1-NN")]
+                    f"ACROSS stimuli. {a.dataset}: {listing}. All stimuli mixed = {m} samples per neuron from "
+                    f"each stimulus in one unlabelled pool. Accuracy (%), {head}")
+        figure_bars(table, [("1-NN accuracy (%)", ["nn_within", "nn_pooled", "nn_other"],
+                             [f"{first} only", "all stimuli mixed", "nearest sample from another stimulus"]),
+                            ("k-medoids accuracy (%)", ["kmed_within", "kmed_pooled"], [f"{first} only", "all stimuli mixed"])],
+                    chance, f"{a.dataset}: one stimulus against several stimuli", f"ext_{a.dataset}_across.png")
+        vp += [(table, "nn_pooled", "all stimuli mixed, 1-NN"), (table, "kmed_pooled", "all stimuli mixed, k-medoids")]
 
     figure_vp(vp, chance, f"{a.dataset}: Victor-Purpura distance against its time precision", f"ext_{a.dataset}_vp.png")
 

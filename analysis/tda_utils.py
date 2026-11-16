@@ -275,41 +275,49 @@ def score_nearest_mean(M, labels):
 # the random time cutoff control, k-medoids, and scores across two stimuli.
 # ---------------------------------------------------------------------------
 
-def load_pair(n_neurons=40, min_rate=1.0, n_a=30, n_b=30, seed=0, path_a=None, session_a=None,
-              path_b=None, session_b=None, query_a=None, query_b=None, trial_s=9.94):
-    """The same neurons under two stimuli: A (drawn like `load_trials`) and B.
+def load_stimuli(stimuli, n_neurons=40, min_rate=1.0, seed=0, trial_s=9.94):
+    """The same neurons under several stimuli.
 
-    Eligible neurons fire at least `min_rate` Hz in A, have at least `n_a` samples in A and
-    at least `n_b` samples in B (after the optional pandas queries, for example
-    query_b="piece == 0"). We keep the first `n_a` samples of A and the first `n_b` of B.
-    Returns two dicts like `load_trials` with identical `neurons` and label numbering.
+    `stimuli` is a list of dicts, one per stimulus, with the keys
+        path      table file (None = the retina frozen-noise table)
+        session   value of the `session` column to keep (None = all)
+        query     optional pandas query on the table, for example "piece == 0"
+        n         number of samples to keep per neuron (the first n, in trial order)
+    Eligible neurons fire at least `min_rate` Hz in the FIRST stimulus (as in `load_trials`)
+    and have at least `n` samples in every stimulus. Returns one dict per stimulus, like
+    `load_trials`, all with the same `neurons` and the same label numbering.
     """
-    dfa = load_dataset(path_a) if path_a is not None else load_dataset()
-    dfa = dfa[dfa.session == session_a] if session_a is not None else dfa
-    dfb = load_dataset(path_b)
-    dfb = dfb[dfb.session == session_b]
-    if query_a:
-        dfa = dfa.query(query_a)
-    if query_b:
-        dfb = dfb.query(query_b)
-    summ = neuron_summary(dfa, trial_s)
-    nb = dfb.groupby("neuron_id").size()
-    ok = summ[(summ.rate_hz >= min_rate) & (summ.n_trials >= n_a)].index
-    ok = np.array(sorted(set(ok) & set(nb.index[nb >= n_b])))
+    tables, ok = [], None
+    for k, st in enumerate(stimuli):
+        df = load_dataset(st["path"]) if st.get("path") is not None else load_dataset()
+        if st.get("session") is not None:
+            df = df[df.session == st["session"]]
+        if st.get("query"):
+            df = df.query(st["query"])
+        tables.append(df)
+        count = df.groupby("neuron_id").size()
+        good = set(count.index[count >= st["n"]])
+        if k == 0:
+            summ = neuron_summary(df, trial_s)
+            good &= set(summ[summ.rate_hz >= min_rate].index)
+        ok = good if ok is None else ok & good
+    ok = np.array(sorted(ok))
+    if len(ok) < n_neurons:
+        raise ValueError(f"only {len(ok)} neurons have enough samples in every stimulus (need {n_neurons})")
     rng = np.random.default_rng(seed)
     neurons = sorted(rng.choice(ok, n_neurons, replace=False))
     out = []
-    for df, n in ((dfa, n_a), (dfb, n_b)):
+    for df, st in zip(tables, stimuli):
         isis, spikes, labels = [], [], []
         by = {nid: g.sort_values("trial") for nid, g in df[df.neuron_id.isin(neurons)].groupby("neuron_id")}
         for label, nid in enumerate(neurons):
-            for t in list(by[nid]["spike_times"])[:n]:
+            for t in list(by[nid]["spike_times"])[:st["n"]]:
                 t = np.asarray(t, dtype=float)
                 spikes.append(t)
                 isis.append(np.diff(t))
                 labels.append(label)
         out.append(dict(isis=isis, spikes=spikes, labels=np.array(labels), neurons=neurons))
-    return out[0], out[1]
+    return out
 
 
 def random_time_cut(spikes, duration, seed=0, max_cut=0.25):
@@ -510,36 +518,36 @@ def score_kmedoids(D, labels, seeds=3):
     return float(np.mean([_match(labels, kmedoids(D, k, seed=s)[0], k)[0] for s in range(seeds)]))
 
 
-def scores_across(D, labels, ia, ib, seeds=3):
-    """Scores for two stimuli. D is the distance matrix of all samples, `ia` / `ib` are the
-    indices of the samples of stimulus A / B, `labels` the neuron of every sample.
+def scores_across(D, labels, groups, seeds=3):
+    """Scores for samples recorded under several stimuli. D is the distance matrix of all
+    samples, `labels` the neuron of every sample, and `groups` a list with the indices of the
+    samples of each stimulus (the first one is the reference stimulus).
 
-        nn_within, kmed_within   as before, inside stimulus A
-        nn_across     every B sample takes the neuron of its nearest A sample
-        kmed_across   cluster the A samples with k-medoids, name each cluster after a neuron
-                      (using the A labels only), then give every B sample to the cluster of
-                      its nearest medoid
-        nn_pooled, kmed_pooled   all stimuli mixed: every neuron gives the same number of
-                      samples from A and from B, and the two scores are computed on that
-                      mixed pool exactly like the within scores (the nearest other sample, or
-                      the cluster, may come from either stimulus)
+        nn_within, kmed_within   inside the first stimulus only, as in the within part
+        nn_pooled, kmed_pooled   ALL STIMULI MIXED: every neuron gives the same number of
+                      samples from every stimulus. The samples go into one pool; which
+                      stimulus a sample came from is not used. 1-NN: is the nearest other
+                      sample of the pool from the same neuron? k-medoids: sort the pool into
+                      (number of neurons) buckets without labels, pair buckets with neurons,
+                      and count the samples that sit in their neuron's bucket.
+        nn_other      a stricter 1-NN: the nearest sample is searched only among the samples
+                      of the OTHER stimuli. In the mixed pool a sample can find its neighbour
+                      in its own stimulus; here it cannot, so this shows what carries over.
     """
     k = labels.max() + 1
-    ya, yb = labels[ia], labels[ib]
-    Daa = D[np.ix_(ia, ia)]
-    r = dict(nn_within=score_1nn(Daa, ya), kmed_within=score_kmedoids(Daa, ya, seeds),
-             nn_across=float(np.mean(ya[D[np.ix_(ib, ia)].argmin(1)] == yb)))
-    acc = []
-    for s in range(seeds):
-        clusters, med = kmedoids(Daa, k, seed=s)
-        _, name = _match(ya, clusters, k)
-        acc.append(np.mean(name[D[np.ix_(ib, ia[med])].argmin(1)] == yb))
-    r["kmed_across"] = float(np.mean(acc))
-    m = min(np.bincount(ya).min(), np.bincount(yb).min())      # samples per neuron and stimulus
-    pool = np.array([i for idx in (ia, ib) for lab in range(k) for i in idx[labels[idx] == lab][:m]])
+    first = groups[0]
+    D0 = D[np.ix_(first, first)]
+    r = dict(nn_within=score_1nn(D0, labels[first]), kmed_within=score_kmedoids(D0, labels[first], seeds))
+    m = min(np.bincount(labels[g], minlength=k).min() for g in groups)      # samples per neuron and stimulus
+    pool = np.array([i for g in groups for lab in range(k) for i in g[labels[g] == lab][:m]])
     Dp, yp = D[np.ix_(pool, pool)], labels[pool]
     r["nn_pooled"] = score_1nn(Dp, yp)
     r["kmed_pooled"] = score_kmedoids(Dp, yp, seeds)
+    stim = np.concatenate([np.full(len(g), j) for j, g in enumerate(groups)])
+    idx = np.concatenate(groups)
+    Dx = D[np.ix_(idx, idx)].copy()
+    Dx[stim[:, None] == stim[None, :]] = np.inf                             # own stimulus not allowed
+    r["nn_other"] = float(np.mean(labels[idx][Dx.argmin(1)] == labels[idx]))
     return r
 
 
