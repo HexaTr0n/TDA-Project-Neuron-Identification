@@ -17,7 +17,6 @@ Two parts are run for every dataset:
     within   every sample shows the same stimulus (as in step 3)
                 1-NN          is the closest OTHER sample from the same neuron?
                 k-medoids     cluster all samples without labels; share in the right cluster
-                nearest mean  as in step 3 (only for the methods of step 3)
     across   the same neurons under several stimuli
              first stimulus only   1-NN and k-medoids inside the first stimulus (as "within",
                                    but on the neurons of this part)
@@ -77,7 +76,7 @@ import pandas as pd
 from tda_utils import (RESULTS_DIR, ROOT, load_dataset, cloud_delay, cloud_line, cloud_line_log, combine,
                        combine_matrices, load_stimuli, load_trials, normalise_pcfs, pcf_distances,
                        pcf_matrix, random_time_cut, savefig, score_1nn, score_kmedoids,
-                       score_nearest_mean, scores_across, shuffle_isis, stable_ranks,
+                       scores_across, shuffle_isis, stable_ranks,
                        vector_distances, vector_matrix, victor_purpura)
 
 Q_VALUES = [0.3, 1, 3, 10, 30, 100]       # Victor-Purpura cost per second of shift
@@ -247,17 +246,23 @@ def all_distances(isis, spikes, duration, seed, labels=None, sink=None):
     return out
 
 
-def run_within(cfg, args, seed):
+def sample_seconds(cfg, block):
+    return block * (10.0 if cfg["trial_s"] == 9.94 else cfg["trial_s"]) if block > 1 else cfg["trial_s"]
+
+
+def run_within(cfg, args, seed, block=1):
     w = cfg["within"]
-    data = load_trials(args.n_neurons, args.min_rate, w["n_trials"], seed=seed, path=w["path"],
+    data = load_trials(args.n_neurons, args.min_rate, w["n_trials"], seed=seed, block=block, path=w["path"],
                        session=w["session"], query=w["query"], trial_s=cfg["trial_s"])
     labels = data["labels"]
-    dists = all_distances(data["isis"], data["spikes"], cfg["trial_s"], seed, labels)
     rows = []
-    for name, (D, M) in dists.items():
-        km, km_chance = score_kmedoids(D, labels, args.kmedoids_seeds, chance=True)
-        rows.append(dict(method=name, seed=seed, nn1=score_1nn(D, labels), kmedoids=km, kmedoids_chance=km_chance,
-                         nearest_mean=score_nearest_mean(M, labels) if M is not None else np.nan))
+
+    def score(name, value):
+        km, km_chance = score_kmedoids(value[0], labels, args.kmedoids_seeds, chance=True)
+        rows.append(dict(method=name, seed=seed, block=block, nn1=score_1nn(value[0], labels),
+                         kmedoids=km, kmedoids_chance=km_chance))
+
+    all_distances(data["isis"], data["spikes"], sample_seconds(cfg, block), seed, sink=score)
     return rows
 
 
@@ -269,6 +274,14 @@ def stimulus_list(cfg, args):
 
 FIG_METHODS = ["B2 ISI histogram", "T1 LINE H0", "T1 LINE H0, log scale, share",
                "T2 DELAY H0+H1", "C1 DELAY H0+H1, ISIs shuffled"]   # + the best Victor-Purpura q
+
+# Methods in the bar figures, fixed in advance by their role (not by their score): the
+# references, the topological methods, and the control that belongs to each of them. The best
+# Victor-Purpura q is added (the whole q sweep has its own figure). The tables have every row.
+BAR_METHODS = ["B1 firing rate", "B2 ISI histogram",
+               "T1 LINE H0", "T1 LINE H0, log scale, share", "C2 LINE H0, random time cutoff",
+               "T2 DELAY H0", "T2 DELAY H1", "T2 DELAY H0+H1",
+               "C1 DELAY H0, ISIs shuffled", "C2 DELAY H0, random time cutoff"]
 
 
 def run_across(cfg, args, seed, stimuli, figure=None, k_fig=10, block=1):
@@ -295,8 +308,7 @@ def run_across(cfg, args, seed, stimuli, figure=None, k_fig=10, block=1):
         if figure is not None and (name in FIG_METHODS or name.startswith("B3")):
             figure["mats"][name] = value[0][np.ix_(figure["keep"], figure["keep"])]
 
-    duration = block * (10.0 if cfg["trial_s"] == 9.94 else cfg["trial_s"]) if block > 1 else cfg["trial_s"]
-    all_distances(isis, spikes, duration, seed, sink=score)        # scores each matrix, then drops it
+    all_distances(isis, spikes, sample_seconds(cfg, block), seed, sink=score)        # scores each matrix, then drops it
     if figure is not None:                                         # keep the Victor-Purpura q that does best here
         vp = [r for r in rows if r["method"].startswith("B3")]
         best = max(vp, key=lambda r: r["nn_within"])["method"]
@@ -356,10 +368,19 @@ def write_table(table, cols, heads, path, title):
     print("\n" + open(path).read(), flush=True)
 
 
+def bar_rows(table, col):
+    """The rows of BAR_METHODS, with the best Victor-Purpura q (by `col`) after the references."""
+    vp = table[table.method.str.startswith("B3")]
+    best = vp.loc[vp[f"{col}_mean"].idxmax(), "method"]
+    names = BAR_METHODS[:2] + [best] + BAR_METHODS[2:]
+    return table.set_index("method").loc[[m for m in names if m in set(table.method)]].reset_index()
+
+
 def figure_bars(table, panels, chance, title, name):
     """One row of bars per panel. panels = [(y label, [score columns], [legend labels],
     k-medoids chance column or None), ...]. The dashed line is the 1-NN chance level (1 / number
     of neurons); the dotted line, if given, is the k-medoids chance level (mean over methods)."""
+    table = bar_rows(table, panels[0][1][0])
     fig, axes = plt.subplots(len(panels), 1, figsize=(13, 4.2 * len(panels) + 1), sharex=True, squeeze=False)
     x = np.arange(len(table))
     for ax, (ylab, cols, labs, kchance) in zip(axes[:, 0], panels):
@@ -401,47 +422,62 @@ LENGTH_METHODS = ["B1 firing rate", "B2 ISI histogram", "T1 LINE H0", "T1 LINE H
 
 
 def run_length(cfg, a, chance):
-    """Across scores (all stimuli mixed) for samples made of 1, 2 and 3 glued samples."""
+    """Scores for samples made of 1, 2 and 3 glued samples: within one stimulus (as step 3)
+    and with all stimuli mixed."""
     stimuli = stimulus_list(cfg, a)
-    base = 10.0 if cfg["trial_s"] == 9.94 else cfg["trial_s"]
+    within_n = cfg["within"]["n_trials"]
     rows = []
     for block in (1, 2, 3):
-        if min(st["n"] for st in stimuli) // block < 2:
-            print(f"samples of {block} x {base:g} s: fewer than 2 per stimulus, skipped", flush=True)
-            continue
+        sec = sample_seconds(cfg, block) if block > 1 else (10.0 if cfg["trial_s"] == 9.94 else cfg["trial_s"])
         for seed in range(a.seeds):
             t0 = time.time()
-            rows += [dict(r, seconds=block * base) for r in run_across(cfg, a, seed, stimuli, block=block)]
-            print(f"{a.dataset} length {block * base:g} s, draw {seed}: {time.time() - t0:.0f} s", flush=True)
+            if within_n // block >= 2:
+                rows += [dict(r, seconds=sec, part="within", nn=r["nn1"], kmed=r["kmedoids"],
+                              kmed_chance=r["kmedoids_chance"]) for r in run_within(cfg, a, seed, block=block)]
+            if min(st["n"] for st in stimuli) // block >= 2:
+                rows += [dict(r, seconds=sec, part="mixed", nn=r["nn_pooled"], kmed=r["kmed_pooled"],
+                              kmed_chance=r["kmed_pooled_chance"])
+                         for r in run_across(cfg, a, seed, stimuli, block=block)]
+            print(f"{a.dataset} length {sec:g} s, draw {seed}: {time.time() - t0:.0f} s", flush=True)
     df = pd.DataFrame(rows)
     df.to_csv(RESULTS_DIR / f"extended_{a.dataset}_length.csv", index=False)
-    one = df[df.block == 1]
-    vp = one[one.method.str.startswith("B3")].groupby("method")["nn_pooled"].mean().idxmax()
+    one = df[(df.block == 1) & (df.part == "within")]
+    vp = one[one.method.str.startswith("B3")].groupby("method")["nn"].mean().idxmax()
     methods = LENGTH_METHODS[:2] + [vp] + LENGTH_METHODS[2:]
-    cols = ["nn_pooled", "kmed_pooled", "nn_other", "kmed_pooled_chance"]
-    t = df[df.method.isin(methods)].groupby(["method", "seconds"])[cols].mean().reset_index()
+    t = (df[df.method.isin(methods)].groupby(["method", "seconds", "part"])[["nn", "kmed", "kmed_chance"]]
+         .mean().unstack("part"))
     with open(RESULTS_DIR / f"extended_{a.dataset}_length.md", "w") as f:
-        f.write(f"SAMPLE LENGTH, all stimuli mixed. {a.dataset}: accuracy (%), mean over {a.seeds} neuron draws. "
-                f"1-NN chance = {100 * chance:.1f} %.\n\n| method | seconds | 1-NN, all stimuli mixed | "
-                f"k-medoids, all stimuli mixed | 1-NN, other stimuli only | k-medoids chance |\n|---|---|---|---|---|---|\n")
-        for _, r in t.iterrows():
-            f.write(f"| {r.method} | {r.seconds:g} | " + " | ".join(f"{100 * r[c]:.1f}" for c in cols) + " |\n")
+        f.write(f"SAMPLE LENGTH. {a.dataset}: accuracy (%), mean over {a.seeds} neuron draws. "
+                f"1-NN chance = {100 * chance:.1f} %.\n\n| method | seconds | 1-NN, one stimulus | "
+                f"k-medoids, one stimulus | k-medoids chance | 1-NN, all stimuli mixed | "
+                f"k-medoids, all stimuli mixed | k-medoids chance |\n|---|---|---|---|---|---|---|---|\n")
+        for (m, sec), r in t.reindex(methods, level=0).iterrows():
+            vals = [r.get((c, p), np.nan) for p in ("within", "mixed") for c in ("nn", "kmed", "kmed_chance")]
+            f.write(f"| {m} | {sec:g} | " + " | ".join("-" if np.isnan(v) else f"{100 * v:.1f}" for v in vals) + " |\n")
     print("\n" + open(RESULTS_DIR / f"extended_{a.dataset}_length.md").read(), flush=True)
-    fig, axes = plt.subplots(1, 2, figsize=(13, 4.8))
-    for ax, col, ylab in zip(axes, ["nn_pooled", "kmed_pooled"], ["1-NN accuracy (%)", "k-medoids accuracy (%)"]):
-        for name in methods:
-            g = df[df.method == name].groupby("seconds")[col]
-            ax.errorbar(g.mean().index, 100 * g.mean(), yerr=100 * g.std(), marker="o", capsize=3, label=name)
-        if col == "nn_pooled":
-            ax.axhline(100 * chance, color="k", ls="--", lw=1, label="chance")
-        else:
-            g = df.groupby("seconds")["kmed_pooled_chance"].mean()
-            ax.plot(g.index, 100 * g.values, "k:", lw=1.2, label="k-medoids chance")
+
+    parts = [p for p in ("within", "mixed") if p in set(df.part)]
+    fig, axes = plt.subplots(len(parts), 2, figsize=(13, 4.3 * len(parts) + 0.6), squeeze=False)
+    for i, part in enumerate(parts):
+        d = df[df.part == part]
+        for ax, col, ylab in zip(axes[i], ["nn", "kmed"], ["1-NN accuracy (%)", "k-medoids accuracy (%)"]):
+            for name in methods:
+                g = d[d.method == name].groupby("seconds")[col]
+                ax.errorbar(g.mean().index, 100 * g.mean(), yerr=100 * g.std(), marker="o", capsize=3, label=name)
+            if col == "nn":
+                ax.axhline(100 * chance, color="k", ls="--", lw=1, label="1-NN chance")
+            else:
+                g = d.groupby("seconds")["kmed_chance"].mean()
+                ax.plot(g.index, 100 * g.values, "k:", lw=1.2, label="k-medoids chance")
+            ax.set_title("one stimulus" if part == "within" else "all stimuli mixed", fontsize=10)
+            ax.set_ylabel(ylab)
+            ax.set_xticks(sorted(d.seconds.unique()))
+        axes[i, 0].set_ylim(0, 100)
+        axes[i, 1].set_ylim(0, 100)
+    for ax in axes[-1]:
         ax.set_xlabel("sample length (s)")
-        ax.set_ylabel(ylab)
-        ax.set_xticks(sorted(df.seconds.unique()))
-    axes[0].legend(fontsize=8)
-    fig.suptitle(f"{a.dataset}: all stimuli mixed, longer samples")
+    axes[0, 0].legend(fontsize=8)
+    fig.suptitle(f"{a.dataset}: longer samples")
     savefig(fig, f"ext_{a.dataset}_sample_length.png")
 
 
@@ -473,10 +509,10 @@ def main():
             print(f"{a.dataset} within, draw {seed}: {time.time() - t0:.0f} s", flush=True)
         df = pd.DataFrame(rows)
         df.to_csv(RESULTS_DIR / f"extended_{a.dataset}_within_runs.csv", index=False)
-        cols = ["nn1", "kmedoids", "kmedoids_chance", "nearest_mean"]
+        cols = ["nn1", "kmedoids", "kmedoids_chance"]
         table = summarise(df, cols)
         table.to_csv(RESULTS_DIR / f"extended_{a.dataset}_within.csv", index=False)
-        write_table(table, cols, ["1-NN", "k-medoids", "k-medoids chance", "nearest mean"],
+        write_table(table, cols, ["1-NN", "k-medoids", "k-medoids chance"],
                     RESULTS_DIR / f"extended_{a.dataset}_within.md",
                     f"WITHIN one stimulus. {cfg['label']}: accuracy (%), {cfg['within']['n_trials']} samples per "
                     f"neuron, {head}")

@@ -11,7 +11,7 @@ was changed; `tda_utils.py` only gained new functions and three optional argumen
 |---|---|---|
 | Data | retina, frozen noise | retina, and Neuropixels recordings from mouse visual cortex |
 | Question | within one stimulus | within one stimulus, and across two stimuli |
-| Scores | 1-NN, nearest mean | 1-NN, k-medoids (nearest mean is kept for the old methods) |
+| Scores | 1-NN, nearest mean | 1-NN, k-medoids (nearest mean is dropped: it needs labelled neuron means and has no mean for the Victor-Purpura distance) |
 | References without topology | firing rate, ISI histogram | the same, and the Victor-Purpura distance |
 | Controls for the delay cloud | shuffled ISIs | shuffled ISIs, random time cutoff, share of bars |
 
@@ -125,13 +125,20 @@ it: the same clustering scored against shuffled labels. The bar figures draw it 
 | distance matrices (as Fig. 7), across stimuli | `--part across` (or `--part across --figure-only`, draw 0 only, about 5 min) | `ext_<dataset>_distance_matrix.png` |
 | scores (as Fig. 8), within | `--part within` | `ext_<dataset>_within.png`, `ext_<dataset>_vp.png` |
 | scores (as Fig. 8), across | `--part across` | `ext_<dataset>_across.png` |
-| sample length (as Fig. 9), all stimuli mixed | `--part length` | `ext_<dataset>_sample_length.png`, `results/extended_<dataset>_length.md` |
+| sample length (as Fig. 9), one stimulus and all stimuli mixed | `--part length` | `ext_<dataset>_sample_length.png`, `results/extended_<dataset>_length.md` |
 
 The distance-matrix figure shows 10 neurons of draw 0 for five methods and the best `q` of the
 Victor-Purpura distance. Inside each neuron's block the samples are ordered by stimulus; thick
 white lines separate neurons, dotted lines separate stimuli. `--part length` glues 1, 2 or 3
-consecutive samples into one (10, 20, 30 s on the retina) and scores the mixed pool; with 30
-samples per neuron and stimulus it then has 10 glued samples per neuron and stimulus.
+consecutive samples into one (10, 20, 30 s on the retina, as in step 3) and scores both the
+within part (top row) and the mixed pool (bottom row); with 30 samples per neuron and stimulus
+there are 30, 15 and 10 glued samples per neuron and stimulus.
+
+**Methods in the bar figures.** The bar figures show a fixed set, chosen by role and not by
+score: firing rate, ISI histogram, the best Victor-Purpura `q` (the whole sweep is in
+`ext_<dataset>_vp.png`), LINE H0 and its log-share version, the LINE cutoff control, DELAY H0,
+H1, H0+H1, and the shuffled and cutoff controls of DELAY H0 (`BAR_METHODS` in the script). The
+tables have every row.
 
 Expected time: the retina should take a few minutes more than step 3. Neuropixels samples are
 three times longer, so H1 of the delay cloud and the Victor-Purpura distance take longer there;
@@ -139,10 +146,10 @@ if it is too slow, `--seeds 2` gives a first answer.
 
 ## Checks to make on the first run
 
-1. **The old rows must reproduce step 3.** In `extended_retina_within.md`, the 1-NN and
-   nearest-mean columns of B1, B2, T1 LINE H0, T2 DELAY H0 / H1 / H0+H1 and
-   "C1 DELAY H0+H1, ISIs shuffled" must equal `results/identification.md` (same data, same
-   draws, same code).
+1. **The old rows must reproduce step 3.** In `extended_retina_within.md`, the 1-NN column of
+   B1, B2, T1 LINE H0, T2 DELAY H0 / H1 / H0+H1 and "C1 DELAY H0+H1, ISIs shuffled" must equal
+   `results/identification.md` (same data, same draws, same code). This was checked on the
+   first real run, 2026-11-16.
 2. **Victor-Purpura at small `q`** must be close to the firing-rate row, since it then compares
    spike counts.
 3. **Every score must be above chance** (2.5 %) except where a method has nothing to use.
