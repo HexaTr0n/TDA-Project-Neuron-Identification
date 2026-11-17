@@ -520,6 +520,27 @@ def run_length(cfg, a, chance):
         savefig(fig, f"ext_{a.dataset}_length_{suffix}.png")
 
 
+def replot(cfg, a, chance):
+    """Bar and q-sweep figures from results/extended_<dataset>_within.csv and _across.csv."""
+    vp = []
+    f = RESULTS_DIR / f"extended_{a.dataset}_within.csv"
+    if f.exists():
+        table = pd.read_csv(f)
+        figure_bars(table, ["nn1", "kmedoids"], ["1-NN", "k-medoids"], chance,
+                    f"{cfg['label']}: within one stimulus", f"ext_{a.dataset}_within.png")
+        vp += [(table, "nn1", "within, 1-NN"), (table, "kmedoids", "within, k-medoids")]
+    f = RESULTS_DIR / f"extended_{a.dataset}_across.csv"
+    if f.exists():
+        table = pd.read_csv(f)
+        names = ", ".join(st["name"] for st in cfg["across"]) if isinstance(cfg["across"], list) else "all stimuli"
+        figure_bars(table, ["nn_pooled", "kmed_pooled"], ["1-NN", "k-medoids"], chance,
+                    f"{a.dataset}: across stimuli ({names} in one pool)", f"ext_{a.dataset}_across.png")
+        vp += [(table, "nn_pooled", "all stimuli mixed, 1-NN"), (table, "kmed_pooled", "all stimuli mixed, k-medoids")]
+    if vp:
+        figure_vp(vp, chance, f"{a.dataset}: Victor-Purpura distance against its time precision",
+                  f"ext_{a.dataset}_vp.png")
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--dataset", choices=list(DATASETS), required=True)
@@ -531,6 +552,8 @@ def main():
     p.add_argument("--kmedoids-seeds", type=int, default=3, help="k-medoids runs averaged per score")
     p.add_argument("--figure-only", action="store_true",
                    help="across part: only draw 0 and the distance-matrix figure; the tables are not rewritten")
+    p.add_argument("--replot", action="store_true",
+                   help="only redraw the bar and q-sweep figures from the tables in results/ (no computing)")
     p.add_argument("--max-gap", type=float, default=30.0,
                    help="Neuropixels: use stimuli recorded within this many minutes of the first movie block")
     a = p.parse_args()
@@ -539,6 +562,10 @@ def main():
     RESULTS_DIR.mkdir(exist_ok=True)
     head = f"{a.n_neurons} neurons, mean ± std over {a.seeds} neuron draws. Chance = {100 * chance:.1f} %."
     vp = []
+
+    if a.replot:
+        replot(cfg, a, chance)
+        return
 
     if a.part in ("within", "both"):
         rows = []
