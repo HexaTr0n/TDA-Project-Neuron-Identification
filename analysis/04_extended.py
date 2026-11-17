@@ -608,6 +608,8 @@ def main():
                    help="Neuropixels: session id(s) of data/allen/allen<id>.parquet, or 'all' for every such file. "
                         "Each session is run on its own (results named neuropixels_<id>); with several, "
                         "results/extended_neuropixels_sessions.md gives the mean over sessions.")
+    p.add_argument("--resume", action="store_true",
+                   help="keep the draws already in results/..._runs.csv and only compute the missing ones")
     p.add_argument("--max-gap", type=float, default=30.0,
                    help="Neuropixels: use stimuli recorded within this many minutes of the first movie block")
     a = p.parse_args()
@@ -664,70 +666,120 @@ def summarise_sessions(sids):
                 f"(each session: mean over its neuron draws).")
 
 
+def write_within(df, cfg, a, chance, final):
+    head = (f"{a.n_neurons} neurons, mean ± std over {df.seed.nunique()} neuron draws. "
+            f"Chance = {100 * chance:.1f} %.")
+    df.to_csv(RESULTS_DIR / f"extended_{a.dataset}_within_runs.csv", index=False)
+    cols = ["nn1", "kmedoids", "kmedoids_chance"]
+    table = summarise(df, cols)
+    table.to_csv(RESULTS_DIR / f"extended_{a.dataset}_within.csv", index=False)
+    md = RESULTS_DIR / f"extended_{a.dataset}_within.md"
+    title = (f"WITHIN one stimulus. {cfg['label']}: accuracy (%), {cfg['within']['n_trials']} samples per "
+             f"neuron, {head}")
+    if final:
+        write_table(table, cols, ["1-NN", "k-medoids", "k-medoids chance"], md, title)
+        figure_bars(table, ["nn1", "kmedoids"], ["1-NN", "k-medoids"], chance,
+                    f"{cfg['label']}: within one stimulus", f"ext_{a.dataset}_within.png")
+    else:                                        # quietly, after every draw
+        with open(md, "w") as f:
+            f.write(title + "\n\n| method | 1-NN | k-medoids | k-medoids chance |\n|---|---|---|---|\n")
+            for _, r in table.iterrows():
+                f.write(f"| {r.method} | " + " | ".join(cell(r, c) for c in cols) + " |\n")
+    return table
+
+
+def write_across(df, stimuli, a, chance, final):
+    head = (f"{a.n_neurons} neurons, mean ± std over {df.seed.nunique()} neuron draws. "
+            f"Chance = {100 * chance:.1f} %.")
+    df.to_csv(RESULTS_DIR / f"extended_{a.dataset}_across_runs.csv", index=False)
+    cols = ["nn_within", "kmed_within", "nn_pooled", "kmed_pooled", "nn_other", "kmed_within_chance",
+            "kmed_pooled_chance"]
+    table = summarise(df, cols)
+    table.to_csv(RESULTS_DIR / f"extended_{a.dataset}_across.csv", index=False)
+    m = min(st["n"] for st in stimuli)
+    first = stimuli[0]["name"]
+    listing = ", ".join(f"{st['name']} ({st['n']} samples per neuron)" for st in stimuli)
+    heads = [f"1-NN, {first} only", f"k-medoids, {first} only", "1-NN, all stimuli mixed",
+             "k-medoids, all stimuli mixed", "1-NN, other stimuli only",
+             f"k-medoids chance, {first} only", "k-medoids chance, all stimuli mixed"]
+    md = RESULTS_DIR / f"extended_{a.dataset}_across.md"
+    title = (f"ACROSS stimuli. {a.dataset}: {listing}. All stimuli mixed = {m} samples per neuron from "
+             f"each stimulus in one unlabelled pool. Accuracy (%), {head}")
+    if final:
+        write_table(table, cols, heads, md, title)
+        figure_bars(table, ["nn_pooled", "kmed_pooled"], ["1-NN", "k-medoids"], chance,
+                    f"{a.dataset}: across stimuli (" + ", ".join(st["name"] for st in stimuli) + " in one pool)",
+                    f"ext_{a.dataset}_across.png")
+    else:
+        with open(md, "w") as f:
+            f.write(title + "\n\n| method | " + " | ".join(heads) + " |\n|---|" + "---|" * len(heads) + "\n")
+            for _, r in table.iterrows():
+                f.write(f"| {r.method} | " + " | ".join(cell(r, c) for c in cols) + " |\n")
+    return table
+
+
+def done_draws(a, part):
+    """With --resume: the rows of the draws already in results/extended_<dataset>_<part>_runs.csv."""
+    f = RESULTS_DIR / f"extended_{a.dataset}_{part}_runs.csv"
+    if not a.resume or not f.exists():
+        return pd.DataFrame()
+    df = pd.read_csv(f)
+    return df[df.seed < a.seeds]
+
+
 def run_dataset(a, cfg):
+    """Draw by draw: for every neuron draw, the within and the across part, and the tables are
+    rewritten after every draw, so a stopped run keeps everything finished so far (and
+    --resume continues it). The figures are drawn at the end (or later with --replot)."""
     chance = 1 / a.n_neurons
     RESULTS_DIR.mkdir(exist_ok=True)
-    head = f"{a.n_neurons} neurons, mean ± std over {a.seeds} neuron draws. Chance = {100 * chance:.1f} %."
-    vp = []
 
     if a.replot:
         replot(cfg, a, chance)
         return
-
-    if a.part in ("within", "both"):
-        rows = []
-        for seed in range(a.seeds):
-            t0 = time.time()
-            rows += run_within(cfg, a, seed)
-            print(f"{a.dataset} within, draw {seed}: {time.time() - t0:.0f} s", flush=True)
-        df = pd.DataFrame(rows)
-        df.to_csv(RESULTS_DIR / f"extended_{a.dataset}_within_runs.csv", index=False)
-        cols = ["nn1", "kmedoids", "kmedoids_chance"]
-        table = summarise(df, cols)
-        table.to_csv(RESULTS_DIR / f"extended_{a.dataset}_within.csv", index=False)
-        write_table(table, cols, ["1-NN", "k-medoids", "k-medoids chance"],
-                    RESULTS_DIR / f"extended_{a.dataset}_within.md",
-                    f"WITHIN one stimulus. {cfg['label']}: accuracy (%), {cfg['within']['n_trials']} samples per "
-                    f"neuron, {head}")
-        figure_bars(table, ["nn1", "kmedoids"], ["1-NN", "k-medoids"], chance,
-                    f"{cfg['label']}: within one stimulus", f"ext_{a.dataset}_within.png")
-        vp += [(table, "nn1", "within, 1-NN"), (table, "kmedoids", "within, k-medoids")]
-
-    if a.part in ("across", "both"):
-        stimuli = stimulus_list(cfg, a)
-        rows, fig_data = [], {}
-        for seed in range(1 if a.figure_only else a.seeds):
-            t0 = time.time()
-            rows += run_across(cfg, a, seed, stimuli, figure=fig_data if seed == 0 else None)
-            print(f"{a.dataset} across, draw {seed}: {time.time() - t0:.0f} s", flush=True)
-        figure_matrices_across(fig_data, stimuli, a.dataset)
-        if a.figure_only:
-            return
-        df = pd.DataFrame(rows)
-        df.to_csv(RESULTS_DIR / f"extended_{a.dataset}_across_runs.csv", index=False)
-        cols = ["nn_within", "kmed_within", "nn_pooled", "kmed_pooled", "nn_other", "kmed_within_chance",
-                "kmed_pooled_chance"]
-        table = summarise(df, cols)
-        table.to_csv(RESULTS_DIR / f"extended_{a.dataset}_across.csv", index=False)
-        m = min(st["n"] for st in stimuli)
-        first = stimuli[0]["name"]
-        listing = ", ".join(f"{st['name']} ({st['n']} samples per neuron)" for st in stimuli)
-        write_table(table, cols, [f"1-NN, {first} only", f"k-medoids, {first} only", "1-NN, all stimuli mixed",
-                                  "k-medoids, all stimuli mixed", "1-NN, other stimuli only",
-                                  f"k-medoids chance, {first} only", "k-medoids chance, all stimuli mixed"],
-                    RESULTS_DIR / f"extended_{a.dataset}_across.md",
-                    f"ACROSS stimuli. {a.dataset}: {listing}. All stimuli mixed = {m} samples per neuron from "
-                    f"each stimulus in one unlabelled pool. Accuracy (%), {head}")
-        figure_bars(table, ["nn_pooled", "kmed_pooled"], ["1-NN", "k-medoids"], chance,
-                    f"{a.dataset}: across stimuli (" + ", ".join(st["name"] for st in stimuli) + " in one pool)",
-                    f"ext_{a.dataset}_across.png")
-        vp += [(table, "nn_pooled", "all stimuli mixed, 1-NN"), (table, "kmed_pooled", "all stimuli mixed, k-medoids")]
-
     if a.part == "length":
         run_length(cfg, a, chance)
         return
-    figure_vp(vp, chance, f"{a.dataset}: Victor-Purpura distance against its time precision", f"ext_{a.dataset}_vp.png")
 
+    do_within = a.part in ("within", "both") and not a.figure_only
+    do_across = a.part in ("across", "both")
+    stimuli = stimulus_list(cfg, a) if do_across else None
+    old_w, old_a = done_draws(a, "within"), done_draws(a, "across")
+    rows_w = old_w.to_dict("records") if do_within else []
+    rows_a = old_a.to_dict("records") if do_across else []
+    seen_w = set(old_w.seed) if len(old_w) else set()
+    seen_a = set(old_a.seed) if len(old_a) else set()
+    if seen_w or seen_a:
+        print(f"{a.dataset}: resuming, draws already done: within {sorted(seen_w)}, across {sorted(seen_a)}", flush=True)
+
+    for seed in range(1 if a.figure_only else a.seeds):
+        if do_within and seed not in seen_w:
+            t0 = time.time()
+            rows_w += run_within(cfg, a, seed)
+            write_within(pd.DataFrame(rows_w), cfg, a, chance, final=False)
+            print(f"{a.dataset} within, draw {seed}: {time.time() - t0:.0f} s", flush=True)
+        if do_across and (seed not in seen_a or a.figure_only):
+            t0 = time.time()
+            fig_data = {} if seed == 0 else None
+            new = run_across(cfg, a, seed, stimuli, figure=fig_data)
+            if fig_data:
+                figure_matrices_across(fig_data, stimuli, a.dataset)
+            if a.figure_only:
+                return
+            rows_a += new
+            write_across(pd.DataFrame(rows_a), stimuli, a, chance, final=False)
+            print(f"{a.dataset} across, draw {seed}: {time.time() - t0:.0f} s", flush=True)
+
+    vp = []
+    if rows_w:
+        table = write_within(pd.DataFrame(rows_w), cfg, a, chance, final=True)
+        vp += [(table, "nn1", "within, 1-NN"), (table, "kmedoids", "within, k-medoids")]
+    if rows_a:
+        table = write_across(pd.DataFrame(rows_a), stimuli, a, chance, final=True)
+        vp += [(table, "nn_pooled", "all stimuli mixed, 1-NN"), (table, "kmed_pooled", "all stimuli mixed, k-medoids")]
+    if vp:
+        figure_vp(vp, chance, f"{a.dataset}: Victor-Purpura distance against its time precision",
+                  f"ext_{a.dataset}_vp.png")
 
 if __name__ == "__main__":
     main()

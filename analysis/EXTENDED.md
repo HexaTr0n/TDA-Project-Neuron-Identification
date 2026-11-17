@@ -128,7 +128,16 @@ than 40 neurons with enough samples, is skipped with a message. With more than o
 `results/extended_neuropixels_sessions.md` gives the mean ± std over sessions of the within and
 the all-stimuli-mixed scores. If a run is stopped early, `--npx-session all --replot` redraws the figures
 and writes this summary from the sessions that are finished. A session that fails for any
-reason is skipped with its error message, and the next one is run. Sessions are not pooled: different sessions are different mice
+reason is skipped with its error message, and the next one is run.
+
+**Order of the work and stopping early.** Sessions are run one after the other, and inside a
+session draw by draw: draw 0 within and across, then draw 1, and so on. The tables
+(`..._runs.csv`, `.csv`, `.md`) are rewritten after every draw, so stopping the run (Ctrl+C)
+keeps every finished draw; the figures are drawn when a session is done, or later with
+`--replot`. `--resume` keeps the draws already in the `_runs.csv` files and only computes the
+missing ones, so a stopped run can be continued with the same command plus `--resume`. Many
+draws on a few mice: list the mice, e.g.
+`--npx-session 829720705 839557629 821695405 835479236 --seeds 40`. Sessions are not pooled: different sessions are different mice
 and may show the other stimuli at different times.
 
 Tables are printed and written to `results/extended_<dataset>_within.md` and
