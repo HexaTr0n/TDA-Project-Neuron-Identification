@@ -101,8 +101,9 @@ on this branch). If they already exist in another copy of the repository, copyin
 python scripts/extract.py --data-dir data --out-dir extracted --download      # only if extracted/ is missing
 python scripts/load_retina_running.py --extracted-dir extracted --session 20180126_sr_le_sp --cut 24.8 30.0
 
-# Neuropixels: needs the NWB file of session 829720705 from DANDI 000022
-python scripts/load_allen.py data/allen/sub-811322604_ses-829720705.nwb
+# Neuropixels: needs the NWB file of each session from DANDI 000022 (functional connectivity set)
+python scripts/load_allen.py data/allen/sub-811322604_ses-829720705.nwb --all-stimuli
+for f in data/allen/*.nwb; do python scripts/load_allen.py "$f" --all-stimuli; done   # every downloaded session
 ```
 
 `--cut 24.8 30.0` removes a 5 s chunk that repeats inside every "unrepeated" stretch.
@@ -113,8 +114,20 @@ python scripts/load_allen.py data/allen/sub-811322604_ses-829720705.nwb
 pip install -r scripts/requirements.txt        # numba makes the Victor-Purpura distance fast
 python analysis/04_extended.py --dataset retina --part within --seeds 1 --n-neurons 10   # quick test
 python analysis/04_extended.py --dataset retina
-python analysis/04_extended.py --dataset neuropixels
+python analysis/04_extended.py --dataset neuropixels                          # session 829720705
+python analysis/04_extended.py --dataset neuropixels --npx-session all        # every data/allen/allen<id>.parquet
+python analysis/04_extended.py --dataset neuropixels --npx-session all --part length
 ```
+
+**Several Neuropixels sessions.** Each session is run on its own, with its own neurons and
+stimuli, and its outputs are named `neuropixels_<id>` (for example
+`results/extended_neuropixels_829720705_within.md`, `figures/analysis/ext_neuropixels_829720705_across.png`).
+The first block of movie repeats is found from the gaps between repeats (more than 2 minutes);
+the script prints it. A session whose first block has fewer than 30 repeats, or that has fewer
+than 40 neurons with enough samples, is skipped with a message. With more than one session,
+`results/extended_neuropixels_sessions.md` gives the mean ± std over sessions of the within and
+the all-stimuli-mixed scores. Sessions are not pooled: different sessions are different mice
+and may show the other stimuli at different times.
 
 Tables are printed and written to `results/extended_<dataset>_within.md` and
 `..._across.md` (plus `.csv`, and `..._runs.csv` with one row per draw). Figures go to

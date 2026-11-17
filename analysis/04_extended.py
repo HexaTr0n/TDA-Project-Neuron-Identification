@@ -108,6 +108,29 @@ DATASETS = {
 
 NPX_PATH = ROOT / "data" / "allen" / "allen829720705.parquet"
 NPX_MOVIE = "allen829720705_movie"
+NPX_QUERY = "start < 3600"            # the first block of movie repeats (set by setup_neuropixels)
+
+
+def setup_neuropixels(sid):
+    """Point the Neuropixels part at data/allen/allen<sid>.parquet (made by scripts/load_allen.py).
+    The first block of movie repeats is found from the gaps between repeats (> 2 min)."""
+    global NPX_PATH, NPX_MOVIE, NPX_QUERY
+    NPX_PATH = ROOT / "data" / "allen" / f"allen{sid}.parquet"
+    NPX_MOVIE = f"allen{sid}_movie"
+    df = load_dataset(NPX_PATH)
+    starts = np.sort(df.loc[df.session == NPX_MOVIE, "start"].unique())
+    if len(starts) == 0:
+        raise ValueError(f"{NPX_PATH}: no rows of {NPX_MOVIE}")
+    gaps = np.flatnonzero(np.diff(starts) > 120)
+    end = starts[gaps[0] + 1] if len(gaps) else np.inf
+    NPX_QUERY = f"start < {end - 1:.1f}" if np.isfinite(end) else None
+    n = int(np.sum(starts < end))
+    if n < DATASETS["neuropixels"]["within"]["n_trials"]:
+        raise ValueError(f"the first movie block of session {sid} has only {n} repeats "
+                         f"(need {DATASETS['neuropixels']['within']['n_trials']})")
+    print(f"Neuropixels session {sid}: first movie block = {n} repeats, {starts[0]:.0f}-{starts[n - 1]:.0f} s", flush=True)
+    DATASETS["neuropixels"].update(label=f"Neuropixels {sid} (natural movie, 30 s)")
+    DATASETS["neuropixels"]["within"].update(path=NPX_PATH, session=NPX_MOVIE, query=NPX_QUERY)
 
 
 def neuropixels_stimuli(max_gap_min=30.0, n_max=15, n_min=10, path=None):
@@ -123,7 +146,9 @@ def neuropixels_stimuli(max_gap_min=30.0, n_max=15, n_min=10, path=None):
     """
     path = path or NPX_PATH
     df = load_dataset(path)
-    movie = df[(df.session == NPX_MOVIE) & (df.start < 3600)]
+    movie = df[df.session == NPX_MOVIE]
+    if NPX_QUERY:
+        movie = movie.query(NPX_QUERY)
     lo = float(movie.start.min()) - 60 * max_gap_min
     hi = float((movie.start + movie.duration).max()) + 60 * max_gap_min
     found = {}
@@ -135,9 +160,9 @@ def neuropixels_stimuli(max_gap_min=30.0, n_max=15, n_min=10, path=None):
     if not found:
         raise ValueError(f"no stimulus besides the movie has {n_min} windows within {max_gap_min} min of it")
     n = min(n_max, min(found.values()))
-    out = [dict(name="natural movie", path=path, session=NPX_MOVIE, query="start < 3600", n=30)]
+    out = [dict(name="natural movie", path=path, session=NPX_MOVIE, query=NPX_QUERY, n=30)]
     for name in sorted(found):
-        label = name.replace("allen829720705_", "").replace("spont", "grey screen").replace("_", " ")
+        label = name.replace(NPX_MOVIE[:-len("movie")], "").replace("spont", "grey screen").replace("_", " ")
         out.append(dict(name=label, path=path, session=name, query=f"start >= {lo} and start + duration <= {hi}", n=n))
     print("Neuropixels stimuli: " + ", ".join(f"{st['name']} ({st['n']})" for st in out), flush=True)
     return out
@@ -566,10 +591,58 @@ def main():
                    help="across part: only draw 0 and the distance-matrix figure; the tables are not rewritten")
     p.add_argument("--replot", action="store_true",
                    help="only redraw the bar and q-sweep figures from the tables in results/ (no computing)")
+    p.add_argument("--npx-session", nargs="+", default=["829720705"],
+                   help="Neuropixels: session id(s) of data/allen/allen<id>.parquet, or 'all' for every such file. "
+                        "Each session is run on its own (results named neuropixels_<id>); with several, "
+                        "results/extended_neuropixels_sessions.md gives the mean over sessions.")
     p.add_argument("--max-gap", type=float, default=30.0,
                    help="Neuropixels: use stimuli recorded within this many minutes of the first movie block")
     a = p.parse_args()
-    cfg = DATASETS[a.dataset]
+    if a.dataset != "neuropixels":
+        run_dataset(a, DATASETS[a.dataset])
+        return
+    sids = a.npx_session
+    if sids == ["all"]:
+        sids = sorted(f.stem[len("allen"):] for f in (ROOT / "data" / "allen").glob("allen*.parquet"))
+    done = []
+    for sid in sids:
+        a.dataset = f"neuropixels_{sid}"
+        try:
+            setup_neuropixels(sid)
+            run_dataset(a, DATASETS["neuropixels"])
+            done.append(sid)
+        except ValueError as e:                      # e.g. too few neurons or stimuli in this session
+            print(f"session {sid} skipped: {e}", flush=True)
+    if len(done) > 1 and not (a.replot or a.figure_only) and a.part != "length":
+        summarise_sessions(done)
+
+
+def summarise_sessions(sids):
+    """Mean ± std over Neuropixels sessions of the main scores (each session: mean over draws)."""
+    parts = []
+    for sid in sids:
+        row = {}
+        for part, cols in (("within", ["nn1", "kmedoids"]), ("across", ["nn_pooled", "kmed_pooled"])):
+            f = RESULTS_DIR / f"extended_neuropixels_{sid}_{part}.csv"
+            if f.exists():
+                t = pd.read_csv(f).set_index("method")
+                for c in cols:
+                    row[f"{part}_{c}"] = t[f"{c}_mean"]
+        parts.append(pd.DataFrame(row).assign(session=sid))
+    df = pd.concat([d.reset_index() for d in parts])
+    cols = [c for c in ["within_nn1", "within_kmedoids", "across_nn_pooled", "across_kmed_pooled"] if c in df]
+    t = df.groupby("method")[cols].agg(["mean", "std"])
+    t.columns = [f"{x}_{y}" for x, y in t.columns]
+    t = t.reindex([m for m in ORDER if m in t.index]).reset_index()
+    t.to_csv(RESULTS_DIR / "extended_neuropixels_sessions.csv", index=False)
+    heads = {"within_nn1": "1-NN, within (movie)", "within_kmedoids": "k-medoids, within (movie)",
+             "across_nn_pooled": "1-NN, all stimuli mixed", "across_kmed_pooled": "k-medoids, all stimuli mixed"}
+    write_table(t, cols, [heads[c] for c in cols], RESULTS_DIR / "extended_neuropixels_sessions.md",
+                f"Neuropixels, {len(sids)} sessions ({', '.join(sids)}): accuracy (%), mean ± std over sessions "
+                f"(each session: mean over its neuron draws).")
+
+
+def run_dataset(a, cfg):
     chance = 1 / a.n_neurons
     RESULTS_DIR.mkdir(exist_ok=True)
     head = f"{a.n_neurons} neurons, mean ± std over {a.seeds} neuron draws. Chance = {100 * chance:.1f} %."
