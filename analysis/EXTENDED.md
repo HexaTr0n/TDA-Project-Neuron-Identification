@@ -126,7 +126,9 @@ The first block of movie repeats is found from the gaps between repeats (more th
 the script prints it. A session whose first block has fewer than 30 repeats, or that has fewer
 than 40 neurons with enough samples, is skipped with a message. With more than one session,
 `results/extended_neuropixels_sessions.md` gives the mean ± std over sessions of the within and
-the all-stimuli-mixed scores. Sessions are not pooled: different sessions are different mice
+the all-stimuli-mixed scores. If a run is stopped early, `--npx-session all --replot` redraws the figures
+and writes this summary from the sessions that are finished. A session that fails for any
+reason is skipped with its error message, and the next one is run. Sessions are not pooled: different sessions are different mice
 and may show the other stimuli at different times.
 
 Tables are printed and written to `results/extended_<dataset>_within.md` and

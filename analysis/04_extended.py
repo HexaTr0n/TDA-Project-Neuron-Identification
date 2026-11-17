@@ -611,16 +611,22 @@ def main():
             setup_neuropixels(sid)
             run_dataset(a, DATASETS["neuropixels"])
             done.append(sid)
-        except ValueError as e:                      # e.g. too few neurons or stimuli in this session
+        except Exception as e:                       # one bad session must not stop the others
+            import traceback
+            traceback.print_exc()
             print(f"session {sid} skipped: {e}", flush=True)
-    if len(done) > 1 and not (a.replot or a.figure_only) and a.part != "length":
+    if len(done) > 1 and not a.figure_only and a.part != "length":
         summarise_sessions(done)
 
 
 def summarise_sessions(sids):
     """Mean ± std over Neuropixels sessions of the main scores (each session: mean over draws)."""
-    parts = []
+    parts, used = [], []
     for sid in sids:
+        if not (RESULTS_DIR / f"extended_neuropixels_{sid}_within.csv").exists() and \
+                not (RESULTS_DIR / f"extended_neuropixels_{sid}_across.csv").exists():
+            continue
+        used.append(sid)
         row = {}
         for part, cols in (("within", ["nn1", "kmedoids"]), ("across", ["nn_pooled", "kmed_pooled"])):
             f = RESULTS_DIR / f"extended_neuropixels_{sid}_{part}.csv"
@@ -629,6 +635,9 @@ def summarise_sessions(sids):
                 for c in cols:
                     row[f"{part}_{c}"] = t[f"{c}_mean"]
         parts.append(pd.DataFrame(row).assign(session=sid))
+    if len(used) < 2:
+        return
+    sids = used
     df = pd.concat([d.reset_index() for d in parts])
     cols = [c for c in ["within_nn1", "within_kmedoids", "across_nn_pooled", "across_kmed_pooled"] if c in df]
     t = df.groupby("method")[cols].agg(["mean", "std"])
