@@ -14,6 +14,7 @@ was changed; `tda_utils.py` only gained new functions and three optional argumen
 | Scores | 1-NN, nearest mean | 1-NN, k-medoids (nearest mean is dropped: it needs labelled neuron means and has no mean for the Victor-Purpura distance) |
 | References without topology | firing rate, ISI histogram | the same, and the Victor-Purpura distance |
 | Controls for the delay cloud | shuffled ISIs | shuffled ISIs, random time cutoff, share of bars |
+| Delay cloud | 2 consecutive log ISIs per point | 2 and 3 consecutive log ISIs per point |
 
 **Across stimuli.** The same neurons are recorded under several stimuli. The across table has
 three groups of scores:
@@ -72,6 +73,11 @@ owes to the order of the ISIs.
 
 **Share of bars.** The stable rank divided by its value at 0. The number of bars (the spike
 count) then no longer enters the distance, and no data is removed.
+
+**Delay cloud in 3D.** Each point is (log10 ISI_i, log10 ISI_i+1, log10 ISI_i+2) instead of
+two consecutive ISIs. Rows `T2 DELAY 3D H0 / H1 / H0+H1`, with the shuffled and cutoff controls
+(`C1 DELAY 3D ...`, `C2 DELAY 3D ...`). The 2D rows are unchanged (`cloud_delay(isis)` still
+gives the 2D cloud; `cloud_delay(isis, 3)` the 3D one).
 
 **LINE on a log scale** (two extra rows, optional for the report). The LINE barcode with bar
 lengths `log10(ISI / 0.1 ms)`, and the same divided by the number of bars. The second one is

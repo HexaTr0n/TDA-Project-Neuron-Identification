@@ -116,19 +116,20 @@ def cloud_line(isis):
     return np.concatenate([[0.0], np.cumsum(isis)])[:, None]
 
 
-def cloud_delay(isis):
-    """Delay embedding of the log ISIs, shape (n_isis - 1, 2).
+def cloud_delay(isis, m=2):
+    """Delay embedding of the log ISIs, shape (n_isis - m + 1, m).
 
-    Point i is (log10 ISI_i, log10 ISI_{i+1}). We use log10 because ISIs range from about
-    1 ms (inside a burst) to several seconds (pauses): on a linear scale all the short ISIs
-    would collapse into one point near 0.
-    With fewer than 2 ISIs we return a single point at the origin: one point has no finite
+    Point i is (log10 ISI_i, log10 ISI_{i+1}) for m = 2 (the default, as in step 3), and
+    (log10 ISI_i, log10 ISI_{i+1}, log10 ISI_{i+2}) for m = 3. We use log10 because ISIs range
+    from about 1 ms (inside a burst) to several seconds (pauses): on a linear scale all the
+    short ISIs would collapse into one point near 0.
+    With fewer than m ISIs we return a single point at the origin: one point has no finite
     bar, so its stable rank is the zero function.
     """
     x = np.log10(isis)
-    if len(x) < 2:
-        return np.zeros((1, 2))
-    return np.column_stack([x[:-1], x[1:]])
+    if len(x) < m:
+        return np.zeros((1, m))
+    return np.column_stack([x[j:len(x) - m + 1 + j] for j in range(m)])
 
 
 # ---------------------------------------------------------------------------

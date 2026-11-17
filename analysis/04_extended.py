@@ -43,7 +43,8 @@ Methods (all distances are between two samples):
     T1  LINE H0                    L1 between H0 stable ranks of the spike times on a line
     T1  LINE H0, log scale         the same barcode with bar lengths log10(ISI / 0.1 ms)
     T1  LINE H0, log scale, share  ... and each stable rank divided by its number of bars
-    T2  DELAY H0 / H1 / H0+H1      L1 between stable ranks of the delay cloud
+    T2  DELAY H0 / H1 / H0+H1      L1 between stable ranks of the delay cloud (log10 ISI_i, log10 ISI_i+1)
+    T2  DELAY 3D H0 / H1 / H0+H1   the same with three consecutive ISIs per point
     C1  ..., ISIs shuffled         control: same ISIs in random order (no order information)
     C2  ..., random time cutoff    control: a random part of the start and of the end of every
                                    sample is removed (no common spike count, no common piece
@@ -146,7 +147,10 @@ ORDER = (["B1 firing rate", "B2 ISI histogram"] + [f"B3 Victor-Purpura, q = {q:g
             "T2 DELAY H0", "T2 DELAY H1", "T2 DELAY H0+H1",
             "C1 DELAY H0, ISIs shuffled", "C1 DELAY H0+H1, ISIs shuffled",
             "C2 LINE H0, random time cutoff", "C2 DELAY H0, random time cutoff",
-            "C3 DELAY H0, share"])
+            "C3 DELAY H0, share",
+            "T2 DELAY 3D H0", "T2 DELAY 3D H1", "T2 DELAY 3D H0+H1",
+            "C1 DELAY 3D H0, ISIs shuffled", "C1 DELAY 3D H0+H1, ISIs shuffled",
+            "C2 DELAY 3D H0, random time cutoff"])
 
 
 class _Scored(dict):
@@ -238,6 +242,19 @@ def all_distances(isis, spikes, duration, seed, labels=None, sink=None):
 
     # C3: the delay cloud's H0 stable rank divided by its number of bars.
     out["C3 DELAY H0, share"] = (pcf_matrix(normalise_pcfs(h0, n)), None)
+
+    # The delay cloud with three consecutive ISIs per point, with the same controls.
+    a0, a1 = stable_ranks([cloud_delay(x, 3) for x in isis], 1)
+    D0, D1 = pcf_matrix(a0), pcf_matrix(a1)
+    out["T2 DELAY 3D H0"] = (D0, None)
+    out["T2 DELAY 3D H1"] = (D1, None)
+    out["T2 DELAY 3D H0+H1"] = (combine_matrices([D0, D1]), None)
+    s0, s1 = stable_ranks([cloud_delay(x, 3) for x in shuffle_isis(isis, seed)], 1)
+    D0 = pcf_matrix(s0)
+    out["C1 DELAY 3D H0, ISIs shuffled"] = (D0, None)
+    out["C1 DELAY 3D H0+H1, ISIs shuffled"] = (combine_matrices([D0, pcf_matrix(s1)]), None)
+    (cut3,) = stable_ranks([cloud_delay(x, 3) for x in cut_isis], 0)
+    out["C2 DELAY 3D H0, random time cutoff"] = (pcf_matrix(cut3), None)
 
     if sink is not None:
         return {}
