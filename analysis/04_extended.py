@@ -129,6 +129,19 @@ def setup_neuropixels(sid):
         raise ValueError(f"the first movie block of session {sid} has only {n} repeats "
                          f"(need {DATASETS['neuropixels']['within']['n_trials']})")
     print(f"Neuropixels session {sid}: first movie block = {n} repeats, {starts[0]:.0f}-{starts[n - 1]:.0f} s", flush=True)
+    # units and areas, for the dataset description (results/extended_neuropixels_<sid>_units.md)
+    mv = df[(df.session == NPX_MOVIE) & (df.start < end)]
+    rate = mv.spike_times.map(len).groupby(mv.neuron_id).sum() / mv.groupby("neuron_id").duration.sum()
+    fast = rate.index[rate >= 1.0]
+    lines = [f"Session {sid}: {df.neuron_id.nunique()} good units, {len(fast)} fire at least 1 Hz during the "
+             f"first movie block ({n} repeats, from {starts[0] / 60:.1f} min). Median rate of those: "
+             f"{rate[fast].median():.1f} Hz."]
+    if "area" in df:
+        areas = df.drop_duplicates("neuron_id").set_index("neuron_id").loc[fast, "area"].value_counts()
+        lines.append("Units >= 1 Hz per area: " + ", ".join(f"{k} {v}" for k, v in areas.items()))
+    RESULTS_DIR.mkdir(exist_ok=True)
+    (RESULTS_DIR / f"extended_neuropixels_{sid}_units.md").write_text("\n\n".join(lines) + "\n")
+    print("\n".join(lines), flush=True)
     DATASETS["neuropixels"].update(label=f"Neuropixels {sid} (natural movie, 30 s)")
     DATASETS["neuropixels"]["within"].update(path=NPX_PATH, session=NPX_MOVIE, query=NPX_QUERY)
 
