@@ -129,7 +129,7 @@ figures.
 
 | Report figure | Command | File |
 |---|---|---|
-| distance matrices (as Fig. 7), within and across | `--part across` (or `--part across --figure-only`, draw 0 only) | `ext_<dataset>_matrix_within`, `ext_<dataset>_matrix_across` |
+| distance matrices (as Fig. 7), one per stimulus | `--part across` (or `--part across --figure-only`, draw 0 only) | `ext_<dataset>_matrix_<stimulus>`, e.g. `ext_retina_matrix_frozen_noise`, `ext_retina_matrix_unrepeated_noise` |
 | scores (as Fig. 8), within | `--part within` | `ext_<dataset>_within`, `ext_<dataset>_vp` |
 | scores (as Fig. 8), across (all stimuli mixed) | `--part across` | `ext_<dataset>_across` |
 | sample length (as Fig. 9), within and across | `--part length` | `ext_<dataset>_length_within`, `ext_<dataset>_length_across`, `results/extended_<dataset>_length.md` |
@@ -138,10 +138,10 @@ figures.
 Every figure is written as `.png` and `.svg`.
 
 The distance-matrix figures show the same 10 neurons of draw 0 for four methods, one per
-family: ISI histogram, the best Victor-Purpura `q`, LINE H0 log share, DELAY H0+H1. Within: the
-first stimulus against itself. Across: the first stimulus (rows) against the other stimuli
-(columns), so a light diagonal block means the neuron is recognised in the other stimulus. Each
-method has the same colour scale in both figures. The length figures show the same four methods.
+family: ISI histogram, the best Victor-Purpura `q`, LINE H0 log share, DELAY H0+H1. One figure
+per stimulus, its samples against each other, with the same colour scale per method in every
+figure. For unrepeated noise every sample is a different piece of stimulus, so a light diagonal
+block there cannot come from a shared stimulus. The length figures show the same four methods.
 `--part length` glues 1, 2 or 3
 consecutive samples into one (10, 20, 30 s on the retina, as in step 3) and scores both the
 within part and the mixed pool (one figure each); with 30 samples per neuron and stimulus

@@ -327,72 +327,61 @@ def run_across(cfg, args, seed, stimuli, figure=None, k_fig=10, block=1):
     groups = [np.arange(edges[j], edges[j + 1]) for j in range(len(data))]
     rows = []
     if figure is not None:
-        # rows: the first stimulus, k_fig neurons, m samples each. Columns of the "within"
-        # matrix: the same; columns of the "across" matrix: the other stimuli of the same
-        # neurons (per neuron: stimulus 2, then 3, ...).
+        # one matrix per stimulus: its samples against each other, k_fig neurons, m samples each
         k = labels.max() + 1
         m = min(np.bincount(labels[g], minlength=k).min() for g in groups)
         show = np.linspace(0, k - 1, k_fig).astype(int)
-        first = np.array([i for c in show for i in groups[0][labels[groups[0]] == c][:m]])
-        other = np.array([i for c in show for g in groups[1:] for i in g[labels[g] == c][:m]])
-        figure.update(first=first, other=other, m=m, n_stim=len(groups), k=k_fig, within={}, across={})
+        idx = [np.array([i for c in show for i in g[labels[g] == c][:m]]) for g in groups]
+        figure.update(idx=idx, m=m, k=k_fig, mats=[{} for _ in groups])
 
     def score(name, value):                                        # no labels: no neuron means
         rows.append(dict(method=name, seed=seed, block=block,
                          **scores_across(value[0], labels, groups, args.kmedoids_seeds)))
         if figure is not None and (name in FIG_METHODS or name.startswith("B3")):
-            figure["within"][name] = value[0][np.ix_(figure["first"], figure["first"])]
-            figure["across"][name] = value[0][np.ix_(figure["first"], figure["other"])]
+            for j, ix in enumerate(figure["idx"]):
+                figure["mats"][j][name] = value[0][np.ix_(ix, ix)]
 
     all_distances(isis, spikes, sample_seconds(cfg, block), seed, sink=score)        # scores each matrix, then drops it
     if figure is not None:                                         # keep the Victor-Purpura q that does best here
         vp = [r for r in rows if r["method"].startswith("B3")]
         best = max(vp, key=lambda r: r["nn_within"])["method"]
-        for part in ("within", "across"):
-            figure[part] = {n: D for n, D in figure[part].items() if not n.startswith("B3") or n == best}
+        figure["mats"] = [{n: D for n, D in mats.items() if not n.startswith("B3") or n == best}
+                          for mats in figure["mats"]]
     return rows
 
 
 def figure_matrices_across(fig_data, stimuli, dataset):
-    """Like figure 7 of step 3, as two figures with the same 10 neurons and the same colour scale
-    per method. Within: the samples of the first stimulus against each other. Across: the samples
-    of the first stimulus (rows) against those of the other stimuli (columns). Both are sorted by
-    neuron (white lines separate neurons). Light = small distance. A light square on the
-    diagonal of the across figure means the neuron is recognised in the other stimulus."""
-    m, S, k = fig_data["m"], fig_data["n_stim"], fig_data["k"]
-    order = ["B2 ISI histogram"] + [n for n in fig_data["within"] if n.startswith("B3")] + FIG_METHODS[1:]
-    names = [n for n in order if n in fig_data["within"]]
-    vmax = {n: np.percentile(np.r_[fig_data["within"][n].ravel(), fig_data["across"][n].ravel()], 95) for n in names}
-    first = stimuli[0]["name"]
-    others = ", ".join(st["name"] for st in stimuli[1:])
-    for part, ncol, xlab, title in (
-            ("within", m, f"neuron ({m} samples of {first} each)", f"{dataset}, within: {first} against {first}"),
-            ("across", m * (S - 1), f"neuron ({m} samples of {others} each)" if S == 2 else
-             f"neuron ({m} samples of each of: {others})", f"{dataset}, across: {first} against {others}")):
+    """Like figure 7 of step 3: one figure per stimulus, its samples against each other, for the
+    same 10 neurons and with the same colour scale per method in every figure. Sorted by neuron
+    (white lines separate neurons). Light = small distance; a light square on the diagonal means
+    the samples of that neuron are close. For unrepeated noise every sample is a different piece
+    of stimulus, so a light square there cannot come from a shared stimulus."""
+    m, k, all_mats = fig_data["m"], fig_data["k"], fig_data["mats"]
+    order = ["B2 ISI histogram"] + [n for n in all_mats[0] if n.startswith("B3")] + FIG_METHODS[1:]
+    names = [n for n in order if n in all_mats[0]]
+    vmax = {n: np.percentile(np.concatenate([mats[n].ravel() for mats in all_mats]), 95) for n in names}
+    for st, mats in zip(stimuli, all_mats):
         fig, axes = plt.subplots(2, 2, figsize=(11, 10), squeeze=False)
         for ax, name in zip(axes.flat, names):
-            D = fig_data[part][name]
-            im = ax.imshow(D, cmap="viridis_r", vmin=0, vmax=vmax[name], interpolation="nearest", aspect="auto")
+            im = ax.imshow(mats[name], cmap="viridis_r", vmin=0, vmax=vmax[name], interpolation="nearest")
             for j in range(1, k):
                 ax.axhline(j * m - 0.5, color="w", lw=1)
-                ax.axvline(j * ncol - 0.5, color="w", lw=1)
-            if part == "across" and S > 2:                  # thin lines between the other stimuli
-                for j in range(1, k * (S - 1)):
-                    if j % (S - 1):
-                        ax.axvline(j * m - 0.5, color="w", lw=0.3, ls=":")
-            ax.set_xticks((np.arange(k) + 0.5) * ncol - 0.5)
+                ax.axvline(j * m - 0.5, color="w", lw=1)
+            ticks = (np.arange(k) + 0.5) * m - 0.5
+            ax.set_xticks(ticks)
             ax.set_xticklabels(range(1, k + 1), fontsize=8)
-            ax.set_yticks((np.arange(k) + 0.5) * m - 0.5)
+            ax.set_yticks(ticks)
             ax.set_yticklabels(range(1, k + 1), fontsize=8)
             ax.tick_params(length=0)
             ax.set_title(name.split(" ", 1)[1], fontsize=11)
-            ax.set_xlabel(xlab, fontsize=9)
-            ax.set_ylabel(f"neuron ({m} samples of {first} each)", fontsize=9)
+            ax.set_xlabel(f"neuron ({m} samples each)", fontsize=9)
+            ax.set_ylabel(f"neuron ({m} samples each)", fontsize=9)
             fig.colorbar(im, ax=ax, fraction=0.046)
         for ax in axes.flat[len(names):]:
             ax.axis("off")
-        fig.suptitle(title, fontsize=12)
-        savefig(fig, f"ext_{dataset}_matrix_{part}.png")
+        fig.suptitle(f"{dataset}, {st['name']}: distances between the samples of {k} neurons", fontsize=12)
+        slug = "".join(c if c.isalnum() else "_" for c in st["name"].lower()).strip("_")
+        savefig(fig, f"ext_{dataset}_matrix_{slug}.png")
 
 
 def summarise(df, cols):
