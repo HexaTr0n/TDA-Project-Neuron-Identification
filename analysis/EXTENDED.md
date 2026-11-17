@@ -129,14 +129,20 @@ figures.
 
 | Report figure | Command | File |
 |---|---|---|
-| distance matrices (as Fig. 7), across stimuli | `--part across` (or `--part across --figure-only`, draw 0 only, about 5 min) | `ext_<dataset>_distance_matrix.png` |
-| scores (as Fig. 8), within | `--part within` | `ext_<dataset>_within.png`, `ext_<dataset>_vp.png` |
-| scores (as Fig. 8), across (all stimuli mixed) | `--part across` | `ext_<dataset>_across.png` |
-| sample length (as Fig. 9), within and across | `--part length` | `ext_<dataset>_length_within.png`, `ext_<dataset>_length_across.png`, `results/extended_<dataset>_length.md` |
+| distance matrices (as Fig. 7), within and across | `--part across` (or `--part across --figure-only`, draw 0 only) | `ext_<dataset>_matrix_within`, `ext_<dataset>_matrix_across` |
+| scores (as Fig. 8), within | `--part within` | `ext_<dataset>_within`, `ext_<dataset>_vp` |
+| scores (as Fig. 8), across (all stimuli mixed) | `--part across` | `ext_<dataset>_across` |
+| sample length (as Fig. 9), within and across | `--part length` | `ext_<dataset>_length_within`, `ext_<dataset>_length_across`, `results/extended_<dataset>_length.md` |
+| redraw the bar and q-sweep figures from saved tables | `--replot` | the three bar/q figures |
 
-The distance-matrix figure shows 10 neurons of draw 0 for five methods and the best `q` of the
-Victor-Purpura distance. Inside each neuron's block the samples are ordered by stimulus; thick
-white lines separate neurons, dotted lines separate stimuli. `--part length` glues 1, 2 or 3
+Every figure is written as `.png` and `.svg`.
+
+The distance-matrix figures show the same 10 neurons of draw 0 for four methods, one per
+family: ISI histogram, the best Victor-Purpura `q`, LINE H0 log share, DELAY H0+H1. Within: the
+first stimulus against itself. Across: the first stimulus (rows) against the other stimuli
+(columns), so a light diagonal block means the neuron is recognised in the other stimulus. Each
+method has the same colour scale in both figures. The length figures show the same four methods.
+`--part length` glues 1, 2 or 3
 consecutive samples into one (10, 20, 30 s on the retina, as in step 3) and scores both the
 within part and the mixed pool (one figure each); with 30 samples per neuron and stimulus
 there are 30, 15 and 10 glued samples per neuron and stimulus.
@@ -144,8 +150,8 @@ there are 30, 15 and 10 glued samples per neuron and stimulus.
 **Methods in the bar figures.** A fixed set, chosen by role and not by score (`BAR_GROUPS` in
 the script): firing rate, ISI histogram, the Victor-Purpura `q` with the best 1-NN score (the
 whole sweep is in `ext_<dataset>_vp`); LINE H0, LINE H0 log share and the LINE cutoff control;
-DELAY H0 with its shuffled and cutoff controls, and DELAY H1; DELAY 3D H0 with its shuffled
-control. Controls are hatched. `BAR_GROUPS = None` plots every row. The tables have every row.
+DELAY H0+H1 and DELAY 3D H0+H1, each with its shuffled and cutoff controls (figures never show
+H1 alone). Controls are hatched. `BAR_GROUPS = None` plots every row. The tables have every row.
 Every figure is written as `.png` and `.svg`.
 
 Expected time: the retina should take a few minutes more than step 3. Neuropixels samples are

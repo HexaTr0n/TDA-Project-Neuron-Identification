@@ -150,10 +150,11 @@ ORDER = (["B1 firing rate", "B2 ISI histogram"] + [f"B3 Victor-Purpura, q = {q:g
             "T2 DELAY H0", "T2 DELAY H1", "T2 DELAY H0+H1",
             "C1 DELAY H0, ISIs shuffled", "C1 DELAY H0+H1, ISIs shuffled",
             "C2 LINE H0, random time cutoff", "C2 DELAY H0, random time cutoff",
+            "C2 DELAY H0+H1, random time cutoff",
             "C3 DELAY H0, share",
             "T2 DELAY 3D H0", "T2 DELAY 3D H1", "T2 DELAY 3D H0+H1",
             "C1 DELAY 3D H0, ISIs shuffled", "C1 DELAY 3D H0+H1, ISIs shuffled",
-            "C2 DELAY 3D H0, random time cutoff"])
+            "C2 DELAY 3D H0, random time cutoff", "C2 DELAY 3D H0+H1, random time cutoff"])
 
 
 class _Scored(dict):
@@ -240,8 +241,10 @@ def all_distances(isis, spikes, duration, seed, labels=None, sink=None):
         cut_isis.append(random_time_cut([spikes[i]], duration[i], seed=1000 * seed + i)[1][0])
     (cut_line,) = stable_ranks([cloud_line(x) for x in cut_isis], 0)
     out["C2 LINE H0, random time cutoff"] = (pcf_matrix(cut_line), None)
-    (cut_h0,) = stable_ranks([cloud_delay(x) for x in cut_isis], 0)
-    out["C2 DELAY H0, random time cutoff"] = (pcf_matrix(cut_h0), None)
+    cut_h0, cut_h1 = stable_ranks([cloud_delay(x) for x in cut_isis], 1)
+    D0 = pcf_matrix(cut_h0)
+    out["C2 DELAY H0, random time cutoff"] = (D0, None)
+    out["C2 DELAY H0+H1, random time cutoff"] = (combine_matrices([D0, pcf_matrix(cut_h1)]), None)
 
     # C3: the delay cloud's H0 stable rank divided by its number of bars.
     out["C3 DELAY H0, share"] = (pcf_matrix(normalise_pcfs(h0, n)), None)
@@ -256,8 +259,10 @@ def all_distances(isis, spikes, duration, seed, labels=None, sink=None):
     D0 = pcf_matrix(s0)
     out["C1 DELAY 3D H0, ISIs shuffled"] = (D0, None)
     out["C1 DELAY 3D H0+H1, ISIs shuffled"] = (combine_matrices([D0, pcf_matrix(s1)]), None)
-    (cut3,) = stable_ranks([cloud_delay(x, 3) for x in cut_isis], 0)
-    out["C2 DELAY 3D H0, random time cutoff"] = (pcf_matrix(cut3), None)
+    cut3_h0, cut3_h1 = stable_ranks([cloud_delay(x, 3) for x in cut_isis], 1)
+    D0 = pcf_matrix(cut3_h0)
+    out["C2 DELAY 3D H0, random time cutoff"] = (D0, None)
+    out["C2 DELAY 3D H0+H1, random time cutoff"] = (combine_matrices([D0, pcf_matrix(cut3_h1)]), None)
 
     if sink is not None:
         return {}
@@ -292,8 +297,7 @@ def stimulus_list(cfg, args):
     return cfg["across"]
 
 
-FIG_METHODS = ["B2 ISI histogram", "T1 LINE H0", "T1 LINE H0, log scale, share",
-               "T2 DELAY H0+H1", "C1 DELAY H0+H1, ISIs shuffled"]   # + the best Victor-Purpura q
+FIG_METHODS = ["B2 ISI histogram", "T1 LINE H0, log scale, share", "T2 DELAY H0+H1"]   # + the best Victor-Purpura q
 
 # Methods in the bar figures, fixed in advance by their role (not by their score), with the
 # short label used on the axis. Groups: references, LINE, DELAY, DELAY 3D; each control sits
@@ -302,11 +306,12 @@ FIG_METHODS = ["B2 ISI histogram", "T1 LINE H0", "T1 LINE H0, log scale, share",
 # Set BAR_GROUPS = None to plot every row instead.
 BAR_GROUPS = [
     [("B1 firing rate", "firing\nrate"), ("B2 ISI histogram", "ISI\nhistogram"), ("B3", "Victor-\nPurpura")],
-    [("T1 LINE H0", "LINE\nH0"), ("T1 LINE H0, log scale, share", "LINE H0\nlog share"),
-     ("C2 LINE H0, random time cutoff", "LINE H0\ncutoff")],
-    [("T2 DELAY H0", "DELAY\nH0"), ("C1 DELAY H0, ISIs shuffled", "DELAY H0\nshuffled"),
-     ("C2 DELAY H0, random time cutoff", "DELAY H0\ncutoff"), ("T2 DELAY H1", "DELAY\nH1")],
-    [("T2 DELAY 3D H0", "DELAY 3D\nH0"), ("C1 DELAY 3D H0, ISIs shuffled", "DELAY 3D H0\nshuffled")],
+    [("T1 LINE H0", "LINE\nH0"), ("C2 LINE H0, random time cutoff", "time\ncutoff"),
+     ("T1 LINE H0, log scale, share", "LINE H0\nlog share")],
+    [("T2 DELAY H0+H1", "DELAY\nH0+H1"), ("C1 DELAY H0+H1, ISIs shuffled", "ISIs\nshuffled"),
+     ("C2 DELAY H0+H1, random time cutoff", "time\ncutoff")],
+    [("T2 DELAY 3D H0+H1", "DELAY 3D\nH0+H1"), ("C1 DELAY 3D H0+H1, ISIs shuffled", "ISIs\nshuffled"),
+     ("C2 DELAY 3D H0+H1, random time cutoff", "time\ncutoff")],
 ]
 
 
@@ -322,55 +327,72 @@ def run_across(cfg, args, seed, stimuli, figure=None, k_fig=10, block=1):
     groups = [np.arange(edges[j], edges[j + 1]) for j in range(len(data))]
     rows = []
     if figure is not None:
+        # rows: the first stimulus, k_fig neurons, m samples each. Columns of the "within"
+        # matrix: the same; columns of the "across" matrix: the other stimuli of the same
+        # neurons (per neuron: stimulus 2, then 3, ...).
         k = labels.max() + 1
         m = min(np.bincount(labels[g], minlength=k).min() for g in groups)
         show = np.linspace(0, k - 1, k_fig).astype(int)
-        keep = np.array([i for c in show for g in groups for i in g[labels[g] == c][:m]])
-        figure.update(keep=keep, m=m, n_stim=len(groups), k=k_fig, mats={})
+        first = np.array([i for c in show for i in groups[0][labels[groups[0]] == c][:m]])
+        other = np.array([i for c in show for g in groups[1:] for i in g[labels[g] == c][:m]])
+        figure.update(first=first, other=other, m=m, n_stim=len(groups), k=k_fig, within={}, across={})
 
     def score(name, value):                                        # no labels: no neuron means
         rows.append(dict(method=name, seed=seed, block=block,
                          **scores_across(value[0], labels, groups, args.kmedoids_seeds)))
         if figure is not None and (name in FIG_METHODS or name.startswith("B3")):
-            figure["mats"][name] = value[0][np.ix_(figure["keep"], figure["keep"])]
+            figure["within"][name] = value[0][np.ix_(figure["first"], figure["first"])]
+            figure["across"][name] = value[0][np.ix_(figure["first"], figure["other"])]
 
     all_distances(isis, spikes, sample_seconds(cfg, block), seed, sink=score)        # scores each matrix, then drops it
     if figure is not None:                                         # keep the Victor-Purpura q that does best here
         vp = [r for r in rows if r["method"].startswith("B3")]
         best = max(vp, key=lambda r: r["nn_within"])["method"]
-        figure["mats"] = {n: D for n, D in figure["mats"].items() if not n.startswith("B3") or n == best}
+        for part in ("within", "across"):
+            figure[part] = {n: D for n, D in figure[part].items() if not n.startswith("B3") or n == best}
     return rows
 
 
 def figure_matrices_across(fig_data, stimuli, dataset):
-    """Like figure 7 of step 3, with the samples of several stimuli. Rows and columns: k neurons;
-    inside each neuron, its samples of stimulus 1, then stimulus 2, ... (thick white lines
-    separate neurons, thin dotted lines separate stimuli). Light = small distance. A light
-    square that covers the whole neuron block means the neuron is recognised across stimuli;
-    light only in the small squares on the diagonal means only within one stimulus."""
-    mats, m, S, k = fig_data["mats"], fig_data["m"], fig_data["n_stim"], fig_data["k"]
-    names = [n for n in FIG_METHODS if n in mats] + [n for n in mats if n.startswith("B3")]
-    cols = 3
-    rows = int(np.ceil(len(names) / cols))
-    fig, axes = plt.subplots(rows, cols, figsize=(6 * cols, 5.6 * rows), squeeze=False)
-    per = m * S
-    for ax, name in zip(axes.flat, names):
-        D = mats[name]
-        im = ax.imshow(D, cmap="viridis_r", vmin=0, vmax=np.percentile(D, 95), interpolation="nearest")
-        for j in range(1, k * S):
-            e = j * m - 0.5
-            thick = j % S == 0
-            ax.axhline(e, color="w", lw=0.8 if thick else 0.3, ls="-" if thick else ":")
-            ax.axvline(e, color="w", lw=0.8 if thick else 0.3, ls="-" if thick else ":")
-        ax.set_title(name)
-        ax.set_xlabel(f"sample ({k} neurons x {S} stimuli x {m} samples)")
-        ax.set_ylabel("sample (sorted by neuron, then stimulus)")
-        fig.colorbar(im, ax=ax, fraction=0.046)
-    for ax in axes.flat[len(names):]:
-        ax.axis("off")
-    order = ", ".join(f"{j + 1}. {st['name']}" for j, st in enumerate(stimuli))
-    fig.suptitle(f"{dataset}: distances between samples of {k} neurons. Inside each neuron: {order}", fontsize=12)
-    savefig(fig, f"ext_{dataset}_distance_matrix.png")
+    """Like figure 7 of step 3, as two figures with the same 10 neurons and the same colour scale
+    per method. Within: the samples of the first stimulus against each other. Across: the samples
+    of the first stimulus (rows) against those of the other stimuli (columns). Both are sorted by
+    neuron (white lines separate neurons). Light = small distance. A light square on the
+    diagonal of the across figure means the neuron is recognised in the other stimulus."""
+    m, S, k = fig_data["m"], fig_data["n_stim"], fig_data["k"]
+    order = ["B2 ISI histogram"] + [n for n in fig_data["within"] if n.startswith("B3")] + FIG_METHODS[1:]
+    names = [n for n in order if n in fig_data["within"]]
+    vmax = {n: np.percentile(np.r_[fig_data["within"][n].ravel(), fig_data["across"][n].ravel()], 95) for n in names}
+    first = stimuli[0]["name"]
+    others = ", ".join(st["name"] for st in stimuli[1:])
+    for part, ncol, xlab, title in (
+            ("within", m, f"neuron ({m} samples of {first} each)", f"{dataset}, within: {first} against {first}"),
+            ("across", m * (S - 1), f"neuron ({m} samples of {others} each)" if S == 2 else
+             f"neuron ({m} samples of each of: {others})", f"{dataset}, across: {first} against {others}")):
+        fig, axes = plt.subplots(2, 2, figsize=(11, 10), squeeze=False)
+        for ax, name in zip(axes.flat, names):
+            D = fig_data[part][name]
+            im = ax.imshow(D, cmap="viridis_r", vmin=0, vmax=vmax[name], interpolation="nearest", aspect="auto")
+            for j in range(1, k):
+                ax.axhline(j * m - 0.5, color="w", lw=1)
+                ax.axvline(j * ncol - 0.5, color="w", lw=1)
+            if part == "across" and S > 2:                  # thin lines between the other stimuli
+                for j in range(1, k * (S - 1)):
+                    if j % (S - 1):
+                        ax.axvline(j * m - 0.5, color="w", lw=0.3, ls=":")
+            ax.set_xticks((np.arange(k) + 0.5) * ncol - 0.5)
+            ax.set_xticklabels(range(1, k + 1), fontsize=8)
+            ax.set_yticks((np.arange(k) + 0.5) * m - 0.5)
+            ax.set_yticklabels(range(1, k + 1), fontsize=8)
+            ax.tick_params(length=0)
+            ax.set_title(name.split(" ", 1)[1], fontsize=11)
+            ax.set_xlabel(xlab, fontsize=9)
+            ax.set_ylabel(f"neuron ({m} samples of {first} each)", fontsize=9)
+            fig.colorbar(im, ax=ax, fraction=0.046)
+        for ax in axes.flat[len(names):]:
+            ax.axis("off")
+        fig.suptitle(title, fontsize=12)
+        savefig(fig, f"ext_{dataset}_matrix_{part}.png")
 
 
 def summarise(df, cols):
@@ -455,8 +477,7 @@ def figure_vp(tables, chance, title, name):
     savefig(fig, name)
 
 
-LENGTH_METHODS = ["B1 firing rate", "B2 ISI histogram", "T1 LINE H0", "T1 LINE H0, log scale, share",
-                  "T2 DELAY H0", "C1 DELAY H0, ISIs shuffled"]       # + the best Victor-Purpura q
+LENGTH_METHODS = ["B2 ISI histogram", "T1 LINE H0, log scale, share", "T2 DELAY H0+H1"]   # + the best Victor-Purpura q       # + the best Victor-Purpura q
 
 
 def run_length(cfg, a, chance):
@@ -481,7 +502,7 @@ def run_length(cfg, a, chance):
     df.to_csv(RESULTS_DIR / f"extended_{a.dataset}_length.csv", index=False)
     one = df[(df.block == 1) & (df.part == "within")]
     vp = one[one.method.str.startswith("B3")].groupby("method")["nn"].mean().idxmax()
-    methods = LENGTH_METHODS[:2] + [vp] + LENGTH_METHODS[2:]
+    methods = LENGTH_METHODS[:1] + [vp] + LENGTH_METHODS[1:]
     # The table has every method (the figures only the ones in `methods`), mean ± std over draws.
     t = df.groupby(["method", "seconds", "part"])[["nn", "kmed", "kmed_chance"]].agg(["mean", "std"]).unstack("part")
     order = [m for m in ORDER if m in set(df.method)]
@@ -500,7 +521,8 @@ def run_length(cfg, a, chance):
             f.write(f"| {m} | {sec:g} | " + " | ".join(vals) + " |\n")
     print("\n" + open(RESULTS_DIR / f"extended_{a.dataset}_length.md").read(), flush=True)
 
-    for part, suffix, what in (("within", "within", "one stimulus"), ("mixed", "across", "all stimuli mixed")):
+    pool = ", ".join(st["name"] for st in stimuli) + " in one pool"
+    for part, suffix, what in (("within", "within", "within one stimulus"), ("mixed", "across", pool)):
         d = df[df.part == part]
         if d.empty:
             continue
@@ -508,7 +530,8 @@ def run_length(cfg, a, chance):
         for ax, col, ylab in zip(axes, ["nn", "kmed"], ["1-NN", "k-medoids"]):
             for name in methods:
                 g = d[d.method == name].groupby("seconds")[col]
-                ax.errorbar(g.mean().index, 100 * g.mean(), yerr=100 * g.std(), marker="o", capsize=3, label=name)
+                ax.errorbar(g.mean().index, 100 * g.mean(), yerr=100 * g.std(), marker="o", capsize=3,
+                            label=name.split(" ", 1)[1])
             ax.axhline(100 * chance, color="k", ls="--", lw=1, label="1-NN chance")
             ax.set_title(ylab)
             ax.set_xlabel("sample length (s)")
