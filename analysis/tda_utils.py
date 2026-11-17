@@ -594,9 +594,15 @@ def classical_mds(D, dim=2):
     return v[:, idx] * np.sqrt(np.maximum(w[idx], 0))
 
 
+SAVE_SVG = False      # set to True to also write every figure as .svg next to the .png
+
+
 def savefig(fig, name):
     FIG_DIR.mkdir(parents=True, exist_ok=True)
     path = FIG_DIR / name
     fig.tight_layout()
     fig.savefig(path, dpi=150, bbox_inches="tight")
     print(f"  saved {path.relative_to(ROOT)}")
+    if SAVE_SVG:
+        fig.savefig(path.with_suffix(".svg"), bbox_inches="tight")
+        print(f"  saved {path.with_suffix('.svg').relative_to(ROOT)}")

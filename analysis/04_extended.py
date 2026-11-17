@@ -79,6 +79,9 @@ from tda_utils import (RESULTS_DIR, ROOT, load_dataset, cloud_delay, cloud_line,
                        pcf_matrix, random_time_cut, savefig, score_1nn, score_kmedoids,
                        scores_across, shuffle_isis, stable_ranks,
                        vector_distances, vector_matrix, victor_purpura)
+import tda_utils
+
+tda_utils.SAVE_SVG = True                 # every figure also as .svg
 
 Q_VALUES = [0.3, 1, 3, 10, 30, 100]       # Victor-Purpura cost per second of shift
 
@@ -292,13 +295,19 @@ def stimulus_list(cfg, args):
 FIG_METHODS = ["B2 ISI histogram", "T1 LINE H0", "T1 LINE H0, log scale, share",
                "T2 DELAY H0+H1", "C1 DELAY H0+H1, ISIs shuffled"]   # + the best Victor-Purpura q
 
-# Methods in the bar figures. None = every row of the table. To show fewer bars, set it to a
-# list fixed in advance by role (not by score), e.g. the one below; the best Victor-Purpura q
-# is then added after the first two. The tables always have every row.
-BAR_METHODS = None
-# BAR_METHODS = ["B1 firing rate", "B2 ISI histogram",
-#                "T1 LINE H0", "C2 LINE H0, random time cutoff", "T1 LINE H0, log scale, share",
-#                "T2 DELAY H0", "C1 DELAY H0, ISIs shuffled", "C2 DELAY H0, random time cutoff", "T2 DELAY H1"]
+# Methods in the bar figures, fixed in advance by their role (not by their score), with the
+# short label used on the axis. Groups: references, LINE, DELAY, DELAY 3D; each control sits
+# next to the method it controls and is hatched. "B3" is replaced by the Victor-Purpura q with
+# the best 1-NN score (the whole q sweep is in ext_<dataset>_vp). The tables have every row.
+# Set BAR_GROUPS = None to plot every row instead.
+BAR_GROUPS = [
+    [("B1 firing rate", "firing\nrate"), ("B2 ISI histogram", "ISI\nhistogram"), ("B3", "Victor-\nPurpura")],
+    [("T1 LINE H0", "LINE\nH0"), ("T1 LINE H0, log scale, share", "LINE H0\nlog share"),
+     ("C2 LINE H0, random time cutoff", "LINE H0\ncutoff")],
+    [("T2 DELAY H0", "DELAY\nH0"), ("C1 DELAY H0, ISIs shuffled", "DELAY H0\nshuffled"),
+     ("C2 DELAY H0, random time cutoff", "DELAY H0\ncutoff"), ("T2 DELAY H1", "DELAY\nH1")],
+    [("T2 DELAY 3D H0", "DELAY 3D\nH0"), ("C1 DELAY 3D H0, ISIs shuffled", "DELAY 3D H0\nshuffled")],
+]
 
 
 def run_across(cfg, args, seed, stimuli, figure=None, k_fig=10, block=1):
@@ -386,33 +395,47 @@ def write_table(table, cols, heads, path, title):
 
 
 def bar_rows(table, col):
-    """The rows shown in the bar figures (see BAR_METHODS)."""
-    if BAR_METHODS is None:
-        return table
+    """The rows shown in the bar figures, with axis label, group number and control flag."""
+    if BAR_GROUPS is None:
+        return table.assign(short=table.method, group=0, control=table.method.str.startswith("C"))
     vp = table[table.method.str.startswith("B3")]
-    names = list(BAR_METHODS)
-    if not vp.empty:
-        names = names[:2] + [vp.loc[vp[f"{col}_mean"].idxmax(), "method"]] + names[2:]
-    return table.set_index("method").loc[[m for m in names if m in set(table.method)]].reset_index()
+    rows = []
+    for g, group in enumerate(BAR_GROUPS):
+        for method, short in group:
+            if method == "B3":
+                if vp.empty:
+                    continue
+                method = vp.loc[vp[f"{col}_mean"].idxmax(), "method"]
+                short = f"Victor-Purpura\nq = {method.split('= ')[1]}"
+            if method in set(table.method):
+                rows.append(dict(table[table.method == method].iloc[0], short=short, group=g,
+                                 control=method.startswith("C")))
+    return pd.DataFrame(rows)
 
 
 def figure_bars(table, cols, labs, chance, title, name):
-    """One panel, one bar per score column (1-NN, k-medoids) for every method. Dashed line: 1-NN
-    chance (1 / number of neurons). k-medoids chance is in the tables, not drawn."""
-    table = bar_rows(table, cols[0])
-    fig, ax = plt.subplots(figsize=(13, 5))
-    x = np.arange(len(table))
+    """One panel: for every method one bar per score column (1-NN, k-medoids), grouped as in
+    BAR_GROUPS, controls hatched. Dashed line: 1-NN chance (1 / number of neurons)."""
+    t = bar_rows(table, cols[0])
+    x = np.arange(len(t)) + 0.6 * t["group"].to_numpy()          # a gap between the groups
+    fig, ax = plt.subplots(figsize=(11, 4.2) if BAR_GROUPS is not None else (13, 5))
     w = 0.8 / len(cols)
     for j, (col, lab) in enumerate(zip(cols, labs)):
-        ax.bar(x + (j - (len(cols) - 1) / 2) * w, 100 * table[f"{col}_mean"], w,
-               yerr=100 * table[f"{col}_std"].fillna(0), capsize=2, label=lab)
-    ax.axhline(100 * chance, color="k", ls="--", lw=1, label=f"1-NN chance ({100 * chance:.1f} %)")
+        ax.bar(x + (j - (len(cols) - 1) / 2) * w, 100 * t[f"{col}_mean"], w, color=f"C{j}",
+               yerr=100 * t[f"{col}_std"].fillna(0), capsize=2, error_kw=dict(lw=0.8), label=lab,
+               hatch=["///" if c else "" for c in t["control"]], edgecolor="white", linewidth=0)
+    ax.axhline(100 * chance, color="k", ls="--", lw=1, label=f"chance, 1-NN ({100 * chance:.1f} %)")
+    ax.bar([np.nan], [np.nan], color="white", hatch="///", edgecolor="grey", linewidth=0.5, label="control")
     ax.set_ylabel("accuracy (%)")
-    ax.set_ylim(0, ax.get_ylim()[1] * 1.12)              # room for the legend above the bars
-    ax.legend(loc="upper center", ncol=len(cols) + 1, fontsize=9)
-    ax.set_title(title)
+    ax.set_ylim(0, 100)
     ax.set_xticks(x)
-    ax.set_xticklabels(table["method"], rotation=35, ha="right", fontsize=9)
+    if BAR_GROUPS is None:
+        ax.set_xticklabels(t["short"], rotation=35, ha="right", fontsize=9)
+    else:
+        ax.set_xticklabels(t["short"], fontsize=8)
+    ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.0), fontsize=8.5, ncol=4, frameon=False)
+    ax.set_title(title, pad=24)
+    ax.spines[["top", "right"]].set_visible(False)
     savefig(fig, name)
 
 
@@ -433,7 +456,7 @@ def figure_vp(tables, chance, title, name):
 
 
 LENGTH_METHODS = ["B1 firing rate", "B2 ISI histogram", "T1 LINE H0", "T1 LINE H0, log scale, share",
-                  "T2 DELAY H0+H1", "C1 DELAY H0+H1, ISIs shuffled"]       # + the best Victor-Purpura q
+                  "T2 DELAY H0", "C1 DELAY H0, ISIs shuffled"]       # + the best Victor-Purpura q
 
 
 def run_length(cfg, a, chance):
@@ -533,7 +556,7 @@ def main():
                     f"WITHIN one stimulus. {cfg['label']}: accuracy (%), {cfg['within']['n_trials']} samples per "
                     f"neuron, {head}")
         figure_bars(table, ["nn1", "kmedoids"], ["1-NN", "k-medoids"], chance,
-                    f"{cfg['label']}: which neuron is this sample from? (same stimulus)", f"ext_{a.dataset}_within.png")
+                    f"{cfg['label']}: within one stimulus", f"ext_{a.dataset}_within.png")
         vp += [(table, "nn1", "within, 1-NN"), (table, "kmedoids", "within, k-medoids")]
 
     if a.part in ("across", "both"):
@@ -562,7 +585,7 @@ def main():
                     f"ACROSS stimuli. {a.dataset}: {listing}. All stimuli mixed = {m} samples per neuron from "
                     f"each stimulus in one unlabelled pool. Accuracy (%), {head}")
         figure_bars(table, ["nn_pooled", "kmed_pooled"], ["1-NN", "k-medoids"], chance,
-                    f"{a.dataset}: which neuron is this sample from? (all stimuli mixed, stimulus not used)",
+                    f"{a.dataset}: across stimuli (" + ", ".join(st["name"] for st in stimuli) + " in one pool)",
                     f"ext_{a.dataset}_across.png")
         vp += [(table, "nn_pooled", "all stimuli mixed, 1-NN"), (table, "kmed_pooled", "all stimuli mixed, k-medoids")]
 

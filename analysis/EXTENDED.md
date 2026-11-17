@@ -141,9 +141,12 @@ consecutive samples into one (10, 20, 30 s on the retina, as in step 3) and scor
 within part and the mixed pool (one figure each); with 30 samples per neuron and stimulus
 there are 30, 15 and 10 glued samples per neuron and stimulus.
 
-**Methods in the bar figures.** Every row of the table by default. `BAR_METHODS` in the script
-can be set to a shorter list (an example is in a comment there); it should be fixed by role,
-not picked by score.
+**Methods in the bar figures.** A fixed set, chosen by role and not by score (`BAR_GROUPS` in
+the script): firing rate, ISI histogram, the Victor-Purpura `q` with the best 1-NN score (the
+whole sweep is in `ext_<dataset>_vp`); LINE H0, LINE H0 log share and the LINE cutoff control;
+DELAY H0 with its shuffled and cutoff controls, and DELAY H1; DELAY 3D H0 with its shuffled
+control. Controls are hatched. `BAR_GROUPS = None` plots every row. The tables have every row.
+Every figure is written as `.png` and `.svg`.
 
 Expected time: the retina should take a few minutes more than step 3. Neuropixels samples are
 three times longer, so H1 of the delay cloud and the Victor-Purpura distance take longer there;
