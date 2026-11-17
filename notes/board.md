@@ -31,7 +31,17 @@ test there. Same rules as before: shuffled control next to every score, 1-NN and
 `legacy_scripts/embeddings.py`, `exp13_sublevel.py`, `exp21_stimulus_free.py`); port what you
 need to real stablebear. Work in this order.
 
-(none: N1 done; more Neuropixels sessions wait for disk space)
+(none: N1 done)
+
+- **Status (local, 2026-11-17).** Twelve Neuropixels sessions are now converted with
+  `load_allen.py --all-stimuli`. They are the two old ones plus the ten smallest other sessions
+  of DANDI 000022 (839557629, 821695405, 835479236, 831882777, 774875821, 786091066, 819186360,
+  816200189, 771990200, 819701982), with 1079-1731 good units each.
+  - All have the same layout: movie block 1 at 38-53 min; within 30 min, drifting gratings 29,
+    contrast gratings 17, shuffled movie 10 and grey screen 31-34 windows; flashes 9 (dropped).
+  - Tables are `data/allen/allen<session>.parquet`, not in git.
+  - Step 4 has session 829720705 hard-coded. Running it on the others waits for the user (who
+    is editing `04_extended.py`).
 
 - **Freedom to explore (from the user).** If other ideas come up while implementing L18 or
   L19, try them as well, as long as the original task is also done as specified. Give each
